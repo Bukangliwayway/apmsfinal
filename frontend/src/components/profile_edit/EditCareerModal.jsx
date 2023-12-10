@@ -258,7 +258,9 @@ const careerProfileEditModal = ({ open, onClose }) => {
     );
   }
 
-  const coursesOptions = courses?.data;
+  const coursesOptions = (courses?.data || []).filter(
+    (course) => course.in_pupqc === true
+  );
 
   return (
     <Dialog open={open} onClose={onClose}>
@@ -317,7 +319,7 @@ const careerProfileEditModal = ({ open, onClose }) => {
                 <DemoItem>
                   <DatePicker
                     views={["year"]}
-                    label="Year graduated"
+                    label="Batch Year"
                     value={
                       careerProfile?.date_graduated
                         ? dayjs(careerProfile.date_graduated)

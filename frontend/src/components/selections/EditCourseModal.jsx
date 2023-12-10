@@ -2,6 +2,8 @@ import { useMutation, useQueryClient, useQuery } from "react-query";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import useAuth from "../../hooks/useAuth";
+import useGetCourseSpecific from "../../hooks/selections/useGetCourseSpecific";
 import {
   Alert,
   Box,
@@ -24,6 +26,8 @@ import {
   OutlinedInput,
   Chip,
   DialogContentText,
+  Switch,
+  FormControlLabel,
 } from "@mui/material";
 
 const ITEM_HEIGHT = 48;
@@ -39,6 +43,7 @@ const MenuProps = {
 
 const EditCourseModal = ({ open, onClose, courseID }) => {
   const queryClient = useQueryClient();
+  const { auth, setAuth } = useAuth();
   const classificationsData = queryClient.getQueryData("classifications-all");
   const isLoadingClassification = queryClient.isFetching("classifications-all");
   const [courseProfile, setCourseProfile] = useState({
@@ -54,14 +59,11 @@ const EditCourseModal = ({ open, onClose, courseID }) => {
 
   const axiosPrivate = useAxiosPrivate();
 
-  const getData = async () => {
-    return await axiosPrivate.get(`/selections/courses/${courseID}`);
-  };
   const {
     data: cachedData,
     isLoading: isLoadingCourse,
     isFetching: isFetchingCourse,
-  } = useQuery("course-specific", getData);
+  } = useGetCourseSpecific(courseID);
 
   useEffect(() => {
     const classifications =
@@ -77,6 +79,7 @@ const EditCourseModal = ({ open, onClose, courseID }) => {
       );
       setCourseProfile({
         name: cachedData?.data?.course?.name || "",
+        in_pupqc: cachedData?.data?.course?.in_pupqc || false,
         classification_ids:
           cachedData?.data?.classifications?.map(
             (item) => item.classification_id
@@ -129,7 +132,7 @@ const EditCourseModal = ({ open, onClose, courseID }) => {
       },
       onSuccess: (data, variables, context) => {
         queryClient.invalidateQueries("courses-all");
-        queryClient.invalidateQueries("courses-specific");
+        queryClient.invalidateQueries(["course-specific", courseID]);
         queryClient.invalidateQueries("profile-me");
         queryClient.invalidateQueries("career-profile");
         queryClient.invalidateQueries("employment-profile");
@@ -161,7 +164,7 @@ const EditCourseModal = ({ open, onClose, courseID }) => {
       },
       onSuccess: (data, variables, context) => {
         queryClient.invalidateQueries("courses-all");
-        queryClient.invalidateQueries("courses-specific");
+        queryClient.invalidateQueries(["course-specific", courseID]);
         queryClient.invalidateQueries("profile-me");
         queryClient.invalidateQueries("career-profile");
         queryClient.invalidateQueries("employment-profile");
@@ -193,9 +196,10 @@ const EditCourseModal = ({ open, onClose, courseID }) => {
 
     const data = {
       name: courseProfile?.name,
+      in_pupqc: courseProfile?.in_pupqc,
       classification_ids: courseProfile?.classification_ids,
     };
-    
+
     // Convert the object to a JSON string
     const payload = JSON.stringify(data);
 
@@ -272,9 +276,31 @@ const EditCourseModal = ({ open, onClose, courseID }) => {
       </Box>
       {!deletePrompt ? (
         <Box>
-          <DialogTitle>Add Course</DialogTitle>
+          <DialogTitle>Edit Course</DialogTitle>
           <DialogContent sx={{ width: "40vw" }}>
             <Grid container spacing={2} p={2}>
+              {auth?.role == "admin" && (
+                <Grid item xs={12}>
+                  <FormControlLabel
+                    required
+                    control={
+                      <Switch
+                        name="in_pupc"
+                        value={courseProfile?.in_pupqc}
+                        checked={courseProfile?.in_pupqc}
+                        onChange={(event) => {
+                          const { checked } = event.target;
+                          setCourseProfile((prevProfile) => ({
+                            ...prevProfile,
+                            in_pupqc: checked,
+                          }));
+                        }}
+                      />
+                    }
+                    label="Course for PUPQC"
+                  />
+                </Grid>
+              )}
               <Grid item xs={12}>
                 <TextField
                   name="name"

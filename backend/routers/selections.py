@@ -122,6 +122,7 @@ async def get_jobs(job_id: UUID, db: Session = Depends(get_db), user: UserRespon
 async def create_course(
     *,
     name: str = Body(...),
+    in_pupqc: bool = Body(...),
     classification_ids: List[UUID] = Body(...),
     db: Session = Depends(get_db),
     user: UserResponse = Depends(get_current_user)
@@ -148,6 +149,7 @@ async def create_course(
     # Create new course instance
     new_course = models.Course(
         name=name,
+        in_pupqc=in_pupqc,
     )
 
     # Add to the session
@@ -170,10 +172,11 @@ async def create_course(
     return {"message": "Course created successfully"}
 
 @router.put("/courses/{course_id}")
-async def create_course(
+async def edit_course(
     *,
     course_id: UUID,
     name: str = Body(None),
+    in_pupqc: bool = Body(None),
     classification_ids: List[UUID] = Body(None),
     db: Session = Depends(get_db),
     user: UserResponse = Depends(get_current_user)
@@ -184,6 +187,8 @@ async def create_course(
     # Check if the specified name is not yet saved in the db
     course = db.query(models.Course).filter(models.Course.id == course_id).first()
     course.name = name
+    course.in_pupqc = in_pupqc
+    print(course.in_pupqc)
     db.commit()
 
     
@@ -204,7 +209,7 @@ async def create_course(
     # Commit the session to persist the new Course and CourseClassifications
     db.commit()
 
-    return {"message": "Course created successfully"}
+    return {"message": "Course Updated Successfully"}
 
 @router.get("/courses/")
 async def get_courses(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
@@ -232,7 +237,6 @@ async def create_classifications(
 
     #check for existing classification instances
     for classification_data in classifications:
-       
         name = classification_data.get("name").lower()
         code = classification_data.get("code").lower()
 
