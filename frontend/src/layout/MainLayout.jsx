@@ -1,32 +1,48 @@
 import React from "react";
 import Sidebar from "../components/navigator/Sidebar";
 import Navbar from "../components/navigator/Navbar";
-import { Box, Stack } from "@mui/material";
+import { Box, Grid, Stack } from "@mui/material";
+import Rightbar from "../components/navigator/Rightbar";
 function MainLayout({ children, mode, setMode, activeIndex }) {
   const sidebarWidth = 25; // Update as needed
+  const rightbarWidth = 30; // Update as needed
 
   return (
     <Box>
       <Navbar />
-      <Box sx={{ display: "flex" }}>
-        <Box
+      <Grid container spacing={8}>
+        <Grid
+          item
           position="fixed"
           sx={{
             display: { sm: "none", md: "block" },
           }}
-          width={sidebarWidth+"vw"}
+          width={sidebarWidth + "vw"}
         >
           <Sidebar mode={mode} setMode={setMode} />
-        </Box>
-        <Box
-          sx={{
-            marginLeft: sidebarWidth + "vw",
-            width: { md: "70vw", sm: "100vw" },
-          }}
+        </Grid>
+        <Grid
+          item
+          xs={6}
+          mx={"auto"}
         >
-          <Box sx={{ width: { md: "70%", sm: "100%" } }}>{children}</Box>
-        </Box>
-      </Box>
+          <Box>{children}</Box>
+        </Grid>
+        <Grid
+          item
+          position="fixed"
+          sx={{
+            display: { sm: "none", md: "flex" },
+            justifyContent: "center",
+
+            right: 0,
+          }}
+          width={rightbarWidth + "vw"}
+          height={"100vh"}
+        >
+          <Rightbar />
+        </Grid>
+      </Grid>
     </Box>
   );
 }

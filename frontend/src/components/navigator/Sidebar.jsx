@@ -47,7 +47,7 @@ function Sidebar({ mode, setMode }) {
   };
 
   return (
-    <Box p={1} paddingRight={5}>
+    <Box p={1} >
       <Profile />
       <List sx={{ display: "flex", gap: 0.5, flexDirection: "column" }}>
         <RouterLink

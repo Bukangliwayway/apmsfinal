@@ -46,6 +46,7 @@ function DisplayProfile() {
   const location = useLocation();
   const { auth, setAuth } = useAuth();
   const [value, setValue] = useState(0);
+  const [activeTab, setActiveTab] = useState("profile_background");
 
   const { data: checkData, isLoading: isLoadingCheckData } =
     useGetVisitCheck(username);
@@ -99,37 +100,8 @@ function DisplayProfile() {
     }
   }
 
-  const handleModalOpen = (type) => {
-    setModalOpen((prevState) => ({
-      ...prevState,
-      [type]: true,
-    }));
-  };
-
-  const handleCloseModal = () => {
-    setModalOpen((prevState) => ({
-      ...prevState,
-      profile: false,
-      career: false,
-      employment: false,
-      add_achievement: false,
-      add_education: false,
-    }));
-  };
-
   const handleChange = (event, newValue) => {
     setValue(newValue);
-  };
-
-  const scrollToSection = (sectionId) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      const targetOffset = element.offsetTop - 165;
-      window.scrollTo({
-        top: targetOffset,
-        behavior: "smooth",
-      });
-    }
   };
 
   return (
@@ -151,39 +123,28 @@ function DisplayProfile() {
         borderBottom="1px solid rgba(0, 0, 0, 0.12)"
         sx={{
           backgroundColor: (theme) => theme.palette.common.main,
-          display: { sm: "flex" },
-          alignItems: "center",
-          justifyContent: "space-around",
         }}
       >
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          variant="fullWidth"
-          aria-label="icon tabs example"
-          sx={{
-            width: "100%",
-          }}
-        >
+        <Tabs value={value} onChange={handleChange} variant="fullWidth">
           <Tab
             icon={<PersonPin />}
             label="Profile"
-            onClick={() => scrollToSection("profile_background")}
+            onClick={() => setActiveTab("profile_background")}
           />
           <Tab
             icon={<School />}
             label="Education"
-            onClick={() => scrollToSection("educational_background")}
+            onClick={() => setActiveTab("educational_background")}
           />
           <Tab
             icon={<Star />}
             label="Achievement"
-            onClick={() => scrollToSection("achievement_background")}
+            onClick={() => setActiveTab("achievement_background")}
           />
           <Tab
             icon={<Work />}
             label="Experience"
-            onClick={() => scrollToSection("employment_history")}
+            onClick={() => setActiveTab("employment_history")}
           />
         </Tabs>
       </Box>
@@ -197,109 +158,116 @@ function DisplayProfile() {
           flexDirection: "column",
         }}
       >
-        <Grid
-          item
-          sx={{
-            backgroundColor: (theme) => theme.palette.common.main,
-            padding: "1rem",
-            position: "relative",
-          }}
-          id="profile_background"
-        >
-          <Typography
-            variant="h5"
-            fontWeight={800}
+        {activeTab === "profile_background" && (
+          <Grid
+            item
             sx={{
-              padding: "10px",
-              borderBottom: "2px solid",
-              color: "primary",
-              display: { sm: "flex" },
+              backgroundColor: (theme) => theme.palette.common.main,
+              padding: "1rem",
+              position: "relative",
             }}
           >
-            Profile
-          </Typography>
-          <DemographicProfile
-            data={demographicData}
-            isLoading={isLoadingDemographicData}
-          />
-        </Grid>
-        <Grid
-          item
-          sx={{
-            backgroundColor: (theme) => theme.palette.common.main,
-            padding: "1rem",
-            position: "relative",
-          }}
-          id="educational_background"
-        >
-          <Typography
-            variant="h5"
-            fontWeight={800}
-            // color="secondary"
+            <Typography
+              variant="h5"
+              fontWeight={800}
+              sx={{
+                padding: "10px",
+                borderBottom: "2px solid",
+                color: "primary",
+                display: { sm: "flex" },
+              }}
+            >
+              Profile
+            </Typography>
+            <DemographicProfile
+              data={demographicData}
+              isLoading={isLoadingDemographicData}
+            />
+          </Grid>
+        )}
+
+        {activeTab === "educational_background" && (
+          <Grid
+            item
             sx={{
-              padding: "10px",
-              borderBottom: "2px solid",
-              marginBottom: "10px",
-              color: "primary",
+              backgroundColor: (theme) => theme.palette.common.main,
+              padding: "1rem",
+              position: "relative",
             }}
           >
-            Education
-          </Typography>
-          <CareerProfile data={careerData} isLoading={isLoadingCareerData} />
-        </Grid>
-        <Grid
-          item
-          sx={{
-            backgroundColor: (theme) => theme.palette.common.main,
-            padding: "1rem",
-            position: "relative",
-          }}
-          id="achievement_background"
-        >
-          <Typography
-            variant="h5"
-            fontWeight={800}
-            // color="secondary"
+            <Typography
+              variant="h5"
+              fontWeight={800}
+              // color="secondary"
+              sx={{
+                padding: "10px",
+                borderBottom: "2px solid",
+                marginBottom: "10px",
+                color: "primary",
+              }}
+            >
+              Education
+            </Typography>
+            <CareerProfile data={careerData} isLoading={isLoadingCareerData} />
+          </Grid>
+        )}
+
+        {activeTab === "achievement_background" && (
+          <Grid
+            item
             sx={{
-              padding: "10px",
-              borderBottom: "2px solid",
-              marginBottom: "10px",
-              color: "primary",
+              backgroundColor: (theme) => theme.palette.common.main,
+              padding: "1rem",
+              position: "relative",
             }}
           >
-            Achievements
-          </Typography>
-          <AchievementProfile
-            data={achievementData}
-            isLoading={isLoadingAchievementData}
-          />
-        </Grid>
-        <Grid
-          item
-          sx={{
-            backgroundColor: (theme) => theme.palette.common.main,
-            padding: "1rem",
-            position: "relative",
-          }}
-          id="employment_history"
-        >
-          <Typography
-            variant="h5"
-            fontWeight={800}
+            <Typography
+              variant="h5"
+              fontWeight={800}
+              // color="secondary"
+              sx={{
+                padding: "10px",
+                borderBottom: "2px solid",
+                marginBottom: "10px",
+                color: "primary",
+              }}
+            >
+              Achievements
+            </Typography>
+            <AchievementProfile
+              data={achievementData}
+              isLoading={isLoadingAchievementData}
+            />
+          </Grid>
+        )}
+
+        {activeTab === "employment_history" && (
+          <Grid
+            item
             sx={{
-              padding: "10px",
-              borderBottom: "2px solid",
-              marginBottom: "10px",
-              color: "primary",
+              backgroundColor: (theme) => theme.palette.common.main,
+              padding: "1rem",
+              position: "relative",
             }}
           >
-            Experience
-          </Typography>
-          <EmploymentProfile
-            data={employmentData}
-            isLoading={isLoadingEmploymentData}
-          />
-        </Grid>
+            <Typography
+              variant="h5"
+              fontWeight={800}
+              sx={{
+                padding: "10px",
+                borderBottom: "2px solid",
+                marginBottom: "10px",
+                color: "primary",
+              }}
+            >
+              Experience
+            </Typography>
+            <EmploymentProfile
+              data={employmentData}
+              isLoading={isLoadingEmploymentData}
+            />
+          </Grid>
+        )}
       </Grid>
     </Box>
   );

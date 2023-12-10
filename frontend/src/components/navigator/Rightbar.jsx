@@ -1,117 +1,52 @@
-import { BeachAccess, Image, Work } from "@mui/icons-material";
-import {
-  Avatar,
-  Box,
-  Card,
-  CardContent,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  Typography,
-} from "@mui/material";
+import { FormatQuote } from "@mui/icons-material";
+import { Card, CardHeader, CardContent, Typography, Box } from "@mui/material";
 import React from "react";
 
 function Rightbar() {
+  const quotes = [
+    "The journey of learning doesn't end with graduation; it's a lifelong adventure.",
+    "Our time in school was just the beginning; now, it's our turn to make a difference.",
+    "Education is the key that unlocks the doors of opportunity and understanding.",
+    "As alumni, we carry the torch of knowledge and pass it on to future generations.",
+    "In every challenge lies an opportunity to learn, grow, and succeed.",
+    "The friendships forged in school are the foundation of a strong and supportive network.",
+    "Life is a continuous learning process, and our alma mater is where it all began.",
+    "Success is not just about what you accomplish, but also about the lives you touch and inspire.",
+    "Cherish the memories, apply the lessons, and strive to make a positive impact on the world.",
+    "Education empowers us to shape our destiny; let's use our knowledge to create a better future.",
+  ];
+
+  function getRandomQuote() {
+    const randomIndex = Math.floor(Math.random() * quotes.length);
+    return quotes[randomIndex];
+  }
+
+  const quote = getRandomQuote();
+
   return (
-    <Box
-      flex={2}
-      p={2}
-      sx={{
-        display: { xs: "none", sm: "block" },
-        backgroundColor: (theme) => theme.palette.secondary.main,
-      }}
-    >
-      <Box
-        position="fixed"
-        sx={{
-          maxWidth: "30%",
-          display: "flex",
-          gap: 3,
-          flexDirection: "column",
-        }}
-      >
-        <Card variant="outlined" sx={{ borderRadius: 3 }}>
-          <CardContent
-            sx={{ display: "flex", alignItems: "center", gap: 1, padding: 2 }}
+    <Box width={"75%"} mt={"5vh"}>
+      <Card>
+        <CardHeader
+          titleTypographyProps={{ variant: "h6" }}
+          title="Alumni Quote"
+          sx={{ textAlign: "center" }}
+        />
+        <CardContent>
+          <Typography
+            sx={{ textAlign: "center", mt: -2, mb: 1 }}
           >
-            <Typography
-              variant="h6"
-              fontWeight={800}
-              sx={{ textAlign: "center" }}
-            >
-              personal engagement metrics
-            </Typography>
-          </CardContent>
-        </Card>
-        <Card variant="outlined" sx={{ borderRadius: 3 }}>
-          <CardContent
-            py={3}
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              flexDirection: "column",
-            }}
+            <FormatQuote />
+          </Typography>
+
+          <Typography
+            variant="subtitle2"
+            color="text.secondary"
+            sx={{ textAlign: "center" }}
           >
-            <Typography
-              variant="h6"
-              fontWeight={800}
-              sx={{ textAlign: "center" }}
-            >
-              top contributors
-            </Typography>
-            <Box>
-              <List
-                sx={{
-                  width: "100%",
-                  maxWidth: 360,
-                  bgcolor: "background.paper",
-                }}
-              >
-                <ListItem>
-                  <ListItemAvatar>
-                    <Avatar src="https://static.voguescandinavia.com/Laufey_press_photos_album_release_3_PC_Gemma_Warren_jpeg_495be45c04/Laufey_press_photos_album_release_3_PC_Gemma_Warren_jpeg_495be45c04.jpeg" />
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={
-                      <Typography variant="subtitle1" fontWeight="bold">
-                        rose anne loyola
-                      </Typography>
-                    }
-                    secondary="yourowaimutusan@gmail.com"
-                  />
-                </ListItem>
-                <ListItem>
-                  <ListItemAvatar>
-                    <Avatar src="https://ucarecdn.com/c0549749-795b-4ae3-802c-3dfc275aa0b4/-/crop/1190x1000/5,0/-/resize/1035x870/" />
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={
-                      <Typography variant="subtitle1" fontWeight="bold">
-                        majoy balancio
-                      </Typography>
-                    }
-                    secondary="mjbalancio@gmail.com"
-                  />
-                </ListItem>
-                <ListItem>
-                  <ListItemAvatar>
-                    <Avatar src="https://www.rollingstone.com/wp-content/uploads/2021/04/Laufey_Photos_Press-Photo_Film-3-PC_-Blythe-Thomasc.jpg?w=1024" />
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={
-                      <Typography variant="subtitle1" fontWeight="bold">
-                        jayson tabuelog
-                      </Typography>
-                    }
-                    secondary="jaysontabulog@gmail.com"
-                  />
-                </ListItem>
-              </List>
-            </Box>
-          </CardContent>
-        </Card>
-      </Box>
+            {quote}
+          </Typography>
+        </CardContent>
+      </Card>
     </Box>
   );
 }

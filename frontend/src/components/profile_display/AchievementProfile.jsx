@@ -74,7 +74,7 @@ const ExpandMore = styled((props) => {
   }),
 }));
 
-export const AchievementProfile = ({data, isLoading}) => {
+export const AchievementProfile = ({ data, isLoading }) => {
   const [expanded, setExpanded] = React.useState({});
 
   const handleExpandClick = (achievementId) => {
@@ -93,8 +93,6 @@ export const AchievementProfile = ({data, isLoading}) => {
       <Chip icon={icon} label={label} />
     </Tooltip>
   );
-
-
 
   return (
     data?.data?.achievements && (

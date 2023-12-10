@@ -62,22 +62,6 @@ export const UploadProfiles = () => {
     course: false,
   });
 
-  const handleModalOpen = (type) => {
-    setModalOpen((prevState) => ({
-      ...prevState,
-      [type]: true,
-    }));
-  };
-
-  const handleCloseModal = () => {
-    setModalOpen((prevState) => ({
-      ...prevState,
-      classification: false,
-      job: false,
-      course: false,
-    }));
-  };
-
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
