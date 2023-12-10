@@ -123,17 +123,6 @@ function UpdateProfile() {
     setValue(newValue);
   };
 
-  const scrollToSection = (sectionId) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      const targetOffset = element.offsetTop - 165;
-      window.scrollTo({
-        top: targetOffset,
-        behavior: "smooth",
-      });
-    }
-  };
-
   return (
     <Box
       flex={4}

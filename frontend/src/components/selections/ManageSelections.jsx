@@ -38,6 +38,7 @@ import AddJob from "./AddJobModal";
 
 export const ManageSelections = () => {
   const [value, setValue] = useState(0);
+  const [activeTab, setActiveTab] = useState("manage_classifications");
   const [modalOpen, setModalOpen] = useState({
     classification: false,
     job: false,
@@ -103,141 +104,146 @@ export const ManageSelections = () => {
             <Tab
               icon={<Label />}
               label="classifications"
-              onClick={() => scrollToSection("manage_classifications")}
+              onClick={() => setActiveTab("manage_classifications")}
             />
             <Tab
               icon={<MenuBook />}
               label="courses"
-              onClick={() => scrollToSection("manage_courses")}
+              onClick={() => setActiveTab("manage_courses")}
             />
             <Tab
               icon={<Business />}
               label="jobs"
-              onClick={() => scrollToSection("manage_jobs")}
+              onClick={() => setActiveTab("manage_jobs")}
             />
           </Tabs>
         </Box>
-
-        <Box
-          sx={{
-            backgroundColor: (theme) => theme.palette.common.main,
-            padding: 2,
-            borderRadius: 3,
-            position: "relative",
-          }}
-          id="manage_classifications"
-        >
-          <Typography
-            variant="h1"
-            fontWeight={800}
+        {activeTab === "manage_classifications" && (
+          <Box
             sx={{
-              padding: "10px",
-              borderBottom: "2px solid",
-              color: "primary",
+              backgroundColor: (theme) => theme.palette.common.main,
+              padding: 2,
+              borderRadius: 3,
+              position: "relative",
             }}
+            id="manage_classifications"
           >
-            manage classifications
-          </Typography>
-          <Tooltip title="add classifications">
-            <Fab
-              size="small"
-              color="primary"
+            <Typography
+              variant="h1"
+              fontWeight={800}
               sx={{
-                position: "absolute",
-                top: "1rem",
-                right: "1rem",
+                padding: "10px",
+                borderBottom: "2px solid",
+                color: "primary",
               }}
-              onClick={() => handleModalOpen("classification")}
             >
-              <Add />
-            </Fab>
-          </Tooltip>
-          <Box p={4}>
-            <Paper>
-              <ClassificationsRow />
-            </Paper>
+              manage classifications
+            </Typography>
+            <Tooltip title="add classifications">
+              <Fab
+                size="small"
+                color="primary"
+                sx={{
+                  position: "absolute",
+                  top: "1rem",
+                  right: "1rem",
+                }}
+                onClick={() => handleModalOpen("classification")}
+              >
+                <Add />
+              </Fab>
+            </Tooltip>
+            <Box p={4}>
+              <Paper>
+                <ClassificationsRow />
+              </Paper>
+            </Box>
           </Box>
-        </Box>
-        <Box
-          sx={{
-            backgroundColor: (theme) => theme.palette.common.main,
-            padding: 2,
-            borderRadius: 3,
-            position: "relative",
-          }}
-          id="manage_courses"
-        >
-          <Typography
-            variant="h1"
-            fontWeight={800}
+        )}
+        {activeTab === "manage_courses" && (
+          <Box
             sx={{
-              padding: "10px",
-              borderBottom: "2px solid",
-              color: "primary",
+              backgroundColor: (theme) => theme.palette.common.main,
+              padding: 2,
+              borderRadius: 3,
+              position: "relative",
             }}
+            id="manage_courses"
           >
-            manage courses
-          </Typography>
-          <Tooltip title="add courses">
-            <Fab
-              size="small"
-              color="primary"
+            <Typography
+              variant="h1"
+              fontWeight={800}
               sx={{
-                position: "absolute",
-                top: "1rem",
-                right: "1rem",
+                padding: "10px",
+                borderBottom: "2px solid",
+                color: "primary",
               }}
-              onClick={() => handleModalOpen("course")}
             >
-              <Add />
-            </Fab>
-          </Tooltip>
-          <Box p={4}>
-            <Paper>
-              <CoursesRow />
-            </Paper>
+              manage courses
+            </Typography>
+            <Tooltip title="add courses">
+              <Fab
+                size="small"
+                color="primary"
+                sx={{
+                  position: "absolute",
+                  top: "1rem",
+                  right: "1rem",
+                }}
+                onClick={() => handleModalOpen("course")}
+              >
+                <Add />
+              </Fab>
+            </Tooltip>
+            <Box p={4}>
+              <Paper>
+                <CoursesRow />
+              </Paper>
+            </Box>
           </Box>
-        </Box>
-        <Box
-          sx={{
-            backgroundColor: (theme) => theme.palette.common.main,
-            padding: 2,
-            borderRadius: 3,
-            position: "relative",
-          }}
-          id="manage_jobs"
-        >
-          <Typography
-            variant="h1"
-            fontWeight={800}
+        )}
+        {activeTab === "manage_jobs" && (
+          <Box
             sx={{
-              padding: "10px",
-              borderBottom: "2px solid",
-              color: "primary",
+              backgroundColor: (theme) => theme.palette.common.main,
+              padding: 2,
+              borderRadius: 3,
+              position: "relative",
             }}
+            id="manage_jobs"
           >
-            manage jobs
-          </Typography>
-          <Tooltip title="add jobs">
-            <Fab
-              size="small"
-              color="primary"
+            <Typography
+              variant="h1"
+              fontWeight={800}
               sx={{
-                position: "absolute",
-                top: "1rem",
-                right: "1rem",
+                padding: "10px",
+                borderBottom: "2px solid",
+                color: "primary",
               }}
-              onClick={() => handleModalOpen("job")}
             >
-              <Add />
-            </Fab>
-          </Tooltip>
-          <Box p={4}>
-            <Paper>
-              <JobsRow />
-            </Paper>
+              manage jobs
+            </Typography>
+            <Tooltip title="add jobs">
+              <Fab
+                size="small"
+                color="primary"
+                sx={{
+                  position: "absolute",
+                  top: "1rem",
+                  right: "1rem",
+                }}
+                onClick={() => handleModalOpen("job")}
+              >
+                <Add />
+              </Fab>
+            </Tooltip>
+            <Box p={4}>
+              <Paper>
+                <JobsRow />
+              </Paper>
+            </Box>
           </Box>
-        </Box>
+        )}
       </Box>
       {modalOpen.classification && (
         <AddClassification
