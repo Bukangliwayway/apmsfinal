@@ -73,23 +73,6 @@ const MobileNumberMask = forwardRef(function MobileNumberMask(props, ref) {
   );
 });
 
-const StudentNumberMask = forwardRef(function StudentNumberMask(props, ref) {
-  const { onChange, ...other } = props;
-  return (
-    <IMaskInput
-      {...other}
-      mask="0000-00000-AA-0"
-      definitions={{
-        A: /[A-Z]/,
-        0: /[0-9]/,
-      }}
-      inputRef={ref}
-      onAccept={(value) => onChange({ target: { name: props.name, value } })}
-      overwrite
-    />
-  );
-});
-
 const ProfileEditModal = ({ open, onClose }) => {
   const logout = useLogout();
   const queryClient = useQueryClient();
@@ -131,9 +114,6 @@ const ProfileEditModal = ({ open, onClose }) => {
     if (cachedData) {
       setProfile((prevProfile) => ({
         ...cachedData.data,
-        birthdate: cachedData?.data.birthdate
-          ? dayjs(cachedData?.data.birthdate)
-          : null,
         profile_picture: prevProfile?.profile_picture || null,
         profile_picture_url: prevProfile?.profile_picture
           ? prevProfile.profile_picture_url
@@ -143,7 +123,6 @@ const ProfileEditModal = ({ open, onClose }) => {
           : cachedData?.data.username || "Upload profile picture",
       }));
     }
-    console.log(cachedData);
   }, [cachedData]);
 
   const isValidEmail = (email) => {
@@ -216,13 +195,6 @@ const ProfileEditModal = ({ open, onClose }) => {
     setProfile((prevProfile) => ({
       ...prevProfile,
       [name]: value,
-    }));
-  };
-
-  const handleDateChange = (date) => {
-    setProfile((prevProfile) => ({
-      ...prevProfile,
-      birthdate: date,
     }));
   };
 
@@ -327,10 +299,6 @@ const ProfileEditModal = ({ open, onClose }) => {
       profile?.last_name == cachedData?.data?.last_name
         ? ""
         : profile?.last_name;
-    let birthdate =
-      profile?.birthdate == dayjs(cachedData?.data.birthdate)
-        ? null
-        : profile?.birthdate.format("YYYY-MM-DD");
     let gender =
       profile?.gender == cachedData?.data?.gender ? "" : profile?.gender;
     let headline =
@@ -339,10 +307,6 @@ const ProfileEditModal = ({ open, onClose }) => {
       profile?.civil_status == cachedData?.data?.civil_status
         ? ""
         : profile?.civil_status;
-    let student_number =
-      profile?.student_number == cachedData?.data?.student_number
-        ? ""
-        : profile?.student_number;
 
     if (is_international && country) {
       region = "";
@@ -389,11 +353,9 @@ const ProfileEditModal = ({ open, onClose }) => {
     payload.append("origin_barangay_code", origin_barangay_code);
     payload.append("first_name", first_name);
     payload.append("last_name", last_name);
-    payload.append("birthdate", birthdate);
     payload.append("gender", gender);
     payload.append("headline", headline);
     payload.append("civil_status", civil_status);
-    payload.append("student_number", student_number);
 
     if (profile?.profile_picture) {
       payload.append("profile_picture", profile?.profile_picture);
@@ -449,10 +411,6 @@ const ProfileEditModal = ({ open, onClose }) => {
             </Grid>
             <Grid item xs={12}>
               {/* City Skeleton */}
-              <Skeleton variant="text" width={210} height={30} />
-            </Grid>
-            <Grid item xs={12}>
-              {/* Birthdate Skeleton */}
               <Skeleton variant="text" width={210} height={30} />
             </Grid>
             <Grid item xs={12}>
@@ -564,34 +522,6 @@ const ProfileEditModal = ({ open, onClose }) => {
                   value={profile?.last_name}
                   onChange={handleChange}
                   sx={{ width: "100%" }}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DemoContainer components={["DatePicker"]}>
-                    <DemoItem>
-                      <DatePicker
-                        name="birthdate"
-                        label="Birthdate"
-                        value={profile?.birthdate}
-                        onChange={handleDateChange}
-                        renderInput={(params) => <TextField {...params} />}
-                      />
-                    </DemoItem>
-                  </DemoContainer>
-                </LocalizationProvider>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  variant="outlined"
-                  fullWidth
-                  label="Student Number"
-                  value={profile?.student_number}
-                  onChange={handleChange}
-                  name="student_number"
-                  InputProps={{
-                    inputComponent: StudentNumberMask,
-                  }}
                 />
               </Grid>
               <Grid item xs={6}>

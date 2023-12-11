@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import useGetDemographicProfile from "../../hooks/useGetDemographicProfile";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -30,6 +30,7 @@ import {
   Work,
 } from "@mui/icons-material";
 import ProfileEditModal from "./EditProfileModal";
+import EditInitialStatusModal from "./EditInitialStatusModal";
 import EducProfileEditModal from "./EditCareerModal";
 import AddEmploymentModal from "./AddEmploymentModal";
 import AddAchievementModal from "./AddAchievementModal";
@@ -47,6 +48,7 @@ function UpdateProfile() {
   const [value, setValue] = React.useState(0);
   const [activeTab, setActiveTab] = useState("profile_background");
   const [modalOpen, setModalOpen] = useState({
+    current_status: false,
     profile: false,
     career: false,
     employment: false,
@@ -83,6 +85,16 @@ function UpdateProfile() {
     error: errorAchievementData,
   } = useGetAchievementProfiles();
 
+  useEffect(() => {
+    // Check the employment status and conditionally open the modal
+    if (
+      employmentData?.data?.present_employment_status === "unemployed" &&
+      value == 3
+    ) {
+      handleModalOpen("current_status");
+    }
+  }, [value]);
+
   if (isErrorDemographicData || isErrorCareerData) {
     const expiredCareerData =
       errorCareerData.response.data.detail === "Token has expired";
@@ -111,6 +123,7 @@ function UpdateProfile() {
   const handleCloseModal = () => {
     setModalOpen((prevState) => ({
       ...prevState,
+      current_status: false,
       profile: false,
       career: false,
       employment: false,
@@ -419,6 +432,13 @@ function UpdateProfile() {
         )}
       </Grid>
 
+      {modalOpen.current_status && (
+        <EditInitialStatusModal
+          open={modalOpen.current_status}
+          onClose={handleCloseModal}
+          prior={false}
+        />
+      )}
       {modalOpen.profile && (
         <ProfileEditModal open={modalOpen.profile} onClose={handleCloseModal} />
       )}

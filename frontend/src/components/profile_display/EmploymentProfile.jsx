@@ -30,16 +30,21 @@ import {
   Cake,
   CheckCircle,
   CheckCircleSharp,
+  Computer,
   Delete,
   DeleteForever,
   Description,
+  DirectionsWalk,
   Edit,
   Email,
   EmojiEvents,
   Fingerprint,
+  FlightTakeoff,
   GradeRounded,
   LocationCity,
   LocationOn,
+  Loop,
+  MoneyOff,
   MoreHoriz,
   Phone,
   PublicRounded,
@@ -49,7 +54,7 @@ import {
   WorkOutlined,
 } from "@mui/icons-material";
 
-export const EmploymentProfile = ({data, isLoading}) => {
+export const EmploymentProfile = ({ data, isLoading }) => {
   const Chiptip = ({ icon, label, additional = "", actual = "" }) => (
     <Tooltip
       color="secondary"
@@ -59,8 +64,6 @@ export const EmploymentProfile = ({data, isLoading}) => {
       <Chip icon={icon} label={label} />
     </Tooltip>
   );
-
-
 
   if (isLoading) {
     return (
@@ -145,6 +148,89 @@ export const EmploymentProfile = ({data, isLoading}) => {
     );
   }
 
+  const unemploymentOptions = [
+    {
+      value: "demand-deficient unemployment",
+      label: "Demand-Deficient Unemployment",
+      tooltip:
+        "Insufficient demand, more job seekers than available positions.",
+      icon: <MoneyOff />,
+    },
+    {
+      value: "advances in technology",
+      label: "Advances in Technology",
+      tooltip:
+        "Job displacement due to technological progress, requiring retraining.",
+      icon: <Computer />,
+    },
+    {
+      value: "job outsourcing",
+      label: "Job Outsourcing",
+      tooltip:
+        "Company shifts operations abroad for lower labor costs, impacting employment.",
+      icon: <FlightTakeoff />,
+    },
+    {
+      value: "voluntary",
+      label: "Voluntary Leave",
+      tooltip:
+        "Voluntary exit from workforce, financial stability enables selective job search.",
+      icon: <DirectionsWalk />,
+    },
+    {
+      value: "relocation",
+      label: "Relocation",
+      tooltip: "Unemployment due to relocation; job search in a new location.",
+      icon: <LocationCity />,
+    },
+    {
+      value: "new force",
+      label: "Newly Entering the Workforce",
+      tooltip:
+        "Graduates entering job market; seeking roles matching qualifications.",
+      icon: <School />,
+    },
+    {
+      value: "reenter force",
+      label: "Re-Entering the Workforce",
+      tooltip:
+        "Returning to work after a hiatus; reasons include family responsibilities.",
+      icon: <Loop />,
+    },
+  ];
+
+  const employmentOptions = [
+    {
+      value: "employed",
+      title: "Employed",
+      tooltip: "Currently engaged in work or occupation.",
+    },
+    {
+      value: "self-employed",
+      title: "Self-employed",
+      tooltip:
+        "Working independently, managing one's own business or profession.",
+    },
+    {
+      value: "short-term unemployed",
+      title: "Short-term Unemployed",
+      tooltip:
+        "Temporarily out of work, actively seeking new opportunities for less than 12 months.",
+    },
+    {
+      value: "long-term unemployed",
+      title: "Long-term Unemployed",
+      tooltip:
+        "Experiencing an extended period of joblessness, actively seeking employment for more than a year.",
+    },
+    {
+      value: "unable to work",
+      title: "Unable to Work",
+      tooltip:
+        "Not actively seeking employment and currently unable to participate in the workforce.",
+    },
+  ];
+
   data?.data?.employments?.sort((a, b) => {
     const dateA = new Date(a.date_end);
     const dateB = new Date(b.date_end);
@@ -155,15 +241,79 @@ export const EmploymentProfile = ({data, isLoading}) => {
     return 0;
   });
 
+  const unemployed =
+    data?.data?.present_employment_status === "long-term unemployed" ||
+    data?.data?.present_employment_status === "short-term unemployed" ||
+    data?.data?.present_employment_status === "unable to work";
+
+  const generatedChiptips = data?.data?.unemployment_reason.map((reason) => {
+    const option = unemploymentOptions.find((opt) => opt.value === reason);
+
+    return (
+      <Chiptip
+        key={reason} // Ensure each Chiptip has a unique key
+        icon={option ? option.icon : <LocationOn color="primary" />}
+        label={option ? option.label : data?.data?.origin_address}
+      />
+    );
+  });
+
+  const employmentStatusOption = employmentOptions.find(
+    (option) => option.value === data?.data?.present_employment_status
+  );
+
   return (
-    data?.data?.employments && (
+    <Grid
+      container
+      sx={{
+        marginY: "2rem",
+        gap: 3,
+      }}
+    >
       <Grid
-        container
-        sx={{
-          marginY: "2rem",
-          gap: 3,
-        }}
+        item
+        xs={12}
+        sx={{ display: "flex", flexDirection: "column", gap: 1 }}
       >
+        <Typography
+          variant="subtitle1"
+          sx={{
+            textTransform: "capitalize",
+            textAlign: "center",
+            fontWeight: "bold",
+            display: "flex",
+            gap: 1,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Tooltip title="Current Employment Status">
+            <Work />
+          </Tooltip>
+          <Tooltip title={employmentStatusOption?.tooltip || ""}>
+            {employmentStatusOption?.title || ""}
+          </Tooltip>
+        </Typography>
+        {unemployed && (
+          <>
+            <Divider sx={{ padding: 2 }}>
+              <Typography variant="subtitle2">Unemployment Reasons</Typography>
+            </Divider>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                flexWrap: "wrap",
+                gap: 1,
+                justifyContent: "center",
+              }}
+            >
+              {generatedChiptips}
+            </Box>
+          </>
+        )}
+      </Grid>
+      {data?.data?.employments && (
         <Grid
           item
           xs={12}
@@ -336,8 +486,8 @@ export const EmploymentProfile = ({data, isLoading}) => {
             );
           })}
         </Grid>
-      </Grid>
-    )
+      )}
+    </Grid>
   );
 };
 

@@ -62,7 +62,7 @@ class User(Base):
     post_grad_act = Column(ARRAY(String))
 
     #Employment Status
-    present_employment_status = Column(String, server_default="unemployed")
+    present_employment_status = Column(String, server_default="unanswered")
     unemployment_reason = Column(ARRAY(String))
 
     course_id = Column(UUID(as_uuid=True), ForeignKey('course.id', ondelete="CASCADE"))

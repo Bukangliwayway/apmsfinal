@@ -228,7 +228,6 @@ async def put_demographic_profiles(
         email: Optional[str] = Form(None), 
         first_name: Optional[str] = Form(None), 
         last_name: Optional[str] = Form(None),  
-        birthdate: Optional[date] = Form(None), 
         gender: Optional[str] = Form(None), 
         headline: Optional[str] = Form(None), 
         is_international: Optional[bool] = Form(None), 
@@ -252,7 +251,6 @@ async def put_demographic_profiles(
         origin_city_code: Optional[str] = Form(None), 
         origin_barangay_code: Optional[str] = Form(None), 
         origin_address: Optional[str] = Form(None), 
-        student_number: Optional[str] = Form(None),
         profile_picture: Optional[UploadFile] = File(None), 
         user: UserResponse = Depends(get_current_user), 
         db: Session = Depends(get_db)
@@ -262,11 +260,6 @@ async def put_demographic_profiles(
         # Check if email already exists
         check = db.query(models.User).filter(models.User.email == email.lower()).first()
         if check: raise HTTPException(status_code=400, detail="Email is already in use")
-
-    if student_number:
-        # Check if student number already exists
-        check = db.query(models.User).filter(models.User.student_number == student_number).first()
-        if check: raise HTTPException(status_code=400, detail="Student Number is already in use")
 
     if username:
         # Check if username already exists
@@ -286,7 +279,6 @@ async def put_demographic_profiles(
             'email': email, 
             'first_name': first_name, 
             'last_name': last_name, 
-            'birthdate': birthdate, 
             'gender': gender, 
             'headline': headline, 
             'mobile_number': mobile_number, 
@@ -310,7 +302,6 @@ async def put_demographic_profiles(
             'origin_barangay_code': origin_barangay_code, 
             'origin_address': origin_address, 
             'civil_status': civil_status, 
-            'student_number': student_number, 
             'profile_picture': profile_picture   
         }
 
@@ -386,6 +377,44 @@ async def get_career_profiles(
     }
 
     return profile_dict
+
+@router.put("/employment_status/")
+async def put_employment_status(
+    *,
+    unemployment_reason: Optional[List[str]] = Body(None),
+    present_employment_status: Optional[str] = Body(None),
+    db: Session = Depends(get_db),
+    user: UserResponse = Depends(get_current_user)
+):
+
+    # Query the database for users with pagination and filter by role
+    actual_user = db.query(models.User).filter_by(id=user.id).first()
+
+    if actual_user is None:
+        raise HTTPException(status_code=404, detail="Account doesn't exist")
+
+    try:
+        actual_user.unemployment_reason = unemployment_reason
+        actual_user.present_employment_status = present_employment_status
+        db.commit()
+        return {"message": "Employment Status updated successfully"}
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+    finally:
+        db.close()
+
+@router.get("/employment_status/")
+async def get_employment_status(
+    *,
+    db: Session = Depends(get_db),
+    user: UserResponse = Depends(get_current_user)
+):
+
+    # Query the database for users with pagination and filter by role
+    actual_user = db.query(models.User).filter_by(id=user.id).first()
+
+    return {'unemployment_reason': actual_user.unemployment_reason, 'present_employment_status': actual_user.present_employment_status}
 
 @router.put("/career_profiles/")
 async def put_career_profiles(
@@ -523,7 +552,8 @@ async def get_user_employments(
         employments_data.append(employment_dict)
 
     return {
-        "present_employment_status": profile.present_employment_status,
+        "present_employment_status": profile.present_employment_status if profile.present_employment_status else '',
+        "unemployment_reason": profile.unemployment_reason if profile.unemployment_reason else [],
         "employments": employments_data,
     }
 
@@ -581,7 +611,8 @@ async def get_user_employments(
         employments_data.append(employment_dict)
 
     return {
-        "present_employment_status": profile.present_employment_status,
+        "present_employment_status": profile.present_employment_status if profile.present_employment_status else '',
+        "unemployment_reason": profile.unemployment_reason if profile.unemployment_reason else [],
         "employments": employments_data,
     }
 
