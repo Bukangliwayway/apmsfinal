@@ -13,6 +13,7 @@ import {
   Person,
   School,
   Security,
+  HowToReg,
   Stars,
   Work,
 } from "@mui/icons-material";
@@ -29,6 +30,7 @@ import TwoWayLinkUploadInput from "./TwoWayLinkUploadInput";
 import TwoWayLinkDataGrid from "./TwoWayLinkDataGrid";
 import useGetHistoryAll from "../../hooks/all_profiles/useGetHistory";
 import DisplayHistory from "./DisplayHistory";
+import PendingProfilesDataGrid from "./PendingProfilesDataGrid";
 
 export const UploadProfiles = () => {
   const [value, setValue] = useState(0);
@@ -109,6 +111,12 @@ export const UploadProfiles = () => {
             style={{ width: "12vw" }}
           />
           <Tab
+            icon={<HowToReg />}
+            label="Approve Users"
+            onClick={() => setActiveTab("pending_profiles")}
+            style={{ width: "12vw" }}
+          />
+          <Tab
             icon={<GroupAdd />}
             label="User Accounts"
             onClick={() => setActiveTab("upload_profiles")}
@@ -172,6 +180,40 @@ export const UploadProfiles = () => {
           </Grid>
           <Grid item xs={12}>
             <AllProfileDataGrid />
+          </Grid>
+        </Grid>
+      )}
+      {activeTab === "pending_profiles" && (
+        <Grid
+          container
+          sx={{
+            backgroundColor: (theme) => theme.palette.common.main,
+            padding: 2,
+            borderRadius: 3,
+            minHeight: "88vh",
+            position: "relative",
+            opacity: activeTab === "pending_profiles" ? 1 : 0,
+            display: activeTab === "pending_profiles" ? "flex" : "none",
+            gap: 2,
+            transition: "opacity 0.5s ease-in-out",
+          }}
+          id="pending_profiles"
+        >
+          <Grid item xs={12}>
+            <Typography
+              variant="h1"
+              fontWeight={800}
+              sx={{
+                padding: "10px",
+                borderBottom: "2px solid",
+                color: "primary",
+              }}
+            >
+              Approve Public Users
+            </Typography>
+          </Grid>
+          <Grid item xs={12}>
+            <PendingProfilesDataGrid />
           </Grid>
         </Grid>
       )}

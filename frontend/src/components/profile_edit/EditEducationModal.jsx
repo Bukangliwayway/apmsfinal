@@ -176,8 +176,7 @@ const EditEducationModal = ({ open, onClose, educationID }) => {
       educationProfile?.level == "" ||
       educationProfile?.school_name == "" ||
       educationProfile?.story == "" ||
-      (educationProfile?.is_international &&
-        (educationProfile?.country == "")) ||
+      (educationProfile?.is_international && educationProfile?.country == "") ||
       (!educationProfile?.is_international &&
         (educationProfile?.region == "" ||
           educationProfile?.region_code == "" ||
@@ -192,7 +191,6 @@ const EditEducationModal = ({ open, onClose, educationID }) => {
       setOpenSnackbar(true);
       return; // Prevent form submission
     }
-
 
     if (educationProfile?.is_international) {
       setEducationProfile((prevProfile) => ({
@@ -225,20 +223,8 @@ const EditEducationModal = ({ open, onClose, educationID }) => {
     // Convert the object to a JSON string
     const payload = JSON.stringify(data);
 
-    try {
-      await mutation.mutateAsync(payload);
-    } catch (error) {
-      if (error.response) {
-        setMessage(error.response.data.detail);
-        setSeverity("error");
-      } else if (error.request) {
-        setMessage("No response received from the server");
-        setSeverity("error");
-      } else {
-        setMessage("Error: " + error.message);
-        setSeverity("error");
-      }
-    }
+    await mutation.mutateAsync(payload);
+
     setOpenSnackbar(true);
   };
 

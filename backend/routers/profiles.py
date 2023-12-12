@@ -1331,3 +1331,21 @@ async def put_achievement(
         print("Error:", e)  # Add this line for debugging
         raise HTTPException(status_code=400, detail="Updating Education Details failed")
 
+@router.put("/approve/{username}")
+async def approve_user(username: str, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    actual_user = db.query(models.User).filter_by(username=username).first()      
+
+    if not actual_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    try:
+        actual_user.role = "alumni"
+        db.commit()
+
+        return {"message": "User Approval Successful"}
+    except Exception as e:
+        db.rollback()
+        print("Error:", e)  # Add this line for debugging
+        raise HTTPException(status_code=400, detail=" User Approval Failed")
+
+
