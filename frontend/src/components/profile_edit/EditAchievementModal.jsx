@@ -52,6 +52,7 @@ import {
   SpeakerNotes,
   Landscape,
   Biotech,
+  Add,
 } from "@mui/icons-material";
 
 import Autocomplete from "@mui/material/Autocomplete";
@@ -61,6 +62,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import useGetAchievementSpecific from "../../hooks/useGetAchievementsSpecific";
+import useNationalCertificates from "../../hooks/useNationalCertificates";
 
 const EditAchievementModal = ({ open, onClose, achievementID }) => {
   const queryClient = useQueryClient();
@@ -68,7 +70,11 @@ const EditAchievementModal = ({ open, onClose, achievementID }) => {
   const { data: cachedData, isLoading: isLoadingProfile } =
     useGetAchievementSpecific(achievementID);
 
+  const { data: certificates, isLoading: isLoadingDisplay } =
+    useNationalCertificates();
+
   const [achievementProfile, setAchievementProfile] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
     if (cachedData) {
@@ -78,8 +84,12 @@ const EditAchievementModal = ({ open, onClose, achievementID }) => {
         description: cachedData?.data?.achievement?.description || "",
         story: cachedData?.data?.achievement?.story || "",
         link_reference: cachedData?.data?.achievement?.link_reference || "",
+        national_certification_name:
+          cachedData?.data?.achievement?.national_certification?.name || "",
         date_of_attainment:
           cachedData?.data?.achievement?.date_of_attainment || null,
+        national_certification_id:
+          cachedData?.data?.achievement?.national_certification?.id || "",
       });
     }
   }, [cachedData]);
@@ -125,6 +135,7 @@ const EditAchievementModal = ({ open, onClose, achievementID }) => {
       },
       onSuccess: (data, variables, context) => {
         queryClient.invalidateQueries("achievements-profile");
+        queryClient.invalidateQueries("profile-me");
         queryClient.invalidateQueries([
           "achievement-profile-specific",
           achievementID,
@@ -154,11 +165,12 @@ const EditAchievementModal = ({ open, onClose, achievementID }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("achievementProfile:", achievementProfile);
     if (
       achievementProfile.type_of_achievement == "" ||
       achievementProfile.description == "" ||
-      achievementProfile.date_of_attainment == 0
+      achievementProfile.date_of_attainment == 0 ||
+      (achievementProfile.type_of_achievement == "national certifications" &&
+        !achievementProfile?.national_certification_id)
     ) {
       setMessage("please fill out all of the fields.");
       setSeverity("error");
@@ -166,8 +178,14 @@ const EditAchievementModal = ({ open, onClose, achievementID }) => {
       return; // Prevent form submission
     }
 
+    let certID = achievementProfile?.national_certification_id || null;
+
+    if (achievementProfile.type_of_achievement != "national certifications") {
+      certID = null;
+    }
 
     const data = {
+      national_certification_id: certID,
       type_of_achievement: achievementProfile?.type_of_achievement,
       description: achievementProfile?.description,
       story: achievementProfile?.story,
@@ -179,20 +197,8 @@ const EditAchievementModal = ({ open, onClose, achievementID }) => {
     // Convert the object to a JSON string
     const payload = JSON.stringify(data);
 
-    try {
-      await mutation.mutateAsync(payload);
-    } catch (error) {
-      if (error.response) {
-        setMessage(error.response.data.detail);
-        setSeverity("error");
-      } else if (error.request) {
-        setMessage("No response received from the server");
-        setSeverity("error");
-      } else {
-        setMessage("Error: " + error.message);
-        setSeverity("error");
-      }
-    }
+    await mutation.mutateAsync(payload);
+
     setOpenSnackbar(true);
   };
 
@@ -204,7 +210,7 @@ const EditAchievementModal = ({ open, onClose, achievementID }) => {
     setOpenSnackbar(false);
   };
 
-  if (isLoadingProfile) {
+  if (isLoadingProfile || isLoadingDisplay) {
     return (
       <Dialog open={true}>
         <DialogTitle>
@@ -263,128 +269,203 @@ const EditAchievementModal = ({ open, onClose, achievementID }) => {
       type: "certifications",
       description: "succesfully received a special certification",
     },
+    {
+      type: "national certifications",
+      description: "succesfully received a national certification",
+    },
   ];
 
+  const nationalCertificatesOptions = certificates?.data;
+
   return (
-    <Dialog open={open} onClose={onClose}>
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={severity}>
-          {message}
-        </Alert>
-      </Snackbar>
-      <Box sx={{ width: "100%", position: "relative", top: 0 }}>
-        {isLoading && <LinearProgress />}
-        {!isLoading && <Box sx={{ height: 4 }} />}
-      </Box>
-      <DialogTitle>Edit Achievement</DialogTitle>
-      <DialogContent>
-        <Grid container spacing={5}>
-          <Grid item xs={12}>
-            <Typography variant="h6" my={2}>
-              Achievement Details
-            </Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <FormControl fullWidth>
-                  <InputLabel>Achievement Type</InputLabel>
-                  <Select
-                    name="achievement_type"
-                    value={achievementProfile?.type_of_achievement || ""}
-                    onChange={handleAchievementTypeChange}
-                    input={<OutlinedInput label="Achievement Type" />}
-                  >
-                    {achievement_type.map((option) => (
-                      <MenuItem key={option.type} value={option.type}>
-                        {option.type}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  name="description"
-                  label="description of the achievements"
-                  value={achievementProfile?.description || ""}
-                  onChange={handleChange}
-                  sx={{ width: "100%" }}
-                />
-              </Grid>
-            </Grid>
-          </Grid>
-
-          <Grid item xs={12}>
-            <Typography variant="h6" my={2}>
-              Supporting Details
-            </Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DemoContainer components={["DatePicker"]}>
-                    <DemoItem>
-                      <DatePicker
-                        views={["year"]}
-                        label="year attained"
-                        value={
-                          achievementProfile?.date_of_attainment
-                            ? dayjs(achievementProfile?.date_of_attainment)
-                            : null
-                        }
-                        onChange={handleDateChange}
-                        renderInput={(params) => <TextField {...params} />}
-                      />
-                    </DemoItem>
-                  </DemoContainer>
-                </LocalizationProvider>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  name="link_reference"
-                  label="supporting links for the achievement (optional)"
-                  value={achievementProfile?.link_reference || ""}
-                  onChange={handleChange}
-                  sx={{ width: "100%" }}
-                />
-              </Grid>
-            </Grid>
-          </Grid>
-
-          <Grid item xs={12}>
-            <Typography variant="h6" my={2}>
-              Achiever's Story
-            </Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  name="story"
-                  label="story of your achievement (optional)"
-                  value={achievementProfile?.story || ""}
-                  onChange={handleChange}
-                  sx={{ width: "100%" }}
-                  multiline
-                  rows={2}
-                />
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button
-          onClick={handleSubmit}
-          variant="contained"
-          color="primary"
-          disabled={isLoading}
+    <>
+      <Dialog open={open} onClose={onClose}>
+        <Snackbar
+          open={openSnackbar}
+          autoHideDuration={3000}
+          onClose={handleCloseSnackbar}
         >
-          Save
-        </Button>
-      </DialogActions>
-    </Dialog>
+          <Alert onClose={handleCloseSnackbar} severity={severity}>
+            {message}
+          </Alert>
+        </Snackbar>
+        <Box sx={{ width: "100%", position: "relative", top: 0 }}>
+          {isLoading && <LinearProgress />}
+          {!isLoading && <Box sx={{ height: 4 }} />}
+        </Box>
+        <DialogTitle>Add Achievement</DialogTitle>
+        <DialogContent>
+          <Grid container spacing={5}>
+            <Grid item xs={12}>
+              <Typography variant="h6" my={2}>
+                Achievement Details
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <FormControl fullWidth>
+                    <InputLabel>Achievement Type</InputLabel>
+                    <Select
+                      name="achievement_type"
+                      value={achievementProfile?.type_of_achievement || ""}
+                      onChange={handleAchievementTypeChange}
+                      input={<OutlinedInput label="Achievement Type" />}
+                    >
+                      {achievement_type.map((option) => (
+                        <MenuItem key={option.type} value={option.type}>
+                          {option.type}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    name="description"
+                    label="Description of the Achievements"
+                    value={achievementProfile?.description || ""}
+                    onChange={handleChange}
+                    sx={{ width: "100%" }}
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
+            {achievementProfile?.type_of_achievement ==
+              "national certifications" && (
+              <Grid item xs={12}>
+                <Typography variant="h6" my={2}>
+                  National Certificate
+                </Typography>
+                <Grid
+                  container
+                  spacing={2}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <Grid item xs={9}>
+                    <Autocomplete
+                      name="national_certification"
+                      options={nationalCertificatesOptions}
+                      getOptionLabel={(option) => option.name}
+                      getOptionSelected={(option, value) =>
+                        option.id === value.id
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="National Certificate"
+                          style={{
+                            whiteSpace: "nowrap",
+                            textOverflow: "ellipsis",
+                          }}
+                        />
+                      )}
+                      onChange={(event, value) =>
+                        setAchievementProfile((prevProfile) => ({
+                          ...prevProfile,
+                          national_certification_id: value ? value.id : null,
+                          national_certification_name: value
+                            ? value.name
+                            : null,
+                        }))
+                      }
+                      value={
+                        nationalCertificatesOptions?.find(
+                          (option) =>
+                            option.name ===
+                            achievementProfile?.national_certification_name
+                        ) || null
+                      }
+                    />
+                  </Grid>
+                  <Grid item>
+                    <Button
+                      variant="contained"
+                      startIcon={<Add />}
+                      onClick={() => setOpenModal(true)}
+                    >
+                      Add
+                    </Button>
+                  </Grid>
+                </Grid>
+              </Grid>
+            )}
+            <Grid item xs={12}>
+              <Typography variant="h6" my={2}>
+                Supporting Details
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DemoContainer components={["DatePicker"]}>
+                      <DemoItem>
+                        <DatePicker
+                          views={["year"]}
+                          label="year attained"
+                          value={
+                            achievementProfile?.date_of_attainment
+                              ? dayjs(achievementProfile?.date_of_attainment)
+                              : null
+                          }
+                          onChange={handleDateChange}
+                          renderInput={(params) => <TextField {...params} />}
+                        />
+                      </DemoItem>
+                    </DemoContainer>
+                  </LocalizationProvider>
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    name="link_reference"
+                    label="supporting links for the achievement (optional)"
+                    value={achievementProfile?.link_reference || ""}
+                    onChange={handleChange}
+                    sx={{ width: "100%" }}
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Typography variant="h6" my={2}>
+                Achiever's Story
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <TextField
+                    name="story"
+                    label="story of your achievement (optional)"
+                    value={achievementProfile?.story || ""}
+                    onChange={handleChange}
+                    sx={{ width: "100%" }}
+                    multiline
+                    rows={2}
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button
+            onClick={handleSubmit}
+            variant="contained"
+            color="primary"
+            disabled={isLoading}
+          >
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {openModal && (
+        <AddNationalAchievement
+          open={openModal}
+          onClose={() => setOpenModal(false)}
+        />
+      )}
+    </>
   );
 };
 

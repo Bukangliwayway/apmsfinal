@@ -226,6 +226,67 @@ async def get_courses(course_id: UUID, db: Session = Depends(get_db), user: User
         "classifications": classifications
     }
 
+
+@router.post("/national-certificates/")
+async def create_national_certificates(
+    *,
+    name: str = Body(...),
+    issuing_body: str = Body(...),
+    link_reference: str = Body(...),
+    classification_ids: List[UUID] = Body(...),
+    db: Session = Depends(get_db),
+    user: UserResponse = Depends(get_current_user)
+):
+    #make sure that every input is in lowercase
+    name=name.lower()
+
+    # Check if the specified name is not yet saved in the db
+    existing_certificate = db.query(models.NationalCertification).filter(models.NationalCertification.name == name).first()
+    if existing_certificate:
+            # Raise an HTTPException with a 400 status code (Bad Request)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"'{name}' already exists in the database."
+            )
+    
+    # Check if the specified classification_ids exist
+    existing_classifications = db.query(models.Classification).filter(models.Classification.id.in_(classification_ids)).all()
+    
+    # Verify that the number of existing classifications matches the number of specified classification_ids
+    if len(existing_classifications) != len(classification_ids):
+        raise HTTPException(status_code=400, detail="Some classification ID do not exist.")
+
+    # Create new course instance
+    new_certificate = models.NationalCertification(
+        name=name,
+        issuing_body=issuing_body,
+        link_reference=link_reference,
+    )
+
+    # Add to the session
+    db.add(new_certificate)
+    db.commit()
+    db.refresh(new_certificate)
+    
+
+    certificate_classifications = [
+        models.NationalCertificationClassification(national_certification_id=new_certificate.id, classification_id=classification_id)
+        for classification_id in classification_ids
+    ]
+
+    # Add all NationalCertificationClassification in a bulk operation
+    db.add_all(certificate_classifications)
+
+    # Commit the session to persist the new National Certificate and NationalCertificationClassification
+    db.commit()
+
+    return {"message": "National Certificate created successfully"}
+
+@router.get("/national_certificates/")
+async def get_national_certificates(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    national_certificates = db.query(models.NationalCertification).all()
+    return national_certificates
+
 @router.post("/classifications/")
 async def create_classifications(
     classifications: List[Dict[str, str]] = Body(...),

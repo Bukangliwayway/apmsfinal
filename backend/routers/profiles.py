@@ -900,6 +900,7 @@ async def post_achievement(
     *,
     type_of_achievement: str = Body(...),
     description: str = Body(...),
+    national_certification_id: Optional[UUID] = Body(None),
     story: Optional[str] = Body(None),
     link_reference: Optional[str] = Body(None),
     date_of_attainment: date = Body(...),
@@ -910,15 +911,22 @@ async def post_achievement(
     user_instance = db.query(models.User).filter_by(id=user.id).first()
     if user_instance is None:
         raise HTTPException(status_code=404, detail="User not found")
+        
+    national_certification_instance = None #set it initially to null
+    national_certification_instance = db.query(models.NationalCertification).filter_by(id=national_certification_id).first()
+    if not national_certification_instance:
+        raise HTTPException(status_code=404, detail="National Certification not found")
     
     try:
       achievement = models.Achievement(
           type_of_achievement=type_of_achievement,
           date_of_attainment=date_of_attainment,
+          national_certification_id=national_certification_id,
           description=description,
           story=story,
           link_reference=link_reference,
           user=user_instance,
+          national_certification=national_certification_instance,
       )
 
       db.add(achievement)
@@ -934,18 +942,33 @@ async def get_achievement(
     db: Session = Depends(get_db),
     user: UserResponse = Depends(get_current_user)
 ):
-    
+
     profile = db.query(models.User).filter(models.User.id == user.id).first()
+    if profile is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
     achievements = (
         db.query(models.Achievement)
         .filter(models.Achievement.user_id == user.id)
         .all()
     )
 
-    if profile is None:
-        raise HTTPException(status_code=404, detail="User not found")
+    achievements_list = []
+    for achievement in achievements:
+        achievement_dict = {
+            'id': achievement.id,
+            'type_of_achievement': achievement.type_of_achievement,
+            'date_of_attainment': achievement.date_of_attainment,
+            'description': achievement.description,
+            'story': achievement.story,
+            'link_reference': achievement.link_reference,
+            'national_certification': achievement.national_certification if achievement.national_certification else None,
+        }
+        achievements_list.append(achievement_dict)
 
-    return {"achievements": achievements}  
+        # Now you can use `achievement_dict` as you please.
+
+    return {"achievements": achievements_list}  
     
 @router.get("/achievement_profile/visit/{username}")
 async def get_achievement(
@@ -980,10 +1003,20 @@ async def get_achievement(
         .first()
     )
 
+    achievement_dict = {
+        'id': achievement.id,
+        'type_of_achievement': achievement.type_of_achievement,
+        'date_of_attainment': achievement.date_of_attainment,
+        'description': achievement.description,
+        'story': achievement.story,
+        'link_reference': achievement.link_reference,
+        'national_certification': achievement.national_certification if achievement.national_certification else None,
+    }
+
     if profile is None:
         raise HTTPException(status_code=404, detail="User not found")
 
-    return {"achievement": achievement}
+    return {"achievement": achievement_dict}
 
 @router.delete("/achievement/{achievement_id}")
 async def delete_achievement(
@@ -1012,6 +1045,7 @@ async def delete_achievement(
 @router.put("/achievement/{achievement_id}")
 async def put_achievement(
     achievement_id: UUID,
+    national_certification_id: Optional[UUID] = Body(None),
     type_of_achievement: str = Body(None),
     description: str = Body(None),
     story: str = Body(None),
@@ -1030,6 +1064,10 @@ async def put_achievement(
         if user_instance is None:
             raise HTTPException(status_code=404, detail="User not found")
     
+        national_certification_instance = db.query(models.NationalCertification).filter_by(id=national_certification_id).first()
+        if not national_certification_instance:
+            raise HTTPException(status_code=404, detail="National Certification not found")
+
       
         profile = {
             'type_of_achievement': type_of_achievement,
@@ -1038,6 +1076,7 @@ async def put_achievement(
             'link_reference': link_reference,
             'date_of_attainment': date_of_attainment,
             "user": user_instance,
+            "national_certificate": national_certification_instance
         }
 
          # Iterate through the profile dictionary and populate saved_profile
@@ -1048,7 +1087,6 @@ async def put_achievement(
         return {"message": "Achievement Updated Successfully"}
     except Exception as e:
         db.rollback()
-        print("Error:", e)  # Add this line for debugging
         raise HTTPException(status_code=400, detail="Updating Achievement Details failed")
 
 @router.post("/education/")
