@@ -1,0 +1,7 @@
+for frontend:
+@apmsfinal
+cd frontend -> npm run dev
+
+for backend:
+@from frontend 
+cd .. -> .\apmsvenv\Scripts\activate -> uvicorn backend.main:app --reload
