@@ -7,12 +7,45 @@ import {
   selectedGridRowsSelector,
 } from "@mui/x-data-grid";
 import useGetAll from "../../hooks/all_profiles/useGetAll";
+import { Grid, Skeleton } from "@mui/material";
 
 const AllProfileDataGrid = () => {
   const { data: all, isLoading: isLoadingAll } = useGetAll();
 
   if (isLoadingAll) {
-    return <div>loading...</div>;
+    return (
+      <Box sx={{ height: 400, width: "100%" }}>
+        <Grid container spacing={1}>
+          <Grid item xs={3}>
+            <Skeleton variant="rectangular" height={20} />
+          </Grid>
+          <Grid item xs={3}>
+            <Skeleton variant="rectangular" height={20} />
+          </Grid>
+          <Grid item xs={3}>
+            <Skeleton variant="rectangular" height={20} />
+          </Grid>
+          <Grid item xs={3}>
+            <Skeleton variant="rectangular" height={20} />
+          </Grid>
+          <Grid item xs={12}>
+            <Skeleton variant="rectangular" height={50} />
+          </Grid>
+          <Grid item xs={12}>
+            <Skeleton variant="rectangular" height={50} />
+          </Grid>
+          <Grid item xs={12}>
+            <Skeleton variant="rectangular" height={50} />
+          </Grid>
+          <Grid item xs={12}>
+            <Skeleton variant="rectangular" height={50} />
+          </Grid>
+          <Grid item xs={12}>
+            <Skeleton variant="rectangular" height={50} />
+          </Grid>
+        </Grid>
+      </Box>
+    );
   }
 
   const getSelectedRowsToExport = ({ apiRef }) => {
@@ -46,7 +79,7 @@ const AllProfileDataGrid = () => {
   }));
 
   return (
-    <Box sx={{ height: 400, width: "100%" }}>
+    <Box sx={{ height: 525, width: "100%" }}>
       <DataGrid
         rows={all?.data}
         columns={columns}

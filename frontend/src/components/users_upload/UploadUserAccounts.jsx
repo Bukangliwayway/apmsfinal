@@ -1,46 +1,21 @@
-import { Link as RouterLink } from "react-router-dom";
 import {
   Box,
-  Breadcrumbs,
-  Button,
-  Divider,
-  Fab,
+  CircularProgress,
   Grid,
-  Link,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  Paper,
+  Skeleton,
   Tab,
   Tabs,
-  TextField,
-  Tooltip,
   Typography,
 } from "@mui/material";
 import React, { useState } from "react";
 import {
-  Add,
-  Business,
-  CloudUpload,
-  Edit,
-  FilterList,
   GroupAdd,
-  Label,
-  MenuBook,
   Person,
-  PersonPin,
   School,
   Security,
   Stars,
   Work,
 } from "@mui/icons-material";
-import ClassificationsRow from "../selections/ClassificationsRow";
-import CoursesRow from "../selections/CoursesRow";
-import JobsRow from "../selections/JobsRow";
-import AddClassification from "../selections/AddClassificationModal";
-import AddCourse from "../selections/AddCourseModal";
-import AddJob from "../selections/AddJobModal";
 import DemoProfileDataGrid from "./ProfileDataGrid";
 import ProfilesUploadInput from "./ProfilesUploadInput";
 import EducationUploadInput from "./EducationUploadInput";
@@ -52,19 +27,61 @@ import AchievementDataGrid from "./AchievementDataGrid";
 import AllProfileDataGrid from "./AllProfileDataGrid";
 import TwoWayLinkUploadInput from "./TwoWayLinkUploadInput";
 import TwoWayLinkDataGrid from "./TwoWayLinkDataGrid";
+import useGetHistoryAll from "../../hooks/all_profiles/useGetHistory";
+import DisplayHistory from "./DisplayHistory";
 
 export const UploadProfiles = () => {
   const [value, setValue] = useState(0);
   const [activeTab, setActiveTab] = useState("display_all");
-  const [modalOpen, setModalOpen] = useState({
-    classification: false,
-    job: false,
-    course: false,
-  });
+
+  const { data: history, isLoading: isLoadingHistory } = useGetHistoryAll();
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
+
+  // Function to filter UploadHistory objects by type
+  function filterUploadHistoryByType(uploadHistoryArray, targetType) {
+    return uploadHistoryArray.filter((history) => history.type === targetType);
+  }
+
+  if (isLoadingHistory) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          width: "100%",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  // Example usage
+  const filteredProfileUploads = filterUploadHistoryByType(
+    history?.data,
+    "Profile"
+  );
+  const filteredEducationUploads = filterUploadHistoryByType(
+    history?.data,
+    "Education"
+  );
+  const filteredAchievementUploads = filterUploadHistoryByType(
+    history?.data,
+    "Achievement"
+  );
+  const filteredEmploymentUploads = filterUploadHistoryByType(
+    history?.data,
+    "Employment"
+  );
+  const filteredTwoWayLinkUploads = filterUploadHistoryByType(
+    history?.data,
+    "TwoWayLink"
+  );
 
   return (
     <Box
@@ -131,7 +148,7 @@ export const UploadProfiles = () => {
             backgroundColor: (theme) => theme.palette.common.main,
             padding: 2,
             borderRadius: 3,
-            height: "75vh",
+            minHeight: "88vh",
             position: "relative",
             opacity: activeTab === "display_all" ? 1 : 0,
             display: activeTab === "display_all" ? "flex" : "none",
@@ -165,7 +182,7 @@ export const UploadProfiles = () => {
             backgroundColor: (theme) => theme.palette.common.main,
             padding: 2,
             borderRadius: 3,
-            height: "75vh",
+            minHeight: "88vh",
             position: "relative",
             opacity: activeTab === "upload_profiles" ? 1 : 0,
             display: activeTab === "upload_profiles" ? "flex" : "none",
@@ -193,6 +210,9 @@ export const UploadProfiles = () => {
           <Grid item xs={12}>
             <DemoProfileDataGrid />
           </Grid>
+          <Grid item xs={12}>
+            <DisplayHistory history={filteredProfileUploads} />
+          </Grid>
         </Grid>
       )}
       {activeTab === "upload_education" && (
@@ -202,7 +222,7 @@ export const UploadProfiles = () => {
             backgroundColor: (theme) => theme.palette.common.main,
             padding: 2,
             borderRadius: 3,
-            height: "75vh",
+            minHeight: "88vh",
             position: "relative",
             opacity: activeTab === "upload_education" ? 1 : 0,
             display: activeTab === "upload_education" ? "flex" : "none",
@@ -230,6 +250,9 @@ export const UploadProfiles = () => {
           <Grid item xs={12}>
             <EducationDataGrid />
           </Grid>
+          <Grid item xs={12}>
+            <DisplayHistory history={filteredEducationUploads} />
+          </Grid>
         </Grid>
       )}
       {activeTab === "upload_employments" && (
@@ -239,7 +262,7 @@ export const UploadProfiles = () => {
             backgroundColor: (theme) => theme.palette.common.main,
             padding: 2,
             borderRadius: 3,
-            height: "75vh",
+            minHeight: "88vh",
             position: "relative",
             opacity: activeTab === "upload_employments" ? 1 : 0,
             display: activeTab === "upload_employments" ? "flex" : "none",
@@ -267,6 +290,9 @@ export const UploadProfiles = () => {
           <Grid item xs={12}>
             <EmploymentDataGrid />
           </Grid>
+          <Grid item xs={12}>
+            <DisplayHistory history={filteredEmploymentUploads} />
+          </Grid>
         </Grid>
       )}
       {activeTab === "upload_achievements" && (
@@ -276,7 +302,7 @@ export const UploadProfiles = () => {
             backgroundColor: (theme) => theme.palette.common.main,
             padding: 2,
             borderRadius: 3,
-            height: "75vh",
+            minHeight: "88vh",
             position: "relative",
             opacity: activeTab === "upload_achievements" ? 1 : 0,
             display: activeTab === "upload_achievements" ? "flex" : "none",
@@ -304,6 +330,9 @@ export const UploadProfiles = () => {
           <Grid item xs={12}>
             <AchievementDataGrid />
           </Grid>
+          <Grid item xs={12}>
+            <DisplayHistory history={filteredAchievementUploads} />
+          </Grid>
         </Grid>
       )}
       {activeTab === "two_way_link" && (
@@ -313,7 +342,7 @@ export const UploadProfiles = () => {
             backgroundColor: (theme) => theme.palette.common.main,
             padding: 2,
             borderRadius: 3,
-            height: "75vh",
+            minHeight: "88vh",
             position: "relative",
             opacity: activeTab === "two_way_link" ? 1 : 0,
             display: activeTab === "two_way_link" ? "flex" : "none",
@@ -332,7 +361,7 @@ export const UploadProfiles = () => {
                 color: "primary",
               }}
             >
-              Upload Achievements
+              Upload New Accounts
             </Typography>
           </Grid>
           <Grid item xs={12}>
@@ -340,6 +369,9 @@ export const UploadProfiles = () => {
           </Grid>
           <Grid item xs={12}>
             <TwoWayLinkDataGrid />
+          </Grid>
+          <Grid item xs={12}>
+            <DisplayHistory history={filteredTwoWayLinkUploads} />
           </Grid>
         </Grid>
       )}

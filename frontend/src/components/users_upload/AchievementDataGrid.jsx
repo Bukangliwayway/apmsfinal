@@ -7,6 +7,7 @@ import {
   selectedGridRowsSelector,
 } from "@mui/x-data-grid";
 import useGetAllAchievements from "../../hooks/all_profiles/useGetAllAchievements";
+import { Grid, Skeleton } from "@mui/material";
 
 const AchievementDataGrid = () => {
   const { data: allAchievements, isLoading: isLoadingAllAchievements } =
@@ -84,7 +85,39 @@ const AchievementDataGrid = () => {
   ];
 
   if (isLoadingAllAchievements) {
-    return <div>loading...</div>;
+    return (
+      <Box sx={{ height: 525, width: "100%" }}>
+        <Grid container spacing={1}>
+          <Grid item xs={3}>
+            <Skeleton variant="rectangular" height={20} />
+          </Grid>
+          <Grid item xs={3}>
+            <Skeleton variant="rectangular" height={20} />
+          </Grid>
+          <Grid item xs={3}>
+            <Skeleton variant="rectangular" height={20} />
+          </Grid>
+          <Grid item xs={3}>
+            <Skeleton variant="rectangular" height={20} />
+          </Grid>
+          <Grid item xs={12}>
+            <Skeleton variant="rectangular" height={50} />
+          </Grid>
+          <Grid item xs={12}>
+            <Skeleton variant="rectangular" height={50} />
+          </Grid>
+          <Grid item xs={12}>
+            <Skeleton variant="rectangular" height={50} />
+          </Grid>
+          <Grid item xs={12}>
+            <Skeleton variant="rectangular" height={50} />
+          </Grid>
+          <Grid item xs={12}>
+            <Skeleton variant="rectangular" height={50} />
+          </Grid>
+        </Grid>
+      </Box>
+    );
   }
 
   return (

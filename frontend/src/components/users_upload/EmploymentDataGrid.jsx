@@ -7,6 +7,7 @@ import {
   selectedGridRowsSelector,
 } from "@mui/x-data-grid";
 import useGetAllEmployments from "../../hooks/all_profiles/useGetAllEmployments";
+import { Grid, Skeleton } from "@mui/material";
 
 const EmploymentDataGrid = () => {
   const { data: allEmployments, isLoading: isLoadingAllEmployments } =
@@ -133,7 +134,39 @@ const EmploymentDataGrid = () => {
   ];
 
   if (isLoadingAllEmployments) {
-    return <div>loading...</div>;
+    return (
+      <Box sx={{ height: 525, width: "100%" }}>
+        <Grid container spacing={1}>
+          <Grid item xs={3}>
+            <Skeleton variant="rectangular" height={20} />
+          </Grid>
+          <Grid item xs={3}>
+            <Skeleton variant="rectangular" height={20} />
+          </Grid>
+          <Grid item xs={3}>
+            <Skeleton variant="rectangular" height={20} />
+          </Grid>
+          <Grid item xs={3}>
+            <Skeleton variant="rectangular" height={20} />
+          </Grid>
+          <Grid item xs={12}>
+            <Skeleton variant="rectangular" height={50} />
+          </Grid>
+          <Grid item xs={12}>
+            <Skeleton variant="rectangular" height={50} />
+          </Grid>
+          <Grid item xs={12}>
+            <Skeleton variant="rectangular" height={50} />
+          </Grid>
+          <Grid item xs={12}>
+            <Skeleton variant="rectangular" height={50} />
+          </Grid>
+          <Grid item xs={12}>
+            <Skeleton variant="rectangular" height={50} />
+          </Grid>
+        </Grid>
+      </Box>
+    );
   }
 
   return (

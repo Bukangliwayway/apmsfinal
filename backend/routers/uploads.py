@@ -216,6 +216,7 @@ async def get_unclaimed_profile(
             "first_name": unclaimed_profile.first_name,
             "birthdate": unclaimed_profile.birthdate,
             "student_number": unclaimed_profile.student_number,
+            "course": unclaimed_profile.course.name if unclaimed_profile.course and unclaimed_profile.course.name else '',
         }
         unclaimed.append(unclaimed_dict)
     db.close() 
@@ -367,7 +368,6 @@ def process_unclaimed_data(df):
     #Set all the role to unclaimed
     df['role'] = ["unclaimed" for _ in range(len(df))]
 
-
     # Convert date columns to datetime objects
     date_columns = ['birthdate']
     for col in date_columns:
@@ -379,7 +379,7 @@ def process_unclaimed_data(df):
         df[col] = df[col].astype(object).where(pd.notna(df[col]), None)
 
     # Convert all other columns to string type
-    other_columns = ['student_number', 'first_name', 'last_name']
+    other_columns = ['student_number', 'first_name', 'last_name', 'course']
     for col in other_columns:
         df[col] = df[col].astype(str)
 
@@ -787,7 +787,7 @@ async def achievement_upload(file: UploadFile = File(...), db: Session = Depends
     else:
         raise HTTPException(status_code=400, detail="Upload failed: The file format is not supported.")
     
-    expected_columns = ['student_number', 'first_name', 'last_name', 'birthdate']
+    expected_columns = ['student_number', 'first_name', 'last_name', 'birthdate', 'course']
     
     validate_columns(df, expected_columns)
 
@@ -803,7 +803,7 @@ async def achievement_upload(file: UploadFile = File(...), db: Session = Depends
     for _, row in df.iterrows():
 
         # Check if required columns do have value
-        if not row['student_number'] or not row['birthdate'] or not row['first_name'] or not row['last_name']:
+        if not row['student_number'] or not row['birthdate'] or not row['first_name'] or not row['last_name'] or not row['course']:
             incomplete_column.append(row)
             continue
 
@@ -814,6 +814,20 @@ async def achievement_upload(file: UploadFile = File(...), db: Session = Depends
             not_inserted.append(row)
             continue
 
+
+        actual_course = db.query(models.Course).filter(models.Course.name == row['course'].lower()).first()
+
+        if not actual_course:
+            actual_course = models.Course(
+                name=row['course'],
+                in_pupqc=True,
+            )
+            # Add to the session
+            db.add(actual_course)
+            db.commit()
+            db.refresh(actual_course)
+
+
         # Create the new user
         new_data = models.User(
             student_number=row['student_number'],
@@ -823,8 +837,8 @@ async def achievement_upload(file: UploadFile = File(...), db: Session = Depends
             role=row['role'],
             password=row['password'],
             username=row['username'],
+            course=actual_course,
         )
-
         db.add(new_data)
         inserted.append(row)
     db.commit()
@@ -854,5 +868,12 @@ async def achievement_upload(file: UploadFile = File(...), db: Session = Depends
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred while generating the report: {str(e)}")
 
-
-    
+@router.get("/history/all")
+async def get_unclaimed_profile(
+    db: Session = Depends(get_db),
+    user: UserResponse = Depends(get_current_user)
+):
+    history = db.query(models.UploadHistory).all()
+    db.close() 
+    # Close the database session
+    return history

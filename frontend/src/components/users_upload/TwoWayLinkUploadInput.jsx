@@ -88,20 +88,8 @@ const TwoWayLinkUploadInput = () => {
     const formData = new FormData();
     formData.append("file", selectedFile);
 
-    try {
-      await mutation.mutateAsync(formData);
-    } catch (error) {
-      if (error.response) {
-        setMessage(error.response.data.detail);
-        setSeverity("error");
-      } else if (error.request) {
-        setMessage("No response received from the server");
-        setSeverity("error");
-      } else {
-        setMessage("Error: " + error.message);
-        setSeverity("error");
-      }
-    }
+    await mutation.mutateAsync(formData);
+
     setOpenSnackbar(true);
   };
 

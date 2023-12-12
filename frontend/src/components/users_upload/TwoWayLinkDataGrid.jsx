@@ -7,14 +7,46 @@ import {
   selectedGridRowsSelector,
 } from "@mui/x-data-grid";
 import useGetAllUnclaimed from "../../hooks/all_profiles/useGetAllUnclaimedProfiles";
-import { Typography } from "@mui/material";
+import { Grid, Skeleton, Typography } from "@mui/material";
 
 const TwoWayLinkDataGrid = () => {
   const { data: unclaimed, isLoading: isLoadingUnclaimed } =
     useGetAllUnclaimed();
 
   if (isLoadingUnclaimed) {
-    return <div>loading...</div>;
+    return (
+      <Box sx={{ height: 525, width: "100%" }}>
+        <Grid container spacing={1}>
+          <Grid item xs={3}>
+            <Skeleton variant="rectangular" height={20} />
+          </Grid>
+          <Grid item xs={3}>
+            <Skeleton variant="rectangular" height={20} />
+          </Grid>
+          <Grid item xs={3}>
+            <Skeleton variant="rectangular" height={20} />
+          </Grid>
+          <Grid item xs={3}>
+            <Skeleton variant="rectangular" height={20} />
+          </Grid>
+          <Grid item xs={12}>
+            <Skeleton variant="rectangular" height={50} />
+          </Grid>
+          <Grid item xs={12}>
+            <Skeleton variant="rectangular" height={50} />
+          </Grid>
+          <Grid item xs={12}>
+            <Skeleton variant="rectangular" height={50} />
+          </Grid>
+          <Grid item xs={12}>
+            <Skeleton variant="rectangular" height={50} />
+          </Grid>
+          <Grid item xs={12}>
+            <Skeleton variant="rectangular" height={50} />
+          </Grid>
+        </Grid>
+      </Box>
+    );
   }
 
   const getSelectedRowsToExport = ({ apiRef }) => {
@@ -31,13 +63,13 @@ const TwoWayLinkDataGrid = () => {
       <Box sx={{ height: 400, width: "100%" }}>
         <Typography variant="subttile1">There are no data yet...</Typography>
       </Box>
-    )
+    );
   }
-
 
   const columnVisibilityModel = Object.keys(unclaimed?.data[0]).reduce(
     (acc, key) => {
       acc[key] = true;
+      if (key == "id") acc[key] = false;
       return acc;
     },
     {}
