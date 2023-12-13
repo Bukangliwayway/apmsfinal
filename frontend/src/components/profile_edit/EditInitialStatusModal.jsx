@@ -41,12 +41,16 @@ import {
 
 import Chip from "@mui/material/Chip";
 import useGetEmploymentStatus from "../../hooks/useGetEmploymentStatus";
+import useGetEmploymentProfile from "../../hooks/useGetEmploymentProfile";
 
 const EditInitialStatusModal = ({ open, onClose, prior }) => {
   const queryClient = useQueryClient();
 
   const { data: cachedData, isLoading: isLoadingDisplay } =
     useGetEmploymentStatus();
+
+  const { data: employment, isLoading: isLoadingEmployment } =
+    useGetEmploymentProfile();
 
   const [employmentStatus, setEmploymentStatus] = useState({
     present_employment_status: "",
@@ -106,7 +110,9 @@ const EditInitialStatusModal = ({ open, onClose, prior }) => {
       setMessage("All Fields are required to answer");
       setSeverity("error");
       setOpenSnackbar(true);
+      return;
     }
+
     const data = {
       present_employment_status: employmentStatus?.present_employment_status,
       unemployment_reason: employmentStatus?.unemployment_reason,
@@ -114,22 +120,50 @@ const EditInitialStatusModal = ({ open, onClose, prior }) => {
 
     // Set Unemployment Reasons to blank if employed
     if (
-      employmentStatus?.present_employment_status != "short-term unemployed" &&
-      employmentStatus?.present_employment_status != "long-term unemployed" &&
-      employmentStatus?.present_employment_status != "unable to work"
+      employmentStatus?.present_employment_status != "unemployed" &&
+      employmentStatus?.present_employment_status != "unable to work" &&
+      employmentStatus?.present_employment_status != "never been employed"
     )
       data.unemployment_reason = [];
 
     // Throw an error if there's no chosen reason
     if (
-      (employmentStatus?.present_employment_status == "short-term unemployed" ||
-        employmentStatus?.present_employment_status == "long-term unemployed" ||
+      (employmentStatus?.present_employment_status == "unemployed" ||
+        employmentStatus?.present_employment_status == "never been employed" ||
         employmentStatus?.present_employment_status == "unable to work") &&
       data.unemployment_reason.length == 0
     ) {
       setMessage("The Unemployment Reason is required");
       setSeverity("error");
       setOpenSnackbar(true);
+      return;
+    }
+
+    if (
+      employmentStatus?.present_employment_status == "never been employed" &&
+      employment?.data?.employments.length > 0
+    ) {
+      setMessage(
+        "You have an Employment Record in your profile. Please modify your employment records first."
+      );
+      setSeverity("error");
+      setOpenSnackbar(true);
+      console.log(employment?.data?.employments.length);
+      return;
+    }
+
+    if (
+      (employmentStatus?.present_employment_status == "unemployed" ||
+        employmentStatus?.present_employment_status == "unable to work" ||
+        employmentStatus?.present_employment_status == "never been employed") &&
+      employment?.data?.employments.some((emp) => emp?.date_end === null)
+    ) {
+      setMessage(
+        "You have an Active Job in the record. Please modify your employment records first."
+      );
+      setSeverity("error");
+      setOpenSnackbar(true);
+      return;
     }
 
     // Convert the object to a JSON string
@@ -214,16 +248,14 @@ const EditInitialStatusModal = ({ open, onClose, prior }) => {
         "Working independently, managing one's own business or profession.",
     },
     {
-      value: "short-term unemployed",
-      title: "Short-term Unemployed",
-      tooltip:
-        "Temporarily out of work, actively seeking new opportunities for less than 12 months.",
+      value: "never been employed",
+      title: "Never Been Employed",
+      tooltip: "Fresh candidate seeking first employment opportunity.",
     },
     {
-      value: "long-term unemployed",
-      title: "Long-term Unemployed",
-      tooltip:
-        "Experiencing an extended period of joblessness, actively seeking employment for more than a year.",
+      value: "unemployed",
+      title: "Unemployed",
+      tooltip: "Temporarily out of work, actively seeking new opportunities.",
     },
     {
       value: "unable to work",
@@ -240,7 +272,7 @@ const EditInitialStatusModal = ({ open, onClose, prior }) => {
     </MenuItem>
   ));
 
-  if (isLoadingDisplay) {
+  if (isLoadingDisplay || isLoadingEmployment) {
     return (
       <Dialog open={true}>
         <DialogTitle>
@@ -309,11 +341,10 @@ const EditInitialStatusModal = ({ open, onClose, prior }) => {
               </Select>
             </FormControl>
           </Grid>
-          {employmentStatus?.present_employment_status ==
-            "short-term unemployed" ||
+          {employmentStatus?.present_employment_status == "unemployed" ||
+          employmentStatus?.present_employment_status == "unable to work" ||
           employmentStatus?.present_employment_status ==
-            "long-term unemployed" ||
-          employmentStatus?.present_employment_status == "unable to work" ? (
+            "never been employed" ? (
             <Grid item xs={12}>
               <FormControl sx={{ width: "100%" }}>
                 <InputLabel>Unemployment Reasons</InputLabel>

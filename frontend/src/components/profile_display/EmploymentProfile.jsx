@@ -212,16 +212,14 @@ export const EmploymentProfile = ({ data, isLoading }) => {
         "Working independently, managing one's own business or profession.",
     },
     {
-      value: "short-term unemployed",
-      title: "Short-term Unemployed",
-      tooltip:
-        "Temporarily out of work, actively seeking new opportunities for less than 12 months.",
+      value: "never been employed",
+      title: "Never Been Employed",
+      tooltip: "Fresh candidate seeking first employment opportunity.",
     },
     {
-      value: "long-term unemployed",
-      title: "Long-term Unemployed",
-      tooltip:
-        "Experiencing an extended period of joblessness, actively seeking employment for more than a year.",
+      value: "unemployed",
+      title: "Unemployed",
+      tooltip: "Temporarily out of work, actively seeking new opportunities.",
     },
     {
       value: "unable to work",

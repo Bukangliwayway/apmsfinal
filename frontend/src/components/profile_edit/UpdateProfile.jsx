@@ -88,7 +88,7 @@ function UpdateProfile() {
   useEffect(() => {
     // Check the employment status and conditionally open the modal
     if (
-      employmentData?.data?.present_employment_status === "unemployed" &&
+      employmentData?.data?.present_employment_status === "unanswered" &&
       value == 3
     ) {
       handleModalOpen("current_status");
