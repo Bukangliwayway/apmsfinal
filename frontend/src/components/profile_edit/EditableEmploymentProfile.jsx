@@ -54,6 +54,7 @@ import {
   FlightTakeoff,
   DirectionsWalk,
   Loop,
+  Search,
 } from "@mui/icons-material";
 import AddEmploymentModal from "./AddEmploymentModal";
 import EditEmploymentModal from "./EditEmploymentModal";
@@ -304,6 +305,61 @@ export const EditableEmploymentProfile = () => {
     },
   ];
 
+  const jobFindingOptions = [
+    {
+      value: "others",
+      title: "Other Means",
+      tooltip: "Finding job through methods not explicitly specified.",
+    },
+    {
+      value: "pup job fair",
+      title: "PUP Job Fair",
+      tooltip:
+        "Seeking employment opportunities through Polytechnic University of the Philippines job fair.",
+    },
+    {
+      value: "job advertisement",
+      title: "Job Advertisement",
+      tooltip: "Exploring job opportunities through advertised positions.",
+    },
+    {
+      value: "recommendations",
+      title: "Recommendations",
+      tooltip:
+        "Relying on referrals and recommendations from peers or professional network.",
+    },
+    {
+      value: "On the Job Training",
+      title: "On the Job Training",
+      tooltip:
+        "Pursuing employment by gaining practical experience and skills through on-the-job training.",
+    },
+    {
+      value: "Information from friends",
+      title: "Information from Friends",
+      tooltip:
+        "Getting job leads and insights about opportunities through friends or acquaintances.",
+    },
+    {
+      value: "Government-sponsored job Fair",
+      title: "Government-sponsored Job Fair",
+      tooltip:
+        "Exploring job opportunities facilitated by government-sponsored job fairs.",
+    },
+    {
+      value: "Family Business",
+      title: "Family Business",
+      tooltip:
+        "Engaging in employment within a family-owned business or enterprise.",
+    },
+    {
+      value: "Walk-in Applicant",
+      title: "Walk-in Applicant",
+      tooltip:
+        "Applying for jobs directly by physically visiting employers or companies.",
+    },
+  ];
+
   data?.data?.employments?.sort((a, b) => {
     const dateA = new Date(a.date_end);
     const dateB = new Date(b.date_end);
@@ -522,6 +578,7 @@ export const EditableEmploymentProfile = () => {
                         variant="subtitle1"
                         sx={{
                           fontWeight: "bold",
+                          textTransform: "capitalize",
                         }}
                       >
                         {employment.company_name}
@@ -561,12 +618,18 @@ export const EditableEmploymentProfile = () => {
                         flexDirection: "column",
                       }}
                     >
-                      <Typography variant="subtitle2">
+                      <Typography
+                        variant="subtitle2"
+                        sx={{ textTransform: "capitalize" }}
+                      >
                         {employment?.job_title
                           ? employment?.job_title
                           : "unknown job title"}
                       </Typography>
-                      <Typography variant="subtitle2">
+                      <Typography
+                        variant="subtitle2"
+                        sx={{ textTransform: "capitalize" }}
+                      >
                         {employment?.classification
                           ? employment?.classification
                           : "unknown job classification"}
@@ -576,8 +639,8 @@ export const EditableEmploymentProfile = () => {
                       {employment?.aligned_with_academic_program && (
                         <Chiptip
                           icon={<CheckCircle color="primary" />}
-                          label="academically aligned"
-                          actual="this job is aligned with their graduated academic program"
+                          label="Academically Aligned"
+                          actual="This Job is Aligned with their taken Academic Program"
                         />
                       )}
                       {employment?.region && employment?.city ? (
@@ -595,7 +658,7 @@ export const EditableEmploymentProfile = () => {
                     <Grid item xs={12}>
                       <Divider>
                         <Typography variant="subtitle2">
-                          job snapshot
+                          Job Snapshot
                         </Typography>
                       </Divider>
                     </Grid>
@@ -625,34 +688,56 @@ export const EditableEmploymentProfile = () => {
                         display: "flex",
                         paddingY: 1,
                         width: "100%",
-                        gap: 2,
+                        gap: 1,
                         alignItems: "center",
                         justifyContent: "center",
+                        flexWrap: "wrap", 
                       }}
                     >
-                      <Chiptip
-                        icon={<Description color="primary" />}
-                        label={
-                          <Typography>
-                            {employment?.employment_contract}
-                          </Typography>
-                        }
-                        actual="employment contract"
-                      />
-                      <Chiptip
-                        icon={<Business color="primary" />}
-                        label={
-                          <Typography>{employment?.employer_type}</Typography>
-                        }
-                        actual="employer type"
-                      />
-                      <Chiptip
-                        icon={<Work color="primary" />}
-                        label={
-                          <Typography>{employment?.job_position}</Typography>
-                        }
-                        actual="job position"
-                      />
+                      {employment?.finding_job_means && (
+                        <Chiptip
+                          icon={<Search color="primary" />}
+                          label={
+                            jobFindingOptions.find(
+                              (option) =>
+                                option.value === employment?.finding_job_means
+                            )?.title
+                          }
+                          actual="Means of Finding the Job"
+                        />
+                      )}
+
+                      {employment?.employment_contract && (
+                        <Chiptip
+                          icon={<Description color="primary" />}
+                          label={
+                            <Typography>
+                              {employment?.employment_contract}
+                            </Typography>
+                          }
+                          actual="employment contract"
+                        />
+                      )}
+
+                      {employment?.employer_type && (
+                        <Chiptip
+                          icon={<Business color="primary" />}
+                          label={
+                            <Typography>{employment?.employer_type}</Typography>
+                          }
+                          actual="employer type"
+                        />
+                      )}
+
+                      {employment?.job_position && (
+                        <Chiptip
+                          icon={<Work color="primary" />}
+                          label={
+                            <Typography>{employment?.job_position}</Typography>
+                          }
+                          actual="job position"
+                        />
+                      )}
                     </Box>
                   </Grid>
                 </React.Fragment>

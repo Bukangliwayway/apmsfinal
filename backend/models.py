@@ -157,6 +157,7 @@ class Employment(Base):
     date_end = Column(Date) #null if an active job
 
     #Job Details
+    finding_job_means = Column(String)  
     gross_monthly_income = Column(String)  
     employment_contract = Column(String) 
     job_position = Column(String) 

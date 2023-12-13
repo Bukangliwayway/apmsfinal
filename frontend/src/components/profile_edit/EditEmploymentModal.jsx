@@ -101,6 +101,7 @@ const EditEmploymentModal = ({ open, onClose, employmentID }) => {
         city: cachedData?.data?.city || "",
         city_code: cachedData?.data?.city_code || "",
 
+        finding_job_means: cachedData?.data?.finding_job_means || "",
         gross_monthly_income: cachedData?.data?.gross_monthly_income || "",
         employment_contract: cachedData?.data?.employment_contract || "",
         job_position: cachedData?.data?.job_position || "",
@@ -185,6 +186,7 @@ const EditEmploymentModal = ({ open, onClose, employmentID }) => {
         employmentProfile.region == null) ||
       (employmentProfile.is_international &&
         employmentProfile.country == null) ||
+      employmentProfile.finding_job_means == "" ||
       employmentProfile.gross_monthly_income == "" ||
       employmentProfile.employment_contract == "" ||
       employmentProfile.job_position == "" ||
@@ -214,6 +216,7 @@ const EditEmploymentModal = ({ open, onClose, employmentID }) => {
       company_name: employmentProfile?.company_name,
       date_hired: employmentProfile?.date_hired.format("YYYY-MM-DD"),
       date_end: employmentProfile?.date_end?.format("YYYY-MM-DD"),
+      finding_job_means: employmentProfile?.finding_job_means,
       gross_monthly_income: employmentProfile?.gross_monthly_income,
       employment_contract: employmentProfile?.employment_contract,
       job_position: employmentProfile?.job_position,
@@ -340,6 +343,61 @@ const EditEmploymentModal = ({ open, onClose, employmentID }) => {
     },
     {
       value: "Self-Employed / Independent",
+    },
+  ];
+
+  const jobFindingOptions = [
+    {
+      value: "others",
+      title: "Other Means",
+      tooltip: "Finding job through methods not explicitly specified.",
+    },
+    {
+      value: "pup job fair",
+      title: "PUP Job Fair",
+      tooltip:
+        "Seeking employment opportunities through Polytechnic University of the Philippines job fair.",
+    },
+    {
+      value: "job advertisement",
+      title: "Job Advertisement",
+      tooltip: "Exploring job opportunities through advertised positions.",
+    },
+    {
+      value: "recommendations",
+      title: "Recommendations",
+      tooltip:
+        "Relying on referrals and recommendations from peers or professional network.",
+    },
+    {
+      value: "On the Job Training",
+      title: "On the Job Training",
+      tooltip:
+        "Pursuing employment by gaining practical experience and skills through on-the-job training.",
+    },
+    {
+      value: "Information from friends",
+      title: "Information from Friends",
+      tooltip:
+        "Getting job leads and insights about opportunities through friends or acquaintances.",
+    },
+    {
+      value: "Government-sponsored job Fair",
+      title: "Government-sponsored Job Fair",
+      tooltip:
+        "Exploring job opportunities facilitated by government-sponsored job fairs.",
+    },
+    {
+      value: "Family Business",
+      title: "Family Business",
+      tooltip:
+        "Engaging in employment within a family-owned business or enterprise.",
+    },
+    {
+      value: "Walk-in Applicant",
+      title: "Walk-in Applicant",
+      tooltip:
+        "Applying for jobs directly by physically visiting employers or companies.",
     },
   ];
 
@@ -744,6 +802,26 @@ const EditEmploymentModal = ({ open, onClose, employmentID }) => {
                       {employerType.map((option) => (
                         <MenuItem key={option.value} value={option.value}>
                           {option.value}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+
+                <Grid item xs={12}>
+                  <FormControl fullWidth>
+                    <InputLabel>Means of Finding the Job</InputLabel>
+                    <Select
+                      name="finding_job_means"
+                      value={employmentProfile?.finding_job_means || ""}
+                      onChange={handleChange}
+                      input={<OutlinedInput label="Means of Finding the Job" />}
+                    >
+                      {jobFindingOptions.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                          <Tooltip title={option.tooltip}>
+                            {option.title}
+                          </Tooltip>
                         </MenuItem>
                       ))}
                     </Select>

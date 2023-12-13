@@ -13,6 +13,7 @@ import {
   CardActionArea,
   CardContent,
   Chip,
+  Collapse,
   Divider,
   Fab,
   Grid,
@@ -49,6 +50,7 @@ import {
   Phone,
   PublicRounded,
   School,
+  Search,
   Work,
   WorkOutline,
   WorkOutlined,
@@ -64,6 +66,15 @@ export const EmploymentProfile = ({ data, isLoading }) => {
       <Chip icon={icon} label={label} />
     </Tooltip>
   );
+
+  const [visibilityStates, setVisibilityStates] = useState({});
+
+  const toggleVisibility = (employmentId) => {
+    setVisibilityStates((prevStates) => ({
+      ...prevStates,
+      [employmentId]: !prevStates[employmentId],
+    }));
+  };
 
   if (isLoading) {
     return (
@@ -229,6 +240,61 @@ export const EmploymentProfile = ({ data, isLoading }) => {
     },
   ];
 
+  const jobFindingOptions = [
+    {
+      value: "others",
+      title: "Other Means",
+      tooltip: "Finding job through methods not explicitly specified.",
+    },
+    {
+      value: "pup job fair",
+      title: "PUP Job Fair",
+      tooltip:
+        "Seeking employment opportunities through Polytechnic University of the Philippines job fair.",
+    },
+    {
+      value: "job advertisement",
+      title: "Job Advertisement",
+      tooltip: "Exploring job opportunities through advertised positions.",
+    },
+    {
+      value: "recommendations",
+      title: "Recommendations",
+      tooltip:
+        "Relying on referrals and recommendations from peers or professional network.",
+    },
+    {
+      value: "On the Job Training",
+      title: "On the Job Training",
+      tooltip:
+        "Pursuing employment by gaining practical experience and skills through on-the-job training.",
+    },
+    {
+      value: "Information from friends",
+      title: "Information from Friends",
+      tooltip:
+        "Getting job leads and insights about opportunities through friends or acquaintances.",
+    },
+    {
+      value: "Government-sponsored job Fair",
+      title: "Government-sponsored Job Fair",
+      tooltip:
+        "Exploring job opportunities facilitated by government-sponsored job fairs.",
+    },
+    {
+      value: "Family Business",
+      title: "Family Business",
+      tooltip:
+        "Engaging in employment within a family-owned business or enterprise.",
+    },
+    {
+      value: "Walk-in Applicant",
+      title: "Walk-in Applicant",
+      tooltip:
+        "Applying for jobs directly by physically visiting employers or companies.",
+    },
+  ];
+
   data?.data?.employments?.sort((a, b) => {
     const dateA = new Date(a.date_end);
     const dateB = new Date(b.date_end);
@@ -333,6 +399,7 @@ export const EmploymentProfile = ({ data, isLoading }) => {
                     borderBottom: "1px #aaa solid",
                     paddingY: "0.5rem",
                   }}
+                  onClick={() => toggleVisibility(employment.id)}
                 >
                   <Grid
                     item
@@ -403,14 +470,14 @@ export const EmploymentProfile = ({ data, isLoading }) => {
                     {employment?.aligned_with_academic_program && (
                       <Chiptip
                         icon={<CheckCircle color="primary" />}
-                        label="academically aligned"
-                        actual="this job is aligned with their graduated academic program"
+                        label="Academically Aligned"
+                        actual="This Job is Aligned with their taken Academic Program"
                       />
                     )}
-                    {employment?.address ? (
+                    {employment?.region && employment?.city ? (
                       <Chiptip
                         icon={<LocationOn color="primary" />}
-                        label={employment?.address}
+                        label={employment?.region + ", " + employment?.city}
                       />
                     ) : (
                       <Chiptip
@@ -419,66 +486,96 @@ export const EmploymentProfile = ({ data, isLoading }) => {
                       />
                     )}
                   </Grid>
-                  <Grid item xs={12}>
-                    <Divider>
-                      <Typography variant="subtitle2">job snapshot</Typography>
-                    </Divider>
-                  </Grid>
-                  <Grid
-                    item
-                    xs={12}
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                    }}
+                  <Collapse
+                    in={visibilityStates[employment.id]}
+                    timeout="auto"
+                    unmountOnExit
                   >
-                    <Typography
-                      variant="subtitle1"
+                    <Grid item xs={12}>
+                      <Divider>
+                        <Typography variant="subtitle2">
+                          Job Snapshot
+                        </Typography>
+                      </Divider>
+                    </Grid>
+                    <Grid
+                      item
+                      xs={12}
+                      my={1}
                       sx={{
-                        textAlign: "center",
-                        fontWeight: "bold",
+                        display: "flex",
+                        flexDirection: "column",
                       }}
                     >
-                      <Tooltip color="secondary" title="gross monthly income">
-                        {employment?.gross_monthly_income}
-                      </Tooltip>
-                    </Typography>
-                  </Grid>
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          textAlign: "center",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        <Tooltip color="secondary" title="gross monthly income">
+                          {employment?.gross_monthly_income}
+                        </Tooltip>
+                      </Typography>
+                    </Grid>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        paddingY: 1,
+                        width: "100%",
+                        gap: 3,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      {employment?.finding_job_means && (
+                        <Chiptip
+                          icon={<Search color="primary" />}
+                          label={
+                            jobFindingOptions.find(
+                              (option) =>
+                                option.value === employment?.finding_job_means
+                            )?.title
+                          }
+                          actual="Means of Finding the Job"
+                        />
+                      )}
 
-                  <Box
-                    sx={{
-                      display: "flex",
-                      paddingY: 1,
-                      width: "100%",
-                      gap: 2,
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Chiptip
-                      icon={<Description color="primary" />}
-                      label={
-                        <Typography>
-                          {employment?.employment_contract}
-                        </Typography>
-                      }
-                      actual="employment contract"
-                    />
-                    <Chiptip
-                      icon={<Business color="primary" />}
-                      label={
-                        <Typography>{employment?.employer_type}</Typography>
-                      }
-                      actual="employer type"
-                    />
-                    <Chiptip
-                      icon={<Work color="primary" />}
-                      label={
-                        <Typography>{employment?.job_position}</Typography>
-                      }
-                      actual="job position"
-                    />
-                  </Box>
+                      {employment?.employment_contract && (
+                        <Chiptip
+                          icon={<Description color="primary" />}
+                          label={
+                            <Typography>
+                              {employment?.employment_contract}
+                            </Typography>
+                          }
+                          actual="Employment Contract"
+                        />
+                      )}
+
+                      {employment?.employer_type && (
+                        <Chiptip
+                          icon={<Business color="primary" />}
+                          label={
+                            <Typography>{employment?.employer_type}</Typography>
+                          }
+                          actual="Employer Type"
+                        />
+                      )}
+
+                      {employment?.job_position && (
+                        <Chiptip
+                          icon={<Work color="primary" />}
+                          label={
+                            <Typography>{employment?.job_position}</Typography>
+                          }
+                          actual="Job Position"
+                        />
+                      )}
+                    </Box>
+                  </Collapse>
                 </Grid>
               </React.Fragment>
             );
