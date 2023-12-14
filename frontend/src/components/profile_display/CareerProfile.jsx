@@ -278,7 +278,7 @@ export const CareerProfile = ({ isLoading, data }) => {
         </Box>
       </Grid>
       
-      {data?.data?.achievement?.length != 0 && (
+      {data?.data?.education?.length != 0 && (
         <Grid
           item
           xs={12}
@@ -287,7 +287,7 @@ export const CareerProfile = ({ isLoading, data }) => {
           <Divider>
             <Typography variant="subtitle2">Education Outside PUPQC</Typography>
           </Divider>
-          <OtherEducationProfile />
+          <OtherEducationProfile data={data} />
         </Grid>
       )}
     </Grid>

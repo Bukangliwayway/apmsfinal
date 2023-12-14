@@ -398,6 +398,8 @@ export const EmploymentProfile = ({ data, isLoading }) => {
                     gap: 2,
                     borderBottom: "1px #aaa solid",
                     paddingY: "0.5rem",
+                    display: "flex",
+                    justifyContent: "center",
                   }}
                   onClick={() => toggleVisibility(employment.id)}
                 >
@@ -490,6 +492,7 @@ export const EmploymentProfile = ({ data, isLoading }) => {
                     in={visibilityStates[employment.id]}
                     timeout="auto"
                     unmountOnExit
+                    mx={"auto"}
                   >
                     <Grid item xs={12}>
                       <Divider>

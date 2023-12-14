@@ -73,7 +73,7 @@ const ExpandMore = styled((props) => {
   }),
 }));
 
-export const OtherEducationProfile = () => {
+export const OtherEducationProfile = ({data, isLoading}) => {
   const [expanded, setExpanded] = React.useState({});
 
   const handleExpandClick = (educationId) => {
@@ -98,24 +98,9 @@ export const OtherEducationProfile = () => {
     </Tooltip>
   );
 
-  const { isLoading, data, isError, error, isFetching } =
-    useGetEducationProfiles();
-  if (isError) {
-    if (error?.response?.data?.detail === "Token has expired") {
-      setAuth({}); // Clears out all the token, logs you out
-      navigate("/login", {
-        state: {
-          from: location,
-          message:
-            "You have been logged out for security purposes, please login again",
-        },
-        replace: true,
-      });
-    }
-  }
 
   return (
-    data?.data?.educations && (
+    data?.data?.education && (
       <Grid
         container
         sx={{
@@ -135,7 +120,7 @@ export const OtherEducationProfile = () => {
             flexDirection: "column",
           }}
         >
-          {data?.data?.educations?.map((education, index) => {
+          {data?.data?.education?.map((education, index) => {
             const isExpanded = expanded[education.id];
             return (
               <React.Fragment key={education.id}>
