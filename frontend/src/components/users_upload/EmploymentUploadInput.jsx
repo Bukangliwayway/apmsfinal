@@ -75,6 +75,7 @@ const EmploymentUploadInput = () => {
       },
       onSuccess: (data, variables, context) => {
         queryClient.invalidateQueries("employments-all");
+        queryClient.invalidateQueries("history-all");
         setMessage("employment profiles processed successfully");
         setSeverity("success");
       },

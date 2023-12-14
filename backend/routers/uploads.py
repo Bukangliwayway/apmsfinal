@@ -230,27 +230,33 @@ def validate_columns(df, expected_columns):
 
 def process_post_grad_act(value):
     allowed_activities = ['PersonalResponsibilities', 'Career Transition', 'Volunteering', 'Travel', 'Freelancing', 'Internship', 'Education', 'Employment']
-    result = [activity for activity in value if activity.title() in allowed_activities]
+    result = [activity.strip() for activity in value if activity.strip() in allowed_activities]
+    return result
 
+def process_unemployment_reason(value):
+    allowed_reasons = ['demand-deficient unemployment', 'advances in technology', 'job outsourcing', 'voluntary', 'relocation', 'new force', 'reenter force']
+    result = [reason.strip() for reason in value if reason.strip() in allowed_reasons]
     return result
 
 def process_profile_data(df):
     # Create a password with random letters 
     alphabet = string.ascii_letters + string.digits
+    df['username'] = [f"{last_name}{''.join(secrets.choice(string.digits) for _ in range(4))}" for last_name in df['last_name']]
     df['password'] = [utils.hash_password(''.join(secrets.choice(alphabet) for _ in range(10))) for _ in range(len(df))]
-    df['role'] = ["alumni" for _ in range(len(df))]
 
     # Clean the data: trim leading/trailing whitespace
     df = df.apply(lambda col: col.str.strip() if col.dtype == 'object' else col)
 
     # Remove duplicate entries based on must-be-unique columns
-    df.drop_duplicates(subset=['username', 'student_number', 'email'], keep='first', inplace=True)
+    df.drop_duplicates(subset=['student_number', 'email'], keep='first', inplace=True)
 
     # Convert date columns to datetime objects
-    date_columns = ['birthdate', 'date_graduated', 'date_start']
+    date_columns = ['birthdate', 'date_graduated']
 
     # Check if 'date_graduated' is just a year and modify it
-    df.loc[df['date_graduated'].str.len() == 4, 'date_graduated'] = df['date_graduated'] + '-09-01'
+    mask = df['date_graduated'].astype(str).str.len() == 4
+    df.loc[mask, 'date_graduated'] = df.loc[mask, 'date_graduated'].astype(str) + '-09-01'
+
 
     for col in date_columns:
         date_format = "%Y-%m-%d"  # Adjust the format according to your actual date format
@@ -269,9 +275,10 @@ def process_profile_data(df):
 
     # Convert array columns to array type
     df['post_grad_act'] = df['post_grad_act'].apply(lambda x: process_post_grad_act(x.split(',')) if isinstance(x, str) else [])
+    df['unemployment_reason'] = df['unemployment_reason'].apply(lambda x: process_unemployment_reason(x.split(',')) if isinstance(x, str) else [])
 
     # Convert all other columns to string type
-    other_columns = ['student_number', 'username', 'first_name', 'last_name', 'email', 'gender', 'civil_status', 'headline', 'present_employment_status', 'country', 'region', 'city', 'barangay', 'origin_country', 'origin_region', 'origin_city', 'origin_barangay', 'course', 'mobile_number', 'telephone_number']
+    other_columns = ['student_number', 'first_name', 'last_name', 'email', 'gender', 'civil_status', 'headline', 'present_employment_status', 'country', 'region', 'city', 'barangay', 'origin_country', 'origin_region', 'origin_city', 'origin_barangay', 'course', 'mobile_number', 'telephone_number']
     for col in other_columns:
         df[col] = df[col].astype(str)
 
@@ -286,7 +293,9 @@ def process_education_data(df):
     date_columns = ['date_graduated', 'date_start']
 
     # Check if 'date_graduated' is just a year and modify it
-    df.loc[df['date_graduated'].str.len() == 4, 'date_graduated'] = df['date_graduated'] + '-09-01'
+    mask = df['date_graduated'].astype(str).str.len() == 4
+    df.loc[mask, 'date_graduated'] = df.loc[mask, 'date_graduated'].astype(str) + '-09-01'
+
 
     # Check if 'date_start' is just a year and modify it
     df.loc[df['date_start'].str.len() == 4, 'date_start'] = df['date_start'] + '-09-01'
@@ -358,6 +367,10 @@ def process_employment_data(df):
     for col in bool_columns:
         df[col] = df[col].apply(lambda x: str(x).lower() in affirmative_words)
 
+    # Convert array columns to array type
+    df['unemployment_reason'] = df['unemployment_reason'].apply(lambda x: process_unemployment_reason(x.split(',')) if isinstance(x, str) else [])
+
+
     # Convert all other columns to string type
     other_columns = ['student_number', 'job', 'company_name', 'gross_monthly_income', 'employment_contract', 'job_position', 'employer_type', 'country', 'region', 'city']
     for col in other_columns:
@@ -382,8 +395,10 @@ def process_unclaimed_data(df):
     # Convert date columns to datetime objects
     date_columns = ['birthdate', 'date_graduated']
 
-     # Check if 'date_graduated' is just a year and modify it
-    df.loc[df['date_graduated'].str.len() == 4, 'date_graduated'] = df['date_graduated'] + '-09-01'
+    # Check if 'date_graduated' is just a year and modify it
+    mask = df['date_graduated'].astype(str).str.len() == 4
+    df.loc[mask, 'date_graduated'] = df.loc[mask, 'date_graduated'].astype(str) + '-09-01'
+
 
     for col in date_columns:
         date_format = "%Y-%m-%d"  # Adjust the format according to your actual date format
@@ -437,7 +452,7 @@ async def profile_upload(file: UploadFile = File(...), db: Session = Depends(get
     else:
         raise HTTPException(status_code=400, detail="Upload failed: The file format is not supported.")
     
-    expected_columns = ['student_number','username','first_name','last_name','email','gender','birthdate','mobile_number','telephone_number','headline','civil_status','date_graduated','course','is_international','country','region','city','barangay','origin_is_international','origin_country','origin_region','origin_city','origin_barangay', 'post_grad_act', 'present_employment_status', 'date_start']
+    expected_columns = ['student_number','first_name','last_name','email','gender','birthdate','mobile_number','telephone_number','headline','civil_status','date_graduated','course','is_international','country','region','city','barangay','origin_is_international','origin_country','origin_region','origin_city','origin_barangay', 'post_grad_act', 'unemployment_reason', 'present_employment_status']
     
     validate_columns(df, expected_columns)
 
@@ -446,8 +461,6 @@ async def profile_upload(file: UploadFile = File(...), db: Session = Depends(get
 
     existing_studnums = {alumni.student_number for alumni in db.query(models.User).all()}
     existing_emails = {alumni.email for alumni in db.query(models.User).all()}
-    existing_username = {alumni.username for alumni in db.query(models.User).all()}
-
     # Insert the data into the database
     inserted = []
     not_inserted = []  # List to store alumni that did not inserted
@@ -456,11 +469,8 @@ async def profile_upload(file: UploadFile = File(...), db: Session = Depends(get
     try:
         for _, row in df.iterrows():
 
-            if row['student_number'] in existing_studnums or row['email'] in existing_emails or row['username'] in existing_username:
+            if row['student_number'] in existing_studnums or row['email'] in existing_emails:
                 not_inserted.append(row)
-            elif pd.isnull(row['username']):
-                # Apply the custom function to the 'username' column
-                row['username'] = row['lastname'] + str(np.random.randint(1000, 9999))
             elif pd.isnull(row['email']) :
                 incomplete_column.append(row)
             else:
@@ -703,7 +713,7 @@ async def achievement_upload(file: UploadFile = File(...), db: Session = Depends
     else:
         raise HTTPException(status_code=400, detail="Upload failed: The file format is not supported.")
     
-    expected_columns = ['student_number', 'job', 'company_name', 'date_hired', 'date_end', 'gross_monthly_income', 'employment_contract', 'job_position', 'employer_type', 'is_international', 'country', 'region', 'city']
+    expected_columns = ['student_number', 'job', 'company_name', 'date_hired', 'date_end', 'finding_job_means', 'gross_monthly_income', 'employment_contract', 'job_position', 'employer_type', 'is_international', 'country', 'region', 'city']
     
     validate_columns(df, expected_columns)
 
@@ -854,6 +864,7 @@ async def achievement_upload(file: UploadFile = File(...), db: Session = Depends
             password=row['password'],
             username=row['username'],
             course=actual_course,
+            course_id=actual_course.id,
         )
         db.add(new_data)
         inserted.append(row)

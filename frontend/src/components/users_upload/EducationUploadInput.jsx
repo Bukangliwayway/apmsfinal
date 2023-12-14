@@ -75,6 +75,7 @@ const EducationUploadInput = () => {
       },
       onSuccess: (data, variables, context) => {
         queryClient.invalidateQueries("educations-all");
+        queryClient.invalidateQueries("history-all");
         setMessage("education profiles processed successfully");
         setSeverity("success");
       },

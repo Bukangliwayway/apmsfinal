@@ -75,6 +75,7 @@ const AchievementUploadInput = () => {
       },
       onSuccess: (data, variables, context) => {
         queryClient.invalidateQueries("achievements-all");
+        queryClient.invalidateQueries("history-all");
         setMessage("achievements processed successfully");
         setSeverity("success");
       },

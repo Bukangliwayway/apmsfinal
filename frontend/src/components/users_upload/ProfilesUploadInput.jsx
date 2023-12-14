@@ -75,6 +75,7 @@ const ProfilesUploadInput = () => {
       },
       onSuccess: (data, variables, context) => {
         queryClient.invalidateQueries("profiles-all");
+        queryClient.invalidateQueries("history-all");
         setMessage("user profiles processed successfully");
         setSeverity("success");
       },

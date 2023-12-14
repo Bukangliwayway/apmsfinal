@@ -75,6 +75,7 @@ const TwoWayLinkUploadInput = () => {
       },
       onSuccess: (data, variables, context) => {
         queryClient.invalidateQueries("unclaimed-all");
+        queryClient.invalidateQueries("history-all");
         setMessage("two way links upload processed successfully");
         setSeverity("success");
       },
