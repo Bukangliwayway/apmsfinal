@@ -250,7 +250,7 @@ def process_profile_data(df):
     date_columns = ['birthdate', 'date_graduated', 'date_start']
 
     # Check if 'date_graduated' is just a year and modify it
-    df.loc[df['date_graduated'].str.len() == 4, 'date_graduated'] = df['date_graduated'] + '-01-01'
+    df.loc[df['date_graduated'].str.len() == 4, 'date_graduated'] = df['date_graduated'] + '-09-01'
 
     for col in date_columns:
         date_format = "%Y-%m-%d"  # Adjust the format according to your actual date format
@@ -286,10 +286,10 @@ def process_education_data(df):
     date_columns = ['date_graduated', 'date_start']
 
     # Check if 'date_graduated' is just a year and modify it
-    df.loc[df['date_graduated'].str.len() == 4, 'date_graduated'] = df['date_graduated'] + '-01-01'
+    df.loc[df['date_graduated'].str.len() == 4, 'date_graduated'] = df['date_graduated'] + '-09-01'
 
     # Check if 'date_start' is just a year and modify it
-    df.loc[df['date_start'].str.len() == 4, 'date_start'] = df['date_start'] + '-01-01'
+    df.loc[df['date_start'].str.len() == 4, 'date_start'] = df['date_start'] + '-09-01'
 
     for col in date_columns:
         date_format = "%Y-%m-%d"  # Adjust the format according to your actual date format
@@ -383,7 +383,7 @@ def process_unclaimed_data(df):
     date_columns = ['birthdate', 'date_graduated']
 
      # Check if 'date_graduated' is just a year and modify it
-    df.loc[df['date_graduated'].str.len() == 4, 'date_graduated'] = df['date_graduated'] + '-01-01'
+    df.loc[df['date_graduated'].str.len() == 4, 'date_graduated'] = df['date_graduated'] + '-09-01'
 
     for col in date_columns:
         date_format = "%Y-%m-%d"  # Adjust the format according to your actual date format
