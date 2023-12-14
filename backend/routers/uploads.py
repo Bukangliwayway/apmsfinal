@@ -248,6 +248,10 @@ def process_profile_data(df):
 
     # Convert date columns to datetime objects
     date_columns = ['birthdate', 'date_graduated', 'date_start']
+
+    # Check if 'date_graduated' is just a year and modify it
+    df.loc[df['date_graduated'].str.len() == 4, 'date_graduated'] = df['date_graduated'] + '-01-01'
+
     for col in date_columns:
         date_format = "%Y-%m-%d"  # Adjust the format according to your actual date format
         df[col] = pd.to_datetime(df[col], errors='coerce', format=date_format)
@@ -280,6 +284,13 @@ def process_education_data(df):
 
     # Convert date columns to datetime objects
     date_columns = ['date_graduated', 'date_start']
+
+    # Check if 'date_graduated' is just a year and modify it
+    df.loc[df['date_graduated'].str.len() == 4, 'date_graduated'] = df['date_graduated'] + '-01-01'
+
+    # Check if 'date_start' is just a year and modify it
+    df.loc[df['date_start'].str.len() == 4, 'date_start'] = df['date_start'] + '-01-01'
+
     for col in date_columns:
         date_format = "%Y-%m-%d"  # Adjust the format according to your actual date format
         df[col] = pd.to_datetime(df[col], errors='coerce', format=date_format)
@@ -369,7 +380,11 @@ def process_unclaimed_data(df):
     df['role'] = ["unclaimed" for _ in range(len(df))]
 
     # Convert date columns to datetime objects
-    date_columns = ['birthdate']
+    date_columns = ['birthdate', 'date_graduated']
+
+     # Check if 'date_graduated' is just a year and modify it
+    df.loc[df['date_graduated'].str.len() == 4, 'date_graduated'] = df['date_graduated'] + '-01-01'
+
     for col in date_columns:
         date_format = "%Y-%m-%d"  # Adjust the format according to your actual date format
         df[col] = pd.to_datetime(df[col], errors='coerce', format=date_format)
@@ -787,7 +802,7 @@ async def achievement_upload(file: UploadFile = File(...), db: Session = Depends
     else:
         raise HTTPException(status_code=400, detail="Upload failed: The file format is not supported.")
     
-    expected_columns = ['student_number', 'first_name', 'last_name', 'birthdate', 'course']
+    expected_columns = ['student_number', 'first_name', 'last_name', 'birthdate', 'course', 'date_graduated']
     
     validate_columns(df, expected_columns)
 
@@ -834,6 +849,7 @@ async def achievement_upload(file: UploadFile = File(...), db: Session = Depends
             birthdate=row['birthdate'],
             first_name=row['first_name'],
             last_name=row['last_name'],
+            date_graduated=row['date_graduated'],
             role=row['role'],
             password=row['password'],
             username=row['username'],
