@@ -51,7 +51,7 @@ const RoleBasedRoutes = ({ mode, setMode }) => {
         path="alumni-nexus"
         element={
           <MainLayout mode={mode} setMode={setMode}>
-            <Missing />
+            <Feed />
           </MainLayout>
         }
       />

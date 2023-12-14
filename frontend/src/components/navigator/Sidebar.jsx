@@ -38,7 +38,7 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import useAuth from "../../hooks/useAuth";
 import Profile from "./ProfileCard";
 
-function Sidebar({ mode, setMode }) {
+function Sidebar() {
   const [selectedIndex, setSelectedIndex] = useState(1);
   const { auth, setAuth } = useAuth();
 
@@ -47,100 +47,100 @@ function Sidebar({ mode, setMode }) {
   };
 
   return (
-    <Box p={1} >
-      <Profile />
-      <List sx={{ display: "flex", gap: 0.5, flexDirection: "column" }}>
-        <RouterLink
-          to="/home"
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          <ListItem
-            disablePadding
-            sx={{
-              borderRadius: 3,
-            }}
+    <Box p={1} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <Card>
+        <List sx={{ display: "flex", gap: 0.5, flexDirection: "column" }}>
+          <RouterLink
+            to="/profile/me"
+            style={{ textDecoration: "none", color: "inherit" }}
           >
-            <ListItemButton
-              component="a"
-              href="#home"
-              selected={selectedIndex === 1}
-              onClick={(event) => handleListItemClick(event, 1)}
+            <ListItem
+              disablePadding
+              sx={{
+                borderRadius: 3,
+              }}
             >
-              <ListItemIcon>
-                <Home />
-              </ListItemIcon>
-              <ListItemText
-                primary={
-                  <Typography variant="subtitle2" fontWeight={800}>
-                    Home
-                  </Typography>
-                }
-              />
-            </ListItemButton>
-          </ListItem>
-        </RouterLink>
-        <RouterLink
-          to="/explore"
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          <ListItem
-            disablePadding
-            sx={{
-              borderRadius: 3,
-            }}
+              <ListItemButton
+                selected={selectedIndex === 1}
+                onClick={(event) => handleListItemClick(event, 1)}
+              >
+                <ListItemIcon>
+                  <Home />
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    <Typography variant="subtitle2" fontWeight={800}>
+                      Home
+                    </Typography>
+                  }
+                />
+              </ListItemButton>
+            </ListItem>
+          </RouterLink>
+          <RouterLink
+            to="/alumni-nexus"
+            style={{ textDecoration: "none", color: "inherit" }}
           >
-            <ListItemButton
-              component="a"
-              href="#explore"
-              selected={selectedIndex === 3}
-              onClick={(event) => handleListItemClick(event, 3)}
+            <ListItem
+              disablePadding
+              sx={{
+                borderRadius: 3,
+              }}
             >
-              <ListItemIcon>
-                <Explore />
-              </ListItemIcon>
-              <ListItemText
-                primary={
-                  <Typography variant="subtitle2" fontWeight={800}>
-                    Explore
-                  </Typography>
-                }
-              />
-            </ListItemButton>
-          </ListItem>
-        </RouterLink>
-        <RouterLink
-          to="/alumni-nexus"
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          <ListItem
-            disablePadding
-            sx={{
-              borderRadius: 3,
-            }}
+              <ListItemButton
+                component="a"
+                href="#alumninexus"
+                selected={selectedIndex === 4}
+                onClick={(event) => handleListItemClick(event, 4)}
+              >
+                <ListItemIcon>
+                  <Hub />
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    <Typography variant="subtitle2" fontWeight={800}>
+                      Alumni Nexus
+                    </Typography>
+                  }
+                />
+              </ListItemButton>
+            </ListItem>
+          </RouterLink>
+          <RouterLink
+            to="/explore"
+            style={{ textDecoration: "none", color: "inherit" }}
           >
-            <ListItemButton
-              component="a"
-              href="#alumninexus"
-              selected={selectedIndex === 4}
-              onClick={(event) => handleListItemClick(event, 4)}
+            <ListItem
+              disablePadding
+              sx={{
+                borderRadius: 3,
+              }}
             >
-              <ListItemIcon>
-                <Hub />
-              </ListItemIcon>
-              <ListItemText
-                primary={
-                  <Typography variant="subtitle2" fontWeight={800}>
-                    Alumni Nexus
-                  </Typography>
-                }
-              />
-            </ListItemButton>
-          </ListItem>
-        </RouterLink>
-        <Divider variant="middle" sx={{ marginY: 0.5 }} />
+              <ListItemButton
+                component="a"
+                href="#explore"
+                selected={selectedIndex === 3}
+                onClick={(event) => handleListItemClick(event, 3)}
+              >
+                <ListItemIcon>
+                  <Explore />
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    <Typography variant="subtitle2" fontWeight={800}>
+                      Explore
+                    </Typography>
+                  }
+                />
+              </ListItemButton>
+            </ListItem>
+          </RouterLink>
+        </List>
+      </Card>
 
+      <Card>
         {auth?.role == "admin" ? (
-          <>
+          <List sx={{ display: "flex", gap: 0.5, flexDirection: "column" }}>
             <RouterLink
               to="/selections"
               style={{ textDecoration: "none", color: "inherit" }}
@@ -195,83 +195,9 @@ function Sidebar({ mode, setMode }) {
                 </ListItemButton>
               </ListItem>
             </RouterLink>
-            <RouterLink
-              to="/approve-accounts"
-              style={{ textDecoration: "none", color: "inherit" }}
-            >
-              <ListItem
-                disablePadding
-                sx={{
-                  borderRadius: 3,
-                }}
-              >
-                <ListItemButton
-                  selected={selectedIndex === 10}
-                  onClick={(event) => handleListItemClick(event, 10)}
-                >
-                  <ListItemIcon>
-                    <HowToReg />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={
-                      <Typography variant="subtitle2" fontWeight={800}>
-                        Accounts Approval
-                      </Typography>
-                    }
-                  />
-                </ListItemButton>
-              </ListItem>
-            </RouterLink>
-            <RouterLink
-              to="/explore/alumni/Admin"  
-              style={{ textDecoration: "none", color: "inherit" }}
-            >
-              <ListItem
-                disablePadding
-                sx={{
-                  borderRadius: 3,
-                }}
-              >
-                <ListItemButton
-                  selected={selectedIndex === 11}
-                  onClick={(event) => handleListItemClick(event, 11)}
-                >
-                  <ListItemIcon>
-                    <HowToReg />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={
-                      <Typography variant="subtitle2" fontWeight={800}>
-                        sample
-                      </Typography>
-                    }
-                  />
-                </ListItemButton>
-              </ListItem>
-            </RouterLink>
-          </>
+          </List>
         ) : null}
-
-        <ListItem
-          disablePadding
-          sx={{
-            borderRadius: 3,
-          }}
-        >
-          <ListItemButton
-            component="a"
-            href="#simple-list"
-            sx={{ paddingY: 0.5 }}
-          >
-            <ListItemIcon>
-              {!(mode === "light") ? <ModeNight /> : <LightMode />}
-            </ListItemIcon>
-            <Switch
-              onChange={(e) => setMode(mode === "light" ? "dark" : "light")}
-            />
-          </ListItemButton>
-        </ListItem>
-      </List>
+      </Card>
     </Box>
   );
 }

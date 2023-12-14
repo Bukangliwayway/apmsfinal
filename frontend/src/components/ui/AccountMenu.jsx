@@ -8,16 +8,18 @@ import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Logout from "@mui/icons-material/Logout";
-import { useNavigate } from "react-router-dom";
 import useLogout from "../../hooks/useLogout";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { useQuery } from "react-query";
+import { Card, CardActionArea } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 export default function AccountMenu() {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
   const logout = useLogout();
+
   const axiosPrivate = useAxiosPrivate();
 
   const getProfile = async () => {
@@ -61,12 +63,11 @@ export default function AccountMenu() {
   };
   return (
     <React.Fragment>
-      <Box sx={{ display: "flex", alignItems: "center", textAlign: "center" }}>
+      <Box>
         <Tooltip title="Account settings">
           <IconButton
             onClick={handleClick}
             size="small"
-            sx={{ ml: 2 }}
             aria-controls={open ? "account-menu" : undefined}
             aria-haspopup="true"
             aria-expanded={open ? "true" : undefined}
@@ -78,24 +79,17 @@ export default function AccountMenu() {
           </IconButton>
         </Tooltip>
       </Box>
+
       <Menu
         anchorEl={anchorEl}
         id="account-menu"
         open={open}
         onClose={handleClose}
-        onClick={handleClose}
+        onClick={() => navigate("/profile/me")}
         PaperProps={{
-          elevation: 0,
           sx: {
             overflow: "visible",
-            filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
             mt: 1.5,
-            "& .MuiAvatar-root": {
-              width: 32,
-              height: 32,
-              ml: -0.5,
-              mr: 1,
-            },
             "&:before": {
               content: '""',
               display: "block",
@@ -114,7 +108,11 @@ export default function AccountMenu() {
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
         <MenuItem onClick={handleClose}>
-          <Avatar src={data?.data.profile_picture} /> my profile
+          <Avatar
+            sx={{ width: 32, height: 32, mr: 1 }}
+            src={data?.data?.profile_picture}
+          />
+          view profile
         </MenuItem>
         <Divider />
         <MenuItem onClick={signOut}>

@@ -9,7 +9,7 @@ function MainLayout({ children, mode, setMode, activeIndex }) {
 
   return (
     <Box>
-      <Navbar />
+      <Navbar mode={mode} setMode={setMode}  />
       <Grid container spacing={8}>
         <Grid
           item
@@ -19,14 +19,10 @@ function MainLayout({ children, mode, setMode, activeIndex }) {
           }}
           width={sidebarWidth + "vw"}
         >
-          <Sidebar mode={mode} setMode={setMode} />
+          <Sidebar />
         </Grid>
-        <Grid
-          item
-          xs={6}
-          mx={"auto"}
-        >
-          <Box>{children}</Box>
+        <Grid item xs={6} mx={"auto"}>
+          <Box sx={{minHeight: "100vh"}}>{children}</Box>
         </Grid>
         <Grid
           item
