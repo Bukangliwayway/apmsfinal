@@ -39,7 +39,7 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import useAuth from "../../hooks/useAuth";
 import Profile from "./ProfileCard";
 
-function Sidebar() {
+function AdminSidebar() {
   const [selectedIndex, setSelectedIndex] = useState(1);
   const { auth, setAuth } = useAuth();
 
@@ -49,6 +49,65 @@ function Sidebar() {
 
   return (
     <Box p={1} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <Card>
+        <List sx={{ display: "flex", gap: 0.5, flexDirection: "column" }}>
+          <RouterLink
+            to="/selections"
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
+            <ListItem
+              disablePadding
+              sx={{
+                borderRadius: 3,
+              }}
+            >
+              <ListItemButton
+                selected={selectedIndex === 8}
+                onClick={(event) => handleListItemClick(event, 8)}
+              >
+                <ListItemIcon>
+                  <Settings />
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    <Typography variant="subtitle2" fontWeight={800}>
+                      Options Management
+                    </Typography>
+                  }
+                />
+              </ListItemButton>
+            </ListItem>
+          </RouterLink>
+          <RouterLink
+            to="/accounts"
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
+            <ListItem
+              disablePadding
+              sx={{
+                borderRadius: 3,
+              }}
+            >
+              <ListItemButton
+                selected={selectedIndex === 9}
+                onClick={(event) => handleListItemClick(event, 9)}
+              >
+                <ListItemIcon>
+                  <People />
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    <Typography variant="subtitle2" fontWeight={800}>
+                      Alumni Accounts
+                    </Typography>
+                  }
+                />
+              </ListItemButton>
+            </ListItem>
+          </RouterLink>
+        </List>
+      </Card>
+
       <Card>
         <List sx={{ display: "flex", gap: 0.5, flexDirection: "column" }}>
           <RouterLink
@@ -62,74 +121,16 @@ function Sidebar() {
               }}
             >
               <ListItemButton
-                selected={selectedIndex === 1}
-                onClick={(event) => handleListItemClick(event, 1)}
+                selected={selectedIndex === 9}
+                onClick={(event) => handleListItemClick(event, 9)}
               >
                 <ListItemIcon>
-                  <Home />
+                  <AccountCircle />
                 </ListItemIcon>
                 <ListItemText
                   primary={
                     <Typography variant="subtitle2" fontWeight={800}>
-                      Home
-                    </Typography>
-                  }
-                />
-              </ListItemButton>
-            </ListItem>
-          </RouterLink>
-          <RouterLink
-            to="/alumni-nexus"
-            style={{ textDecoration: "none", color: "inherit" }}
-          >
-            <ListItem
-              disablePadding
-              sx={{
-                borderRadius: 3,
-              }}
-            >
-              <ListItemButton
-                component="a"
-                href="#alumninexus"
-                selected={selectedIndex === 4}
-                onClick={(event) => handleListItemClick(event, 4)}
-              >
-                <ListItemIcon>
-                  <Hub />
-                </ListItemIcon>
-                <ListItemText
-                  primary={
-                    <Typography variant="subtitle2" fontWeight={800}>
-                      Alumni Nexus
-                    </Typography>
-                  }
-                />
-              </ListItemButton>
-            </ListItem>
-          </RouterLink>
-          <RouterLink
-            to="/explore"
-            style={{ textDecoration: "none", color: "inherit" }}
-          >
-            <ListItem
-              disablePadding
-              sx={{
-                borderRadius: 3,
-              }}
-            >
-              <ListItemButton
-                component="a"
-                href="#explore"
-                selected={selectedIndex === 3}
-                onClick={(event) => handleListItemClick(event, 3)}
-              >
-                <ListItemIcon>
-                  <Explore />
-                </ListItemIcon>
-                <ListItemText
-                  primary={
-                    <Typography variant="subtitle2" fontWeight={800}>
-                      Explore
+                      Profile Page
                     </Typography>
                   }
                 />
@@ -138,42 +139,8 @@ function Sidebar() {
           </RouterLink>
         </List>
       </Card>
-
-      <Card>
-        {auth?.role == "admin" ? (
-          <List sx={{ display: "flex", gap: 0.5, flexDirection: "column" }}>
-            <RouterLink
-              to="/dashboard"
-              style={{ textDecoration: "none", color: "inherit" }}
-            >
-              <ListItem
-                disablePadding
-                sx={{
-                  borderRadius: 3,
-                }}
-              >
-                <ListItemButton
-                  selected={selectedIndex === 9}
-                  onClick={(event) => handleListItemClick(event, 9)}
-                >
-                  <ListItemIcon>
-                    <Dashboard />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={
-                      <Typography variant="subtitle2" fontWeight={800}>
-                        Admin Dashboard
-                      </Typography>
-                    }
-                  />
-                </ListItemButton>
-              </ListItem>
-            </RouterLink>
-          </List>
-        ) : null}
-      </Card>
     </Box>
   );
 }
 
-export default Sidebar;
+export default AdminSidebar;

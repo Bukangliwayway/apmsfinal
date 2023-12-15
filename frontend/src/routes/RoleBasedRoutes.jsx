@@ -17,6 +17,7 @@ import EditableAchievementModal from "../components/profile_edit/EditableAchieve
 import EditableEducationProfile from "../components/profile_edit/EditableEducationProfile";
 import { UploadProfiles } from "../components/users_upload/UploadUserAccounts";
 import DisplayProfile from "../components/profile_display/DisplayProfile";
+import AdminDashboardLayout from "../layout/AdminDashboardLayout";
 const RoleBasedRoutes = ({ mode, setMode }) => {
   const { auth } = useAuth();
   const location = useLocation();
@@ -147,25 +148,25 @@ const RoleBasedRoutes = ({ mode, setMode }) => {
         <Route
           path="selections"
           element={
-            <MainLayout mode={mode} setMode={setMode}>
+            <AdminDashboardLayout mode={mode} setMode={setMode}>
               <ManageSelections />
-            </MainLayout>
+            </AdminDashboardLayout>
           }
         />
         <Route
           path="accounts"
           element={
-            <MainLayout mode={mode} setMode={setMode}>
+            <AdminDashboardLayout mode={mode} setMode={setMode}>
               <UploadProfiles />
-            </MainLayout>
+            </AdminDashboardLayout>
           }
         />
         <Route
-          path="approve-accounts"
+          path="dashboard"
           element={
-            <MainLayout mode={mode} setMode={setMode}>
+            <AdminDashboardLayout mode={mode} setMode={setMode}>
               <UploadProfiles />
-            </MainLayout>
+            </AdminDashboardLayout>
           }
         />
         <Route path="*" element={<Missing />} />;

@@ -8,7 +8,6 @@ import {
   gridFilteredSortedRowIdsSelector,
   selectedGridRowsSelector,
 } from "@mui/x-data-grid";
-import useGetAll from "../../hooks/all_profiles/useGetAll";
 import {
   Alert,
   Button,
@@ -18,10 +17,11 @@ import {
   Snackbar,
 } from "@mui/material";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import useGetHistoryAll from "../../hooks/all_profiles/useGetHistory";
 
-const PendingProfilesDataGrid = () => {
+const UploadHistoryDataGrid = () => {
   const queryClient = useQueryClient();
-  const { data: all, isLoading: isLoadingAll } = useGetAll();
+  const { data: all, isLoading: isLoadingAll } = useGetHistoryAll();
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
   const [message, setMessage] = useState("");
@@ -35,37 +35,6 @@ const PendingProfilesDataGrid = () => {
 
     setOpenSnackbar(false);
   };
-
-  const mutation = useMutation(
-    async (username) => {
-      const axiosConfig = {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      };
-
-      const response = await axiosPrivate.put(
-        `/profiles/approve/${username}`,
-        axiosConfig
-      );
-    },
-    {
-      onError: (error) => {
-        setMessage(error.response ? error.response.data.detail : error.message);
-        setSeverity("error");
-        setOpenSnackbar(true);
-      },
-      onSuccess: (data, variables, context) => {
-        queryClient.invalidateQueries("all");
-        queryClient.invalidateQueries("profile-me");
-
-        setMessage("User Approved Successfully");
-        setSeverity("success");
-      },
-    }
-  );
-
-  const { isLoading, isError, error, isSuccess } = mutation;
 
   if (isLoadingAll) {
     return (
@@ -116,8 +85,15 @@ const PendingProfilesDataGrid = () => {
     return gridFilteredSortedRowIdsSelector(apiRef);
   };
 
+  const flattenedData = all?.data.map((item) => {
+    // Assuming each item is an object, flatten it
+    return {
+      ...item,
+    };
+  });
+
   const columnVisibilityModel = Object.keys(all?.data[0]).reduce((acc, key) => {
-    if (key == "first_name" || key == "last_name" || key == "student_number") {
+    if (key == "type" || key == "updated_at") {
       acc[key] = true;
     } else {
       acc[key] = false;
@@ -125,30 +101,30 @@ const PendingProfilesDataGrid = () => {
     return acc;
   }, {});
 
-  const columns = Object.keys(columnVisibilityModel).map((key) => ({
-    field: key,
-    headerName: key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, " "), // Converts 'field_name' to 'Field name'
-    width: 150,
-    editable: false,
-  }));
+  const columns = Object.keys(columnVisibilityModel).map((key) => {
+    return {
+      field: key,
+      headerName: key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, " "),
+      width: 170,
+      editable: false,
+      renderCell: (params) => {
+        if (key === "updated_at") {
+          // Apply custom formatting for the 'updated_at' field
+          return (
+            <span>
+              {`${new Date(params.value).toLocaleDateString()} ${new Date(
+                params.value
+              ).toLocaleTimeString()}`}
+            </span>
+          );
+        } else {
+          return <span>{params.value}</span>; // Render other fields as-is
+        }
+      },
+    };
+  });
 
-  const visitProfileColumn = {
-    field: "visit",
-    headerName: "Visit Profile",
-    width: 100,
-    renderCell: (params) => (
-      <Button
-        variant="contained"
-        color="inherit"
-        size="small"
-        onClick={() => navigate(`/explore/alumni/${params.row.username}`)}
-      >
-        Visit
-      </Button>
-    ),
-  };
-
-  const approveProfileColumn = {
+  const viewUploadHistory = {
     field: "approve",
     headerName: "Approve Profile",
     width: 100,
@@ -157,43 +133,20 @@ const PendingProfilesDataGrid = () => {
         variant="contained"
         color="primary"
         size="small"
-        onClick={() => handleSubmit(params.row.username)}
+        onClick={() => {
+          window.open(params.row.link, "_blank");
+        }}
       >
-        Approve
+        View
       </Button>
     ),
   };
 
-  const uniquePublicUsers = Array.from(
-    new Set(
-      all?.data
-        .filter((user) => user.role == "public")
-        .map((user) => user.student_number)
-    )
-  ).map((studentNumber) =>
-    all?.data
-      .filter((user) => user.role == "public")
-      .find((user) => user.student_number === studentNumber)
-  );
-
   return (
     <Box sx={{ height: 525, width: "100%" }}>
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={severity}>
-          {message}
-        </Alert>
-      </Snackbar>
-      <Box sx={{ width: "100%", position: "relative", top: 0 }}>
-        {isLoading && <LinearProgress />}
-        {!isLoading && <Box sx={{ height: 4 }} />}
-      </Box>
       <DataGrid
-        rows={uniquePublicUsers}
-        columns={[...columns, approveProfileColumn, visitProfileColumn]}
+        rows={flattenedData}
+        columns={[...columns, viewUploadHistory]}
         loading={isLoadingAll}
         checkboxSelection
         initialState={{
@@ -219,4 +172,4 @@ const PendingProfilesDataGrid = () => {
   );
 };
 
-export default PendingProfilesDataGrid;
+export default UploadHistoryDataGrid;

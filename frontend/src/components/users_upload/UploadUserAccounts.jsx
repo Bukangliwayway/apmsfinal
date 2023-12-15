@@ -16,6 +16,7 @@ import {
   HowToReg,
   Stars,
   Work,
+  CloudUpload,
 } from "@mui/icons-material";
 import DemoProfileDataGrid from "./ProfileDataGrid";
 import ProfilesUploadInput from "./ProfilesUploadInput";
@@ -31,6 +32,7 @@ import TwoWayLinkDataGrid from "./TwoWayLinkDataGrid";
 import useGetHistoryAll from "../../hooks/all_profiles/useGetHistory";
 import DisplayHistory from "./DisplayHistory";
 import PendingProfilesDataGrid from "./PendingProfilesDataGrid";
+import UploadHistoryDataGrid from "./UploadHistoryDataGrid";
 
 export const UploadProfiles = () => {
   const [value, setValue] = useState(0);
@@ -146,6 +148,12 @@ export const UploadProfiles = () => {
             onClick={() => setActiveTab("two_way_link")}
             style={{ width: "12vw" }}
           />
+          <Tab
+            icon={<CloudUpload />}
+            label="Upload History"
+            onClick={() => setActiveTab("upload_history")}
+            style={{ width: "12vw" }}
+          />
         </Tabs>
       </Box>
 
@@ -209,7 +217,7 @@ export const UploadProfiles = () => {
                 color: "primary",
               }}
             >
-              Approve Public Users
+              Approve Registration
             </Typography>
           </Grid>
           <Grid item xs={12}>
@@ -252,9 +260,6 @@ export const UploadProfiles = () => {
           <Grid item xs={12}>
             <DemoProfileDataGrid />
           </Grid>
-          <Grid item xs={12}>
-            <DisplayHistory history={filteredProfileUploads} />
-          </Grid>
         </Grid>
       )}
       {activeTab === "upload_education" && (
@@ -291,9 +296,6 @@ export const UploadProfiles = () => {
           </Grid>
           <Grid item xs={12}>
             <EducationDataGrid />
-          </Grid>
-          <Grid item xs={12}>
-            <DisplayHistory history={filteredEducationUploads} />
           </Grid>
         </Grid>
       )}
@@ -332,9 +334,6 @@ export const UploadProfiles = () => {
           <Grid item xs={12}>
             <EmploymentDataGrid />
           </Grid>
-          <Grid item xs={12}>
-            <DisplayHistory history={filteredEmploymentUploads} />
-          </Grid>
         </Grid>
       )}
       {activeTab === "upload_achievements" && (
@@ -371,9 +370,6 @@ export const UploadProfiles = () => {
           </Grid>
           <Grid item xs={12}>
             <AchievementDataGrid />
-          </Grid>
-          <Grid item xs={12}>
-            <DisplayHistory history={filteredAchievementUploads} />
           </Grid>
         </Grid>
       )}
@@ -412,8 +408,39 @@ export const UploadProfiles = () => {
           <Grid item xs={12}>
             <TwoWayLinkDataGrid />
           </Grid>
+        </Grid>
+      )}
+      {activeTab === "upload_history" && (
+        <Grid
+          container
+          sx={{
+            backgroundColor: (theme) => theme.palette.common.main,
+            padding: 2,
+            borderRadius: 3,
+            minHeight: "88vh",
+            position: "relative",
+            opacity: activeTab === "upload_history" ? 1 : 0,
+            display: activeTab === "upload_history" ? "flex" : "none",
+            gap: 2,
+            transition: "opacity 0.5s ease-in-out",
+          }}
+          id="upload_history"
+        >
           <Grid item xs={12}>
-            <DisplayHistory history={filteredTwoWayLinkUploads} />
+            <Typography
+              variant="h1"
+              fontWeight={800}
+              sx={{
+                padding: "10px",
+                borderBottom: "2px solid",
+                color: "primary",
+              }}
+            >
+              Upload History
+            </Typography>
+          </Grid>
+          <Grid item xs={12}>
+            <UploadHistoryDataGrid />
           </Grid>
         </Grid>
       )}
