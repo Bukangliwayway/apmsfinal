@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import useAuth from "../../hooks/useAuth";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
-import { useMutation, useQueryClient, useQuery } from "react-query";
+import { useMutation, } from "react-query";
 import LinearProgress from "@mui/material/LinearProgress";
 import axios from "../../api/axios";
 import LinkedInLogin from "./LinkedInLogin";
@@ -18,15 +18,10 @@ import {
   TextField,
   Typography,
   FormControlLabel,
-  Tooltip,
-  IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  DialogContentText,
-  Backdrop,
-  CircularProgress,
 } from "@mui/material";
 
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -34,13 +29,13 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 });
 
 const Login = () => {
-  const { auth, setAuth, setPersist, persist } = useAuth();
+  const { setAuth, setPersist, persist } = useAuth();
 
   const location = useLocation();
   const navigate = useNavigate();
   const from = location.state?.from?.pathname || "/home";
   const refreshMessage =
-    location.state?.message || "Ready to relive Memories? Just Loginn!";
+    location.state?.message || "Ready to relive Memories? Just Login!";
   const snackbarMessage = location.state?.snackbar || "";
 
   const userRef = useRef();
@@ -63,7 +58,7 @@ const Login = () => {
       setSeverity("success");
       setOpenSnackbar(true);
     }
-  }, []);
+  }, [snackbarMessage]); 
 
   const ResetMutation = useMutation(
     async (details) => {
@@ -80,7 +75,7 @@ const Login = () => {
         setSeverity("error");
         setOpenSnackbar(true);
       },
-      onSuccess: (data, variables, context) => {
+      onSuccess: () => {
         setMessage("Password Reset Successful");
         setSeverity("success");
       },
@@ -239,8 +234,8 @@ const Login = () => {
       >
         <Card
           style={{
-            maxWidth: 600,
-            padding: "20px 5px",
+            maxWidth: 500,
+            padding: "24px",
           }}
         >
           <CardContent>

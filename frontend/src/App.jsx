@@ -1,18 +1,10 @@
 import React, { useState } from "react";
-import { useContext } from "react";
-import AuthContext from "./context/AuthProvider";
 import { Routes, Route } from "react-router-dom";
 import { Box, createTheme, ThemeProvider } from "@mui/material";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import PrivateRoutes from "./routes/privateRoutes";
 import PublicRoutes from "./routes/publicRoutes";
-import Feed from "./components/Feed";
-import Explore from "./components/Explore";
-import Announcements from "./components/Announcements";
-import News from "./components/News";
-import Events from "./components/Events";
-import Fundraise from "./components/Fundraise";
 import { QueryClientProvider, QueryClient } from "react-query";
 import Missing from "./components/status_display/UserNotFound";
 import PersistLogin from "./routes/persistLogin";
@@ -20,6 +12,7 @@ import LinkedInRedirect from "./components/auth/LinkedInRedirect";
 import { ReactQueryDevtools } from "react-query/devtools";
 import RoleBasedRoutes from "./routes/RoleBasedRoutes";
 import ResetPassword from "./components/auth/ResetPassword";
+
 const App = () => {
   const [mode, setMode] = useState("light");
   const theme = createTheme({
@@ -40,7 +33,7 @@ const App = () => {
       },
     },
     typography: {
-      fontFamily: "Nunito, Arial, sans-serif", // Font family
+      fontFamily: "Inter, Arial, sans-serif", // Font family
       h1: {
         fontSize: "2rem", // Topbar title font size
         fontWeight: 900, // Bold style
