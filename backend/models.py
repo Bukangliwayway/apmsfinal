@@ -57,7 +57,6 @@ class User(Base):
     origin_barangay_code = Column(String)
 
     #PUPQC Education Profile
-    date_start =  Column(Date) #dilit dis
     date_graduated = Column(Date)
     post_grad_act = Column(ARRAY(String))
 

@@ -55,6 +55,7 @@ import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import useGetCareerProfile from "../../hooks/useGetCareerProfile";
 import useCourses from "../../hooks/useCourses";
+import useAuth from "../../hooks/useAuth";
 
 const careerProfileEditModal = ({ open, onClose }) => {
   const queryClient = useQueryClient();
@@ -62,6 +63,7 @@ const careerProfileEditModal = ({ open, onClose }) => {
   const { data: courses, isLoading: isLoadingCourses } = useCourses();
   const { data: cachedData, isLoading: isLoadingDisplay } =
     useGetCareerProfile();
+  const { auth } = useAuth();
 
   const [careerProfile, setCareerProfile] = useState(null);
 
@@ -313,25 +315,27 @@ const careerProfileEditModal = ({ open, onClose }) => {
               }
             />
           </Grid>
-          <Grid item xs={12}>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DemoContainer components={["DatePicker"]}>
-                <DemoItem>
-                  <DatePicker
-                    views={["year"]}
-                    label="Batch Year"
-                    value={
-                      careerProfile?.date_graduated
-                        ? dayjs(careerProfile.date_graduated)
-                        : null
-                    }
-                    onChange={handleDateChange}
-                    renderInput={(params) => <TextField {...params} />}
-                  />
-                </DemoItem>
-              </DemoContainer>
-            </LocalizationProvider>
-          </Grid>
+          {auth?.role == "public" && (
+            <Grid item xs={12}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DemoContainer components={["DatePicker"]}>
+                  <DemoItem>
+                    <DatePicker
+                      views={["year"]}
+                      label="Batch Year"
+                      value={
+                        careerProfile?.date_graduated
+                          ? dayjs(careerProfile.date_graduated)
+                          : null
+                      }
+                      onChange={handleDateChange}
+                      renderInput={(params) => <TextField {...params} />}
+                    />
+                  </DemoItem>
+                </DemoContainer>
+              </LocalizationProvider>
+            </Grid>
+          )}
           <Grid item xs={12}>
             <FormControl sx={{ width: "100%" }}>
               <InputLabel id="post-grad-act-label">

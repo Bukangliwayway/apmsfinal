@@ -216,6 +216,7 @@ async def get_unclaimed_profile(
             "first_name": unclaimed_profile.first_name,
             "birthdate": unclaimed_profile.birthdate,
             "student_number": unclaimed_profile.student_number,
+            "date_graduated": unclaimed_profile.date_graduated,
             "course": unclaimed_profile.course.name if unclaimed_profile.course and unclaimed_profile.course.name else '',
         }
         unclaimed.append(unclaimed_dict)

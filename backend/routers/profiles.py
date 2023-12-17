@@ -420,7 +420,6 @@ async def get_employment_status(
 async def put_career_profiles(
     *,
     date_graduated: Optional[date] = Body(None),
-    date_start: Optional[date] = Body(None),
     course: Optional[UUID] = Body(None),
     post_grad_act: Optional[List[str]] = Body(None),
     db: Session = Depends(get_db),
@@ -442,7 +441,6 @@ async def put_career_profiles(
     try:
         profile = {
             'date_graduated': date_graduated,
-            'date_start': date_start,
             'course': course_instance,
             'post_grad_act': post_grad_act,
         }
