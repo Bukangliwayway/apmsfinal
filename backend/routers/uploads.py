@@ -245,7 +245,9 @@ def process_profile_data(df):
     df['password'] = [utils.hash_password(''.join(secrets.choice(alphabet) for _ in range(10))) for _ in range(len(df))]
 
     # Clean the data: trim leading/trailing whitespace
-    df = df.apply(lambda col: col.str.strip() if col.dtype == 'object' else col)
+    df = df.apply(lambda col: col.str.strip() if isinstance(col, str) else col)
+
+
 
     # Remove duplicate entries based on must-be-unique columns
     df.drop_duplicates(subset=['student_number', 'email'], keep='first', inplace=True)
@@ -254,8 +256,10 @@ def process_profile_data(df):
     date_columns = ['birthdate', 'date_graduated']
 
     # Check if 'date_graduated' is just a year and modify it
-    mask = df['date_graduated'].astype(str).str.len() == 4
-    df.loc[mask, 'date_graduated'] = df.loc[mask, 'date_graduated'].astype(str) + '-09-01'
+    df['date_graduated'] = df['date_graduated'].astype(str)
+    mask = df['date_graduated'].notna()
+    df.loc[mask, 'date_graduated'] = df.loc[mask, 'date_graduated'] + '-09-01'
+
 
 
     for col in date_columns:
@@ -287,14 +291,18 @@ def process_profile_data(df):
 def process_education_data(df):
 
     # Clean the data: trim leading/trailing whitespace
-    df = df.apply(lambda col: col.str.strip() if col.dtype == 'object' else col)
+    df = df.apply(lambda col: col.str.strip() if isinstance(col, str) else col)
+
+
 
     # Convert date columns to datetime objects
     date_columns = ['date_graduated', 'date_start']
 
     # Check if 'date_graduated' is just a year and modify it
-    mask = df['date_graduated'].astype(str).str.len() == 4
-    df.loc[mask, 'date_graduated'] = df.loc[mask, 'date_graduated'].astype(str) + '-09-01'
+    df['date_graduated'] = df['date_graduated'].astype(str)
+    mask = df['date_graduated'].notna()
+    df.loc[mask, 'date_graduated'] = df.loc[mask, 'date_graduated'] + '-09-01'
+
 
 
     # Check if 'date_start' is just a year and modify it
@@ -323,10 +331,12 @@ def process_education_data(df):
 
     return df
 
-def process_achievement_data(df):
+def process_achievement_data(df)    :
 
     # Clean the data: trim leading/trailing whitespace
-    df = df.apply(lambda col: col.str.strip() if col.dtype == 'object' else col)
+    df = df.apply(lambda col: col.str.strip() if isinstance(col, str) else col)
+
+
 
     # Convert date columns to datetime objects
     date_columns = ['date_of_attainment']
@@ -348,7 +358,7 @@ def process_achievement_data(df):
 def process_employment_data(df):
 
     # Clean the data: trim leading/trailing whitespace
-    df = df.apply(lambda col: col.str.strip() if col.dtype == 'object' else col)
+    df = df.apply(lambda col: col.str.strip() if isinstance(col, str) else col)
 
     # Convert date columns to datetime objects
     date_columns = ['date_hired', 'date_end']
@@ -367,10 +377,6 @@ def process_employment_data(df):
     for col in bool_columns:
         df[col] = df[col].apply(lambda x: str(x).lower() in affirmative_words)
 
-    # Convert array columns to array type
-    df['unemployment_reason'] = df['unemployment_reason'].apply(lambda x: process_unemployment_reason(x.split(',')) if isinstance(x, str) else [])
-
-
     # Convert all other columns to string type
     other_columns = ['student_number', 'job', 'company_name', 'gross_monthly_income', 'employment_contract', 'job_position', 'employer_type', 'country', 'region', 'city']
     for col in other_columns:
@@ -381,7 +387,9 @@ def process_employment_data(df):
 def process_unclaimed_data(df):
 
     # Clean the data: trim leading/trailing whitespace
-    df = df.apply(lambda col: col.str.strip() if col.dtype == 'object' else col)
+    df = df.apply(lambda col: col.str.strip() if isinstance(col, str) else col)
+
+
 
     #Create a random password for each users
     alphabet = string.ascii_letters + string.digits
@@ -396,8 +404,10 @@ def process_unclaimed_data(df):
     date_columns = ['birthdate', 'date_graduated']
 
     # Check if 'date_graduated' is just a year and modify it
-    mask = df['date_graduated'].astype(str).str.len() == 4
-    df.loc[mask, 'date_graduated'] = df.loc[mask, 'date_graduated'].astype(str) + '-09-01'
+    df['date_graduated'] = df['date_graduated'].astype(str)
+    mask = df['date_graduated'].notna()
+    df.loc[mask, 'date_graduated'] = df.loc[mask, 'date_graduated'] + '-09-01'
+
 
 
     for col in date_columns:

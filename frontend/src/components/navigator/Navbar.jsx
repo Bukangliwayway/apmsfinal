@@ -32,9 +32,9 @@ const Navbar = ({ mode, setMode }) => {
           >
             {!(mode === "light") ? <ModeNight /> : <LightMode />}
           </Box>
-          <Badge badgeContent={5} color="error">
+          {/* <Badge badgeContent={5} color="error">
             <Notifications />
-          </Badge>
+          </Badge> */}
           <AccountMenu link="https://ucarecdn.com/c0549749-795b-4ae3-802c-3dfc275aa0b4/-/crop/1190x1000/5,0/-/resize/1035x870/" />
         </Box>
       </Toolbar>

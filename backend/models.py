@@ -84,7 +84,7 @@ class Achievement(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey('user.id', ondelete="CASCADE"))
     national_certification_id = Column(UUID(as_uuid=True), ForeignKey('national_certification.id', ondelete="CASCADE"))
 
-    type_of_achievement = Column(String) # Bar Passing, Board Passing, Civil Service Passing, Certifications, Owned Business, 
+    type_of_achievement = Column(String)
     date_of_attainment =  Column(Date)
     description = Column(String)
     story = Column(Text)

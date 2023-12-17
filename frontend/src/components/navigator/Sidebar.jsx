@@ -78,7 +78,7 @@ function Sidebar() {
               </ListItemButton>
             </ListItem>
           </RouterLink>
-          <RouterLink
+          {/* <RouterLink
             to="/alumni-nexus"
             style={{ textDecoration: "none", color: "inherit" }}
           >
@@ -135,7 +135,7 @@ function Sidebar() {
                 />
               </ListItemButton>
             </ListItem>
-          </RouterLink>
+          </RouterLink> */}
         </List>
       </Card>
 
