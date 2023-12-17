@@ -17,6 +17,7 @@ class User(Base):
     sub = Column(String, unique=True, index=True)
     password = Column(String, nullable=False)
     reset_code = Column(String)
+    is_completed = Column(Boolean, nullable=False, server_default='False') 
 
     #alumni information
     profile_picture = Column(String, server_default="#")

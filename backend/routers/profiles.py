@@ -37,6 +37,36 @@ async def afterEmploymentPostRoutine(user_id, db: Session):
 
   db.commit()
 
+async def isProfileCompleted(user_id, db: Session):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if user:
+        if user.present_employment_status == 'unanswered':
+            return False
+        # Check if any of the specified columns is null or blank
+        required_columns = [
+            'username',
+            'first_name',
+            'last_name',
+            'student_number',
+            'birthdate',
+            'civil_status',
+            'gender',
+            'email',
+            'date_graduated',
+            'course_id',
+        ]
+
+        for column_name in required_columns:
+            column_value = getattr(user, column_name)
+            if column_value is None or (isinstance(column_value, str) and column_value.strip() == ''):
+                return False
+        
+    else: return False
+
+
+    return True
+
+
 @router.get("/check/{username}")
 async def check_username(
     username: str,
@@ -302,7 +332,7 @@ async def put_demographic_profiles(
             'origin_barangay_code': origin_barangay_code, 
             'origin_address': origin_address, 
             'civil_status': civil_status, 
-            'profile_picture': profile_picture   
+            'profile_picture': profile_picture,               
         }
 
         if profile_picture:
@@ -316,6 +346,8 @@ async def put_demographic_profiles(
         for key, value in profile.items():
             if value is not None and value != "":
                 setattr(saved_profile, key, value)
+
+        saved_profile.is_completed = await isProfileCompleted(user.id, db)
 
         db.commit()
         return {"message": "Profile updated successfully"}
@@ -437,8 +469,10 @@ async def put_career_profiles(
         course_instance = db.query(models.Course).filter_by(id=course).first()
         if course_instance is None:
             raise HTTPException(status_code=404, detail="Course not found")
+        
 
     try:
+        
         profile = {
             'date_graduated': date_graduated,
             'course': course_instance,
@@ -1346,6 +1380,7 @@ async def approve_user(username: str, db: Session = Depends(get_db), user: UserR
     
     try:
         actual_user.role = "alumni"
+        actual_user.is_completed = await isProfileCompleted(user.id, db)
         db.commit()
 
         return {"message": "User Approval Successful"}
