@@ -83,78 +83,83 @@ function AdminSidebar({ mode }) {
             />
           </ListItemButton>
         </RouterLink>
-        <ListItem
-          disablePadding
-          sx={{
-            borderRadius: 3,
-          }}
+        <RouterLink
+          to="/dashboard"
+          style={{ textDecoration: "none", color: "inherit" }}
         >
-          <ListItemButton
-            onClick={!mode ? () => handleClick("dashboard") : undefined}
-            sx={
-              mode
-                ? {
-                    display: "flex",
-                    flexDirection: "column",
-                    textAlign: "center",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }
-                : {}
-            }
+          <ListItem
+            disablePadding
+            sx={{
+              borderRadius: 3,
+            }}
           >
-            <ListItemIcon
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <SpaceDashboard />
-            </ListItemIcon>
-            <ListItemText
-              primary={
-                <Typography
-                  variant="subtitle2"
-                  fontWeight={800}
-                  sx={{ fontSize: mode && "0.625rem" }}
-                >
-                  Dashboard
-                </Typography>
+            <ListItemButton
+              onClick={!mode ? () => handleClick("dashboard") : undefined}
+              sx={
+                mode
+                  ? {
+                      display: "flex",
+                      flexDirection: "column",
+                      textAlign: "center",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }
+                  : {}
               }
-            />
-            {!mode &&
-              (open?.dashboard || false ? <ExpandLess /> : <ExpandMore />)}
-          </ListItemButton>
-        </ListItem>
-        <Collapse in={open?.dashboard || false} timeout="auto" unmountOnExit>
-          <List component="Box" disablePadding>
-            <RouterLink
-              to="/completed-list"
-              style={{ textDecoration: "none", color: "inherit" }}
             >
-              <ListItem
-                disablePadding
+              <ListItemIcon
                 sx={{
-                  borderRadius: 3,
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
                 }}
               >
-                <ListItemButton sx={{ pl: 4 }}>
-                  <ListItemIcon>
-                    <CheckCircle />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={
-                      <Typography variant="subtitle2" fontWeight={800}>
-                        Profile Completion List
-                      </Typography>
-                    }
-                  />
-                </ListItemButton>
-              </ListItem>
-            </RouterLink>
-          </List>
-        </Collapse>
+                <SpaceDashboard />
+              </ListItemIcon>
+              <ListItemText
+                primary={
+                  <Typography
+                    variant="subtitle2"
+                    fontWeight={800}
+                    sx={{ fontSize: mode && "0.625rem" }}
+                  >
+                    Dashboard
+                  </Typography>
+                }
+              />
+            </ListItemButton>
+          </ListItem>
+        </RouterLink>
+        {!mode && (
+          <Collapse in={open?.dashboard || false} timeout="auto" unmountOnExit>
+            <List component="Box" disablePadding>
+              <RouterLink
+                to="/completed-list"
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <ListItem
+                  disablePadding
+                  sx={{
+                    borderRadius: 3,
+                  }}
+                >
+                  <ListItemButton sx={{ pl: 4 }}>
+                    <ListItemIcon>
+                      <CheckCircle />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={
+                        <Typography variant="subtitle2" fontWeight={800}>
+                          Profile Completion List
+                        </Typography>
+                      }
+                    />
+                  </ListItemButton>
+                </ListItem>
+              </RouterLink>
+            </List>
+          </Collapse>
+        )}
         <RouterLink
           to="/selections"
           style={{ textDecoration: "none", color: "inherit" }}

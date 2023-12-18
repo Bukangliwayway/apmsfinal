@@ -25,7 +25,6 @@ const PendingProfilesDataGrid = () => {
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
   const [message, setMessage] = useState("");
-  const [openModal, setOpenModal] = useState(false);
   const [severity, setSeverity] = useState("error");
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const handleCloseSnackbar = (event, reason) => {
@@ -61,6 +60,7 @@ const PendingProfilesDataGrid = () => {
 
         setMessage("User Approved Successfully");
         setSeverity("success");
+        setOpenSnackbar(true);
       },
     }
   );

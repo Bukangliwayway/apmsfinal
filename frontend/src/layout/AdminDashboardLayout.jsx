@@ -10,7 +10,7 @@ function AdminDashboardLayout({ children, mode, setMode, activeIndex }) {
   const handleDrawerToggle = () => {
     if(!open){
       setOpen(true);
-      setSidebarWidth(4);
+      setSidebarWidth(5);
     } else {
       setOpen(false);
       setSidebarWidth(15);
@@ -28,7 +28,7 @@ function AdminDashboardLayout({ children, mode, setMode, activeIndex }) {
             display: "flex",
             flexDirection: "column",
           }}
-          width={sidebarWidth  + "vw"}
+          width={sidebarWidth  + "%"}
           p={open ? "0" : "0.5rem"}
           pt="0.5rem"
         >
@@ -42,8 +42,8 @@ function AdminDashboardLayout({ children, mode, setMode, activeIndex }) {
           </IconButton>
             <AdminSidebar mode={open}/>
         </Grid>
-        <Grid item xs={6} ml={sidebarWidth + "vw"}>
-          <Box sx={{minHeight: "100vh"}} width={100 - sidebarWidth + "vw"}>{children}</Box>
+        <Grid item xs={open ? 11.4 : 10.2} ml={sidebarWidth + "%"}>
+          <Box sx={{minHeight: "100vh"}} width={100 - sidebarWidth + "%"}>{children}</Box>
         </Grid>
       </Grid>
     </Box>

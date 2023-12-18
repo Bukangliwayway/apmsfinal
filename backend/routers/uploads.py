@@ -294,8 +294,6 @@ def process_education_data(df):
     # Clean the data: trim leading/trailing whitespace
     df = df.apply(lambda col: col.str.strip() if isinstance(col, str) else col)
 
-
-
     # Convert date columns to datetime objects
     date_columns = ['date_graduated', 'date_start']
 
@@ -478,11 +476,12 @@ async def profile_upload(file: UploadFile = File(...), db: Session = Depends(get
     incomplete_column = []
 
     try:
+        
         for _, row in df.iterrows():
 
             if row['student_number'] in existing_studnums or row['email'] in existing_emails:
                 not_inserted.append(row)
-            elif pd.isnull(row['email']) :
+            elif pd.isnull(row['email']) or row['student_number'] or not row['birthdate'] or not row['first_name'] or not row['last_name'] or not row['course']:
                 incomplete_column.append(row)
             else:
                 # Check if the course exists

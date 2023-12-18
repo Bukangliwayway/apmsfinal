@@ -58,11 +58,11 @@ async def isProfileCompleted(user_id, db: Session):
 
         for column_name in required_columns:
             column_value = getattr(user, column_name)
-            if column_value is None or (isinstance(column_value, str) and column_value.strip() == ''):
+            if column_value is None or (isinstance(column_value, str) and column_value.strip() == ''):                
+                print("naniii", column_name)
                 return False
         
     else: return False
-
 
     return True
 
@@ -288,13 +288,14 @@ async def put_demographic_profiles(
 
     if email:
         # Check if email already exists
-        check = db.query(models.User).filter(models.User.email == email.lower()).first()
-        if check: raise HTTPException(status_code=400, detail="Email is already in use")
+        check_email = db.query(models.User).filter(models.User.email == email.lower()).first()
+        if check_email: 
+            raise HTTPException(status_code=400, detail="Email is already in use")
 
     if username:
         # Check if username already exists
-        check = db.query(models.User).filter(models.User.username == username.lower()).first()
-        if check:
+        check_username = db.query(models.User).filter(models.User.username == username.lower()).first()
+        if check_username:
             raise HTTPException(status_code=400, detail="Username is already in use")
 
     try:
@@ -428,6 +429,8 @@ async def put_employment_status(
     try:
         actual_user.unemployment_reason = unemployment_reason
         actual_user.present_employment_status = present_employment_status
+        actual_user.is_completed = await isProfileCompleted(user.id, db)
+
         db.commit()
         return {"message": "Employment Status updated successfully"}
     except Exception:
@@ -483,6 +486,9 @@ async def put_career_profiles(
         for key, value in profile.items():
             if value is not None and value != "":
                 setattr(saved_profile, key, value)
+        
+        saved_profile.is_completed = await isProfileCompleted(user.id, db)
+
 
         db.commit()
         return {"message": "Career Profile updated successfully"}
@@ -788,6 +794,7 @@ async def put_employment(
          # Iterate through the profile dictionary and populate saved_profile
         for key, value in profile.items():
             setattr(employment, key, value)
+        
             
         db.commit()
         await afterEmploymentPostRoutine(user.id, db)
@@ -1378,12 +1385,19 @@ async def approve_user(username: str, db: Session = Depends(get_db), user: UserR
     if not actual_user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    try:
-        actual_user.role = "alumni"
-        actual_user.is_completed = await isProfileCompleted(user.id, db)
-        db.commit()
+    check = await isProfileCompleted(actual_user.id, db)
 
+    print(check)
+
+    if not check:
+        raise HTTPException(status_code=400, detail=" The User is not yet complete")
+    
+    try:
+        actual_user.is_completed = check
+        actual_user.role = "alumni"
+        db.commit()
         return {"message": "User Approval Successful"}
+    
     except Exception as e:
         db.rollback()
         print("Error:", e)  # Add this line for debugging
