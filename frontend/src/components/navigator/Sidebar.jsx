@@ -1,47 +1,25 @@
 import {
-  AccountCircle,
-  Campaign,
-  CheckBoxOutlineBlank,
-  CheckBoxOutlineBlankRounded,
   Dashboard,
-  Event,
-  Explore,
   Home,
-  HowToReg,
-  Hub,
-  LightMode,
-  ModeNight,
-  MonetizationOn,
-  Newspaper,
-  People,
-  Settings,
-  Stars,
 } from "@mui/icons-material";
 import {
-  Avatar,
   Box,
   Card,
-  CardActionArea,
-  Skeleton,
-  CardContent,
-  Divider,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Switch,
   Typography,
 } from "@mui/material";
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
-import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import useAuth from "../../hooks/useAuth";
-import Profile from "./ProfileCard";
 
 function Sidebar() {
   const [selectedIndex, setSelectedIndex] = useState(1);
-  const { auth, setAuth } = useAuth();
+  const { auth } = useAuth();
+  
 
   const handleListItemClick = (event, index) => {
     setSelectedIndex(index);

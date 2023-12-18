@@ -239,11 +239,10 @@ const Login = () => {
           }}
         >
           <CardContent>
-            <Typography variant="h5">Alumni Login</Typography>
+            <Typography variant="h6">Alumni Login</Typography>
             <Typography
               color="textSecondary"
               variant="body2"
-              component="p"
               my={2}
             >
               {refreshMessage}
