@@ -16,6 +16,7 @@ import ResetPassword from "./components/auth/ResetPassword";
 const App = () => {
   const [mode, setMode] = useState("light");
   const theme = createTheme({
+    
     palette: {
       mode: mode,
       primary: {
@@ -23,7 +24,7 @@ const App = () => {
         contrastText: "#fff", // Contrast text color for primary
       },
       secondary: {
-        main: mode === "dark" ? "#333" : "#edf2f5", // Text color based on mode
+        main: mode === "dark" ? "#333" : "#F0F2F5", // Text color based on mode
       },
       common: {
         main: mode === "dark" ? "#121212" : "#fff",
@@ -33,14 +34,8 @@ const App = () => {
       },
     },
     typography: {
+      fontSize: 16, // You can set the base font size to any value you prefer
       fontFamily: "Inter, Arial, sans-serif", // Font family
-      h1: {
-        fontSize: "2rem", // Topbar title font size
-        fontWeight: 900, // Bold style
-      },
-      body1: {
-        fontSize: "inherit", // Inherit the font size from the parent element
-      },
     },
     components: {
       MuiIconButton: {

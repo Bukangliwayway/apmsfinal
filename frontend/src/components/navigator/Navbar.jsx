@@ -22,7 +22,7 @@ const Navbar = ({ mode, setMode }) => {
     <AppBar p={2} position="sticky">
       <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
         <School sx={{ display: { xs: "block", sm: "none" } }} />
-        <Typography variant="h1" sx={{ display: { xs: "none", sm: "block" } }}>
+        <Typography variant="h4" sx={{ display: { xs: "none", sm: "block" }, fontWeight: 900 }}>
           PUPQC APMS
         </Typography>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
