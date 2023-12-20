@@ -1,8 +1,17 @@
 import { Box, Card, Grid } from "@mui/material";
 import React from "react";
-import AlumniResponseRate from "./AlumniResponseRate";
-import BatchYearResponseRate from "./BatchYearResponseRate";
+import AlumniResponseRate from "./OverallResponseRate";
+import JobClassificationEmploymentRate from "./JobClassificationEmploymentRate";
 import WorkAllignmentCourse from "./WorkAllignmentCourse";
+import CourseLowestResponseRate from "./CourseLowestResponseRate";
+import EmploymentRatePerCourse from "./EmploymentRatePerCourse";
+import CourseEmploymentRateOverTime from "./EmploymentRateOverTime";
+import OverallEmployerType from "./OverallEmployerType";
+import OverallMonthlyIncome from "./OverallMonthlyIncome";
+import OverallGender from "./OverallGender";
+import OverallCivilStatus from "./OverallCivilStatus";
+import OverallEmploymentStatus from "./OverallEmploymentStatus";
+import OverallEmploymentContract from "./OverallEmploymentContract";
 
 const MainDashboard = () => {
   return (
@@ -36,7 +45,7 @@ const MainDashboard = () => {
               height: "33vh",
             }}
           >
-            <AlumniResponseRate />
+            <CourseLowestResponseRate />
           </Grid>
         </Grid>
         <Grid item xs={5.41} container sx={{ display: "flex", gap: 1 }}>
@@ -58,23 +67,19 @@ const MainDashboard = () => {
               height: "28vh",
             }}
           >
-            <WorkAllignmentCourse />
+            <CourseEmploymentRateOverTime />
           </Grid>
         </Grid>
-        <Grid
-          item
-          container
-          xs={3.41}
-        >
+        <Grid item container xs={3.41}>
           <Grid
             item
             xs={12}
             sx={{
               backgroundColor: (theme) => theme.palette.common.main,
-              height: "56vh" + "1rem"
+              height: "56vh" + "1rem",
             }}
           >
-            <WorkAllignmentCourse />
+            <EmploymentRatePerCourse />
           </Grid>
         </Grid>
       </Grid>
@@ -87,10 +92,18 @@ const MainDashboard = () => {
             height: "30vh",
           }}
         >
-          <BatchYearResponseRate />
+          <JobClassificationEmploymentRate />
         </Grid>
       </Grid>
-      <Grid container sx={{ display: "flex", gap: 1, height: "100%", justifyContent: "center" }}>
+      <Grid
+        container
+        sx={{
+          display: "flex",
+          gap: 1,
+          height: "100%",
+          justifyContent: "center",
+        }}
+      >
         <Grid
           item
           xs={3.94}
@@ -99,7 +112,7 @@ const MainDashboard = () => {
             height: "28vh",
           }}
         >
-          <AlumniResponseRate />
+          <OverallMonthlyIncome />
         </Grid>
         <Grid
           item
@@ -109,7 +122,7 @@ const MainDashboard = () => {
             height: "28vh",
           }}
         >
-          <AlumniResponseRate />
+          <OverallGender />
         </Grid>
         <Grid
           item
@@ -119,7 +132,7 @@ const MainDashboard = () => {
             height: "28vh",
           }}
         >
-          <AlumniResponseRate />
+          <OverallCivilStatus />
         </Grid>
         <Grid
           item
@@ -129,7 +142,7 @@ const MainDashboard = () => {
             height: "28vh",
           }}
         >
-          <AlumniResponseRate />
+          <OverallEmploymentStatus />
         </Grid>
         <Grid
           item
@@ -139,7 +152,7 @@ const MainDashboard = () => {
             height: "28vh",
           }}
         >
-          <AlumniResponseRate />
+          <OverallEmploymentContract />
         </Grid>
         <Grid
           item
@@ -149,7 +162,7 @@ const MainDashboard = () => {
             height: "28vh",
           }}
         >
-          <AlumniResponseRate />
+          <OverallEmployerType />
         </Grid>
       </Grid>
     </Box>

@@ -259,7 +259,7 @@ const EditEducationModal = ({ open, onClose, educationID }) => {
       value: "Bachelor's or equivalent level",
     },
     {
-      value: "Master's or equivalent elvel",
+      value: "Master's or equivalent level",
     },
     {
       value: "Doctoral or equivalent level",

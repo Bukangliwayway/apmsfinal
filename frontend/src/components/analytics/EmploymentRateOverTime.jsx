@@ -1,9 +1,8 @@
 import React from "react";
 import { ResponsiveLine } from "@nivo/line";
 import mockdataline from "../mockdata/mockdataline";
-import { Typography } from "@mui/material";
 
-const WorkAllignmentCourse = () => {
+const CourseEmploymentRateOverTime = () => {
   return (
     <ResponsiveLine
       data={mockdataline}
@@ -23,7 +22,7 @@ const WorkAllignmentCourse = () => {
         tickSize: 5,
         tickPadding: 5,
         tickRotation: 0,
-        legend: "Work Alignment Progression Over Time",
+        legend: "Employment Rate Progression Over Time",
         legendOffset: 36,
         legendPosition: "middle",
       }}
@@ -50,4 +49,4 @@ const WorkAllignmentCourse = () => {
   );
 };
 
-export default WorkAllignmentCourse;
+export default CourseEmploymentRateOverTime;

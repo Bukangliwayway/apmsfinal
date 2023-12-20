@@ -1,7 +1,7 @@
 import { ResponsiveBar } from "@nivo/bar";
 import mockdatabar from "../mockdata/mockdatabar";
 
-const BatchYearResponseRate = () => {
+const JobClassificationEmploymentRate = () => {
   return (
     <div style={{ height: "25vh" }}>
       <ResponsiveBar
@@ -43,7 +43,7 @@ const BatchYearResponseRate = () => {
           tickSize: 5,
           tickPadding: 5,
           tickRotation: 0,
-          legend: "Responses per Batch Year",
+          legend: "Job Classification Rate",
           legendPosition: "middle",
           legendOffset: 32,
           truncateTickAt: 0,
@@ -52,7 +52,7 @@ const BatchYearResponseRate = () => {
           tickSize: 5,
           tickPadding: 5,
           tickRotation: 0,
-          legend: "food",
+          legend: "Employment Count",
           legendPosition: "middle",
           legendOffset: -40,
           truncateTickAt: 0,
@@ -89,7 +89,6 @@ const BatchYearResponseRate = () => {
           velocity: 0,
         }}
         role="application"
-        ariaLabel="Nivo bar chart demo"
         barAriaLabel={(e) =>
           e.id + ": " + e.formattedValue + " in country: " + e.indexValue
         }
@@ -98,4 +97,4 @@ const BatchYearResponseRate = () => {
   );
 };
 
-export default BatchYearResponseRate;
+export default JobClassificationEmploymentRate;

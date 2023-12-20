@@ -59,19 +59,7 @@ const AlumniResponseRate = () => {
                   fill: "#333333",
                 }}
               >
-                Alumni Response
-              </text>
-              <text
-                x={0}
-                y={"1.5rem"}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                style={{
-                  fontSize: "0.5rem",
-                  fill: "#333333",
-                }}
-              >
-                Rate
+                Majority Completed it
               </text>
             </g>
           ),
