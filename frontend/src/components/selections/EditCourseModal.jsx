@@ -29,6 +29,7 @@ import {
   Switch,
   FormControlLabel,
 } from "@mui/material";
+import useClassifications from "../../hooks/useClassifications";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -44,8 +45,9 @@ const MenuProps = {
 const EditCourseModal = ({ open, onClose, courseID }) => {
   const queryClient = useQueryClient();
   const { auth, setAuth } = useAuth();
-  const classificationsData = queryClient.getQueryData("classifications-all");
-  const isLoadingClassification = queryClient.isFetching("classifications-all");
+  const { data: classificationsData, isLoading: isLoadingClassification } =
+    useClassifications();
+
   const [courseProfile, setCourseProfile] = useState({
     name: "",
     classification_ids: [],
@@ -79,6 +81,7 @@ const EditCourseModal = ({ open, onClose, courseID }) => {
       );
       setCourseProfile({
         name: cachedData?.data?.course?.name || "",
+        code: cachedData?.data?.course?.code || "",
         in_pupqc: cachedData?.data?.course?.in_pupqc || false,
         classification_ids:
           cachedData?.data?.classifications?.map(
@@ -185,7 +188,7 @@ const EditCourseModal = ({ open, onClose, courseID }) => {
 
     if (
       courseProfile.name == "" ||
-      !courseProfile?.classification_ids ||
+      courseProfile.code == "" ||
       courseProfile.classification_ids.length === 0
     ) {
       setMessage("please fill out all of the fields.");
@@ -197,6 +200,7 @@ const EditCourseModal = ({ open, onClose, courseID }) => {
     const data = {
       name: courseProfile?.name,
       in_pupqc: courseProfile?.in_pupqc,
+      code: courseProfile?.code,
       classification_ids: courseProfile?.classification_ids,
     };
 
@@ -304,8 +308,17 @@ const EditCourseModal = ({ open, onClose, courseID }) => {
               <Grid item xs={12}>
                 <TextField
                   name="name"
-                  label="name"
+                  label="Course Name"
                   value={courseProfile?.name}
+                  onChange={handleChange}
+                  sx={{ width: "100%" }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  name="code"
+                  label="Course Code"
+                  value={courseProfile?.code}
                   onChange={handleChange}
                   sx={{ width: "100%" }}
                 />

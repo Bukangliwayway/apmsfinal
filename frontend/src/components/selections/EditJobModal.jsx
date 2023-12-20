@@ -24,7 +24,12 @@ import {
   OutlinedInput,
   Chip,
   DialogContentText,
+  FormControlLabel,
+  Switch,
 } from "@mui/material";
+import useClassifications from "../../hooks/useClassifications";
+import useGetJobSpecific from "../../hooks/selections/useGetJobSpecific";
+import useAuth from "../../hooks/useAuth";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -39,8 +44,10 @@ const MenuProps = {
 
 const EditJobModal = ({ open, onClose, jobID }) => {
   const queryClient = useQueryClient();
-  const classificationsData = queryClient.getQueryData("classifications-all");
-  const isLoadingClassification = queryClient.isFetching("classifications-all");
+  const { auth, setAuth } = useAuth();
+
+  const { data: classificationsData, isLoading: isLoadingClassification } =
+    useClassifications();
   const [jobProfile, setJobProfile] = useState({
     name: "",
     classification_ids: [],
@@ -54,14 +61,11 @@ const EditJobModal = ({ open, onClose, jobID }) => {
 
   const axiosPrivate = useAxiosPrivate();
 
-  const getData = async () => {
-    return await axiosPrivate.get(`/selections/jobs/${jobID}`);
-  };
   const {
     data: cachedData,
     isLoading: isLoadingJob,
     isFetching: isFetchingJob,
-  } = useQuery("job-specific", getData);
+  } = useGetJobSpecific(jobID);
 
   useEffect(() => {
     const classifications =
@@ -77,6 +81,8 @@ const EditJobModal = ({ open, onClose, jobID }) => {
       );
       setJobProfile({
         name: cachedData?.data?.job?.name || "",
+        code: cachedData?.data?.job?.code || "",
+        certified_job: cachedData?.data?.job?.certified_job || false,
         classification_ids:
           cachedData?.data?.classifications?.map(
             (item) => item.classification_id
@@ -134,8 +140,9 @@ const EditJobModal = ({ open, onClose, jobID }) => {
         queryClient.invalidateQueries("career-profile");
         queryClient.invalidateQueries("employment-profile");
 
-        setMessage("job updated successfully");
+        setMessage("Job Updated Successfully");
         setSeverity("success");
+        setOpenSnackbar(true);
       },
     }
   );
@@ -166,7 +173,7 @@ const EditJobModal = ({ open, onClose, jobID }) => {
         queryClient.invalidateQueries("career-profile");
         queryClient.invalidateQueries("employment-profile");
 
-        setMessage("job deleted successfully");
+        setMessage("Job Deleted Successfully");
         setSeverity("success");
         setOpenSnackbar(true);
         setIsLoadingDelete(false);
@@ -182,6 +189,7 @@ const EditJobModal = ({ open, onClose, jobID }) => {
 
     if (
       jobProfile.name == "" ||
+      jobProfile.code == "" ||
       !jobProfile?.classification_ids ||
       jobProfile.classification_ids.length === 0
     ) {
@@ -193,6 +201,8 @@ const EditJobModal = ({ open, onClose, jobID }) => {
 
     const data = {
       name: jobProfile?.name,
+      certified_job: jobProfile?.certified_job,
+      code: jobProfile?.code,
       classification_ids: jobProfile?.classification_ids,
     };
     // Convert the object to a JSON string
@@ -271,9 +281,42 @@ const EditJobModal = ({ open, onClose, jobID }) => {
       </Box>
       {!deletePrompt ? (
         <Box>
-          <DialogTitle>Add job</DialogTitle>
+          <DialogTitle>Edit Job</DialogTitle>
           <DialogContent sx={{ width: "40vw" }}>
             <Grid container spacing={2} p={2}>
+              {auth?.role == "admin" && (
+                <>
+                  <Grid item xs={12}>
+                    <FormControlLabel
+                      required
+                      control={
+                        <Switch
+                          name="certified_job"
+                          value={jobProfile?.certified_job}
+                          checked={jobProfile?.certified_job}
+                          onChange={(event) => {
+                            const { checked } = event.target;
+                            setJobProfile((prevProfile) => ({
+                              ...prevProfile,
+                              certified_job: checked,
+                            }));
+                          }}
+                        />
+                      }
+                      label="Job to be Included in Analytics"
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <TextField
+                      name="code"
+                      label="Job Occupational Code"
+                      value={jobProfile?.code}
+                      onChange={handleChange}
+                      sx={{ width: "100%" }}
+                    />
+                  </Grid>
+                </>
+              )}
               <Grid item xs={12}>
                 <TextField
                   name="name"

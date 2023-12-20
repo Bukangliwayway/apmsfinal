@@ -20,33 +20,49 @@ user_dependency = Annotated[dict, Depends(get_current_user)]
 
 @router.post("/jobs/")
 async def create_jobs(
-    jobs: List[Dict[str, Union[str, List[UUID]]]],
+    jobs: List[Dict[str, Union[str, str, bool, List[UUID]]]],
     db: Session = Depends(get_db),
     user: UserResponse = Depends(get_current_user)
 ):
 
     for job_data in jobs:
+        # Guard clause to check required keys and non-null values
+        required_keys = ["name", "code", "certified_job", "classification_ids"]
+        if any(key not in job_data or job_data[key] is None for key in required_keys):
+            raise HTTPException(status_code=400, detail="Missing required fields in job data")
+
         # Make sure that every input is in lowercase
         name = job_data["name"].lower()
+        code = job_data["code"].lower() 
+        certified_job = job_data["certified_job"]
+        classification_ids = job_data["classification_ids"]
 
         # Check if the specified name is not yet saved in the db
-        existing_job = db.query(models.Job).filter(models.Job.name == name).first()
-        if existing_job:
+        existing_job_name = db.query(models.Job).filter(models.Job.name == name).first()
+        if existing_job_name:
             # Raise an HTTPException with a 400 status code (Bad Request)
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"'{name}' already exists in the database."
             )
+        # Check if the specified name is not yet saved in the db
+        existing_job_code = db.query(models.Job).filter(models.Job.code == code).first()
+        if existing_job_code:
+            # Raise an HTTPException with a 400 status code (Bad Request)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"'{code}' already exists in the database."
+            )
 
         # Check if the specified classification_ids exist
-        existing_classifications = db.query(models.Classification).filter(models.Classification.id.in_(job_data["classification_ids"])).all()
+        existing_classifications = db.query(models.Classification).filter(models.Classification.id.in_(classification_ids)).all()
 
         # Verify that the number of existing classifications matches the number of specified classification_ids
-        if len(existing_classifications) != len(job_data["classification_ids"]):
+        if len(existing_classifications) != len(classification_ids):
             raise HTTPException(status_code=400, detail="Some classification_ids do not exist.")
 
         # Create new job instance
-        new_job = models.Job(name=name)
+        new_job = models.Job(name=name, code=code, certified_job=certified_job)
 
         # Add to the session
         db.add(new_job)
@@ -67,23 +83,48 @@ async def create_jobs(
     return ({"message": "Job created successfully"})
 
 @router.put("/jobs/{job_id}")
-async def create_course(
+async def modify_jobs(
     *,
     job_id: UUID,
     name: str = Body(None),
+    code: str = Body(None),
+    certified_job: bool = Body(False),
     classification_ids: List[UUID] = Body(None),
     db: Session = Depends(get_db),
     user: UserResponse = Depends(get_current_user)
 ):
     #make sure that every input is in lowercase
     name=name.lower()
+    code=code.lower() if code else ''
 
     # Check if the specified name is not yet saved in the db
     job = db.query(models.Job).filter(models.Job.id == job_id).first()
+
+    # Check if the specified name is not yet saved in the db
+    if job.name != name:
+        existing_job_name = db.query(models.Job).filter(models.Job.name == name).first()
+        if existing_job_name:
+            # Raise an HTTPException with a 400 status code (Bad Request)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"'{name}' already exists in the database."
+            )
+        
+    # Check if the specified code is not yet saved in the db
+    if job.code != code:
+        existing_job_code = db.query(models.Job).filter(models.Job.code == code).first()
+        if existing_job_code:
+            # Raise an HTTPException with a 400 status code (Bad Request)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"'{code}' already exists in the database."
+            )
+    
     job.name = name
+    job.code = code
+    job.certified_job = certified_job
     db.commit()
 
-    
     # Check if the specified classification_ids exist
     existing_classifications = db.query(models.JobClassification).filter(models.JobClassification.job_id == job_id).all()
 
@@ -101,7 +142,7 @@ async def create_course(
     # Commit the session to persist the new job and jobClassifications
     db.commit()
 
-    return {"message": "Job edited successfully"}
+    return {"message": "Job Modified successfully"}
 
 @router.get("/jobs/")
 async def get_jobs(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
@@ -122,21 +163,32 @@ async def get_jobs(job_id: UUID, db: Session = Depends(get_db), user: UserRespon
 async def create_course(
     *,
     name: str = Body(...),
-    in_pupqc: bool = Body(...),
+    code: Optional[str] = Body(None),
+    in_pupqc: bool = Body(False),
     classification_ids: List[UUID] = Body(...),
     db: Session = Depends(get_db),
     user: UserResponse = Depends(get_current_user)
 ):
     #make sure that every input is in lowercase
     name=name.lower()
+    code=code.lower() if code else ''
 
     # Check if the specified name is not yet saved in the db
-    existing_course = db.query(models.Course).filter(models.Course.name == name).first()
-    if existing_course:
+    existing_course_name = db.query(models.Course).filter(models.Course.name == name).first()
+    if existing_course_name:
             # Raise an HTTPException with a 400 status code (Bad Request)
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"'{name}' already exists in the database."
+            )
+    
+    # Check if the specified name is not yet saved in the db
+    existing_course_code = db.query(models.Course).filter(models.Course.code == code).first()
+    if existing_course_code:
+            # Raise an HTTPException with a 400 status code (Bad Request)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"'{code}' already exists in the database."
             )
     
     # Check if the specified classification_ids exist
@@ -149,6 +201,7 @@ async def create_course(
     # Create new course instance
     new_course = models.Course(
         name=name,
+        code=code,
         in_pupqc=in_pupqc,
     )
 
@@ -176,22 +229,44 @@ async def edit_course(
     *,
     course_id: UUID,
     name: str = Body(None),
-    in_pupqc: bool = Body(None),
+    code: str = Body(None),
+    in_pupqc: bool = Body(False),
     classification_ids: List[UUID] = Body(None),
     db: Session = Depends(get_db),
     user: UserResponse = Depends(get_current_user)
 ):
     #make sure that every input is in lowercase
     name=name.lower()
+    code=code.lower() if code else '' 
 
     # Check if the specified name is not yet saved in the db
     course = db.query(models.Course).filter(models.Course.id == course_id).first()
+
+    if course.name != name:
+        # Check if the specified name is not yet saved in the db
+        existing_course_name = db.query(models.Course).filter(models.Course.name == name).first()
+        if existing_course_name:
+                # Raise an HTTPException with a 400 status code (Bad Request)
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"'{name}' already exists in the database."
+                )
+        
+    if course.code != code:
+        # Check if the specified name is not yet saved in the db
+        existing_course_code = db.query(models.Course).filter(models.Course.code == code).first()
+        if existing_course_code:
+                # Raise an HTTPException with a 400 status code (Bad Request)
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"'{code}' already exists in the database."
+                )
+
     course.name = name
+    course.code = code
     course.in_pupqc = in_pupqc
-    print(course.in_pupqc)
     db.commit()
 
-    
     # Check if the specified classification_ids exist
     existing_classifications = db.query(models.CourseClassification).filter(models.CourseClassification.course_id == course_id).all()
 
@@ -357,6 +432,23 @@ async def update_classification(
 ):
     # Fetch the classification from the database
     classification = db.query(models.Classification).filter_by(id=classification_id).first()
+
+    if name != classification.name or code != classification.code: 
+        existing_classification = (
+                db.query(models.Classification)
+                .filter(or_(models.Classification.code == code, models.Classification.name == name))
+                .first()
+            )
+
+        if existing_classification:
+            # Raise an HTTPException with a 400 status code (Bad Request)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Code or name '{code}' or '{name}' already exists in the database."
+            )
+        
+
+
 
     # If the classification does not exist, return an error
     if classification is None:

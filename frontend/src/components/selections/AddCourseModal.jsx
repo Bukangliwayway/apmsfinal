@@ -2,7 +2,6 @@ import { useMutation, useQueryClient, useQuery } from "react-query";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import { useTheme } from "@mui/material/styles";
 
 import {
   Alert,
@@ -25,8 +24,11 @@ import {
   Skeleton,
   OutlinedInput,
   Chip,
+  FormControlLabel,
+  Switch,
 } from "@mui/material";
 import useClassifications from "../../hooks/useClassifications";
+import useAuth from "../../hooks/useAuth";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -40,12 +42,14 @@ const MenuProps = {
 };
 
 const AddCourse = ({ open, onClose }) => {
+  const { auth, setAuth } = useAuth();
   const queryClient = useQueryClient();
   const { data: classificationsData, isLoading: isLoadingClassification } =
     useClassifications();
 
   const [courseProfile, setCourseProfile] = useState({
     name: "",
+    code: "",
     classification_ids: [],
   });
   const [classificationIds, setClassificationIds] = useState([]);
@@ -97,7 +101,7 @@ const AddCourse = ({ open, onClose }) => {
         setOpenSnackbar(true);
       },
       onSuccess: (data, variables, context) => {
-        queryClient.invalidateQueries("courses");
+        queryClient.invalidateQueries("courses-all");
         queryClient.invalidateQueries("courses-specific");
         queryClient.invalidateQueries("profile-me");
 
@@ -126,6 +130,8 @@ const AddCourse = ({ open, onClose }) => {
 
     const data = {
       name: courseProfile?.name,
+      in_pupqc: courseProfile?.in_pupqc,
+      code: courseProfile?.code,
       classification_ids: courseProfile?.classification_ids,
     };
 
@@ -195,11 +201,42 @@ const AddCourse = ({ open, onClose }) => {
       <DialogTitle>Add Course</DialogTitle>
       <DialogContent sx={{ width: "40vw" }}>
         <Grid container spacing={2} p={2}>
+          {auth?.role == "admin" && (
+            <Grid item xs={12}>
+              <FormControlLabel
+                required
+                control={
+                  <Switch
+                    name="in_pupc"
+                    value={courseProfile?.in_pupqc}
+                    checked={courseProfile?.in_pupqc}
+                    onChange={(event) => {
+                      const { checked } = event.target;
+                      setCourseProfile((prevProfile) => ({
+                        ...prevProfile,
+                        in_pupqc: checked,
+                      }));
+                    }}
+                  />
+                }
+                label="Course for PUPQC"
+              />
+            </Grid>
+          )}
           <Grid item xs={12}>
             <TextField
               name="name"
-              label="Name"
+              label="Course Name"
               value={courseProfile?.name}
+              onChange={handleChange}
+              sx={{ width: "100%" }}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              name="code"
+              label="Course Code"
+              value={courseProfile?.code}
               onChange={handleChange}
               sx={{ width: "100%" }}
             />

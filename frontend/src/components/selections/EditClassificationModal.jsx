@@ -35,6 +35,7 @@ const EditClassificationModal = ({ open, onClose, classificationID }) => {
       `/selections/classifications/${classificationID}`
     );
   };
+
   const { data: cachedData, isLoading: isLoadingClassification } = useQuery(
     "classification-specific",
     getData
@@ -80,8 +81,9 @@ const EditClassificationModal = ({ open, onClose, classificationID }) => {
         queryClient.invalidateQueries("classifications-specific");
         queryClient.invalidateQueries("profile-me");
 
-        setMessage("classification updated successfully");
+        setMessage("Classification Update Successfully");
         setSeverity("success");
+        setOpenSnackbar(true);
       },
     }
   );
@@ -113,7 +115,6 @@ const EditClassificationModal = ({ open, onClose, classificationID }) => {
         setMessage("classification deleted successfully");
         setSeverity("success");
         setOpenSnackbar(true);
-        setTimeout(() => {}, 6000);
         setIsLoadingDelete(false);
         onClose();
       },

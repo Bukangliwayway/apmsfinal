@@ -24,6 +24,7 @@ import {
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import EditClassificationModal from "./EditClassificationModal";
+import useClassifications from "../../hooks/useClassifications";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -81,7 +82,6 @@ export default function ClassficationsRow() {
     setClassificationID("");
   };
 
-  const axiosPrivate = useAxiosPrivate();
 
   const columns = [
     {
@@ -153,14 +153,7 @@ export default function ClassficationsRow() {
     );
   }
 
-  const getCLassification = async () => {
-    return await axiosPrivate.get("/selections/classifications/");
-  };
-
-  const { data: classification, isLoading: isLoading } = useQuery(
-    "classifications-all",
-    getCLassification
-  );
+  const { data: classification, isLoading: isLoading } = useClassifications()
 
   useEffect(() => {
     if (Array.isArray(classification?.data)) {

@@ -30,6 +30,7 @@ import {
   OutlinedInput,
   Chip,
 } from "@mui/material";
+import useAuth from "../../hooks/useAuth";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -43,9 +44,12 @@ const MenuProps = {
 };
 
 const AddJob = ({ open, onClose }) => {
+  const { auth, setAuth } = useAuth();
+
   const queryClient = useQueryClient();
-  const { data: cachedData, isLoading: isLoadingClassification } = useClassifications();
-  const [job, setJob] = useState({
+  const { data: cachedData, isLoading: isLoadingClassification } =
+    useClassifications();
+  const [jobProfile, setJobProfile] = useState({
     name: "",
     classification_ids: null,
   });
@@ -61,7 +65,7 @@ const AddJob = ({ open, onClose }) => {
       typeof value === "string" ? value.split(",") : value
     );
 
-    setJob((prevProfile) => ({
+    setJobProfile((prevProfile) => ({
       ...prevProfile,
       classification_ids: typeof value === "string" ? value.split(",") : value,
     }));
@@ -69,7 +73,7 @@ const AddJob = ({ open, onClose }) => {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setJob((prevProfile) => ({
+    setJobProfile((prevProfile) => ({
       ...prevProfile,
       [name]: value,
     }));
@@ -116,9 +120,10 @@ const AddJob = ({ open, onClose }) => {
     event.preventDefault();
 
     if (
-      job.name == "" ||
-      !job?.classification_ids ||
-      job.classification_ids.length === 0
+      jobProfile.name == "" ||
+      jobProfile.code == "" ||
+      !jobProfile?.classification_ids ||
+      jobProfile.classification_ids.length === 0
     ) {
       setMessage("please fill out all of the fields.");
       setSeverity("error");
@@ -126,12 +131,12 @@ const AddJob = ({ open, onClose }) => {
       return; // Prevent form submission
     }
 
-    const data = [
-      {
-        name: job?.name,
-        classification_ids: job?.classification_ids,
-      },
-    ];
+    const data = [{
+      name: jobProfile?.name,
+      certified_job: jobProfile?.certified_job,
+      code: jobProfile?.code,
+      classification_ids: jobProfile?.classification_ids,
+    }];
 
     // Convert the object to a JSON string
     const payload = JSON.stringify(data);
@@ -199,11 +204,44 @@ const AddJob = ({ open, onClose }) => {
       <DialogTitle>Add Job</DialogTitle>
       <DialogContent sx={{ width: "40vw" }}>
         <Grid container spacing={2} p={2}>
+          {auth?.role == "admin" && (
+            <>
+              <Grid item xs={12}>
+                <FormControlLabel
+                  required
+                  control={
+                    <Switch
+                      name="certified_job"
+                      value={jobProfile?.certified_job}
+                      checked={jobProfile?.certified_job}
+                      onChange={(event) => {
+                        const { checked } = event.target;
+                        setJobProfile((prevProfile) => ({
+                          ...prevProfile,
+                          certified_job: checked,
+                        }));
+                      }}
+                    />
+                  }
+                  label="Job to be Included in Analytics"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  name="code"
+                  label="Job Occupational Code"
+                  value={jobProfile?.code}
+                  onChange={handleChange}
+                  sx={{ width: "100%" }}
+                />
+              </Grid>
+            </>
+          )}
           <Grid item xs={12}>
             <TextField
               name="name"
               label="Name"
-              value={job?.name}
+              value={jobProfile?.name}
               onChange={handleChange}
               sx={{ width: "100%" }}
             />

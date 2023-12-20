@@ -461,7 +461,6 @@ async def put_career_profiles(
     user: UserResponse = Depends(get_current_user)
 ):
 
-    # Query the database for users with pagination and filter by role
     saved_profile = db.query(models.User).filter_by(id=user.id).first()
 
     if saved_profile is None:
@@ -472,6 +471,23 @@ async def put_career_profiles(
         course_instance = db.query(models.Course).filter_by(id=course).first()
         if course_instance is None:
             raise HTTPException(status_code=404, detail="Course not found")
+
+    if saved_profile.employment:
+        for employment in saved_profile.employment:
+            user_course_classification_ids = None
+            if course_instance and course_instance.classifications:
+                user_course_classification_ids = {classification.id for classification in course_instance.classifications}
+
+            job_classification_ids = None
+            if employment.job and employment.job.classifications:
+                job_classification_ids = {classification.id for classification in employment.job.classifications}
+
+            aligned_with_academic_program = False
+            if user_course_classification_ids is not None and job_classification_ids is not None:
+                aligned_with_academic_program = bool(user_course_classification_ids & job_classification_ids)
+
+            employment.aligned_with_academic_program = aligned_with_academic_program
+        db.commit()
         
 
     try:
@@ -553,18 +569,6 @@ async def get_user_employments(
         user_course_classification_ids = {classification.id for classification in profile.course.classifications}
 
     for employment in employments:
-        job_classification_ids = None
-
-        # Check if employment.job is not None and it has classifications
-        if employment.job and employment.job.classifications:
-            job_classification_ids = {classification.id for classification in employment.job.classifications}
-
-        # Check if user_course_classification_ids and job_classification_ids are not None before performing the bitwise AND operation
-        if user_course_classification_ids is not None and job_classification_ids is not None:
-            aligned_with_academic_program = bool(user_course_classification_ids & job_classification_ids)
-        else:
-            aligned_with_academic_program = False
-
         # Build a dictionary with selected fields and add it to the list
         employment_dict = {
             "id": employment.id,
@@ -574,7 +578,7 @@ async def get_user_employments(
             "date_hired": employment.date_hired,
             "date_end": employment.date_end,
             "classification": employment.job.classifications[0].name if employment.job and employment.job.classifications else '',
-            "aligned_with_academic_program": aligned_with_academic_program,
+            "aligned_with_academic_program": employment.aligned_with_academic_program,
             "finding_job_means": employment.finding_job_means,
             "gross_monthly_income": employment.gross_monthly_income,
             "employment_contract": employment.employment_contract,
@@ -613,18 +617,6 @@ async def get_user_employments(
         user_course_classification_ids = {classification.id for classification in profile.course.classifications}
 
     for employment in employments:
-        job_classification_ids = None
-
-        # Check if employment.job is not None and it has classifications
-        if employment.job and employment.job.classifications:
-            job_classification_ids = {classification.id for classification in employment.job.classifications}
-
-        # Check if user_course_classification_ids and job_classification_ids are not None before performing the bitwise AND operation
-        if user_course_classification_ids is not None and job_classification_ids is not None:
-            aligned_with_academic_program = bool(user_course_classification_ids & job_classification_ids)
-        else:
-            aligned_with_academic_program = False
-
         # Build a dictionary with selected fields and add it to the list
         employment_dict = {
             "id": employment.id,
@@ -634,7 +626,7 @@ async def get_user_employments(
             "date_hired": employment.date_hired,
             "date_end": employment.date_end,
             "classification": employment.job.classifications[0].name if employment.job and employment.job.classifications else '',
-            "aligned_with_academic_program": aligned_with_academic_program,
+            "aligned_with_academic_program": employment.aligned_with_academic_program,
             "finding_job_means": employment.finding_job_means,
             "gross_monthly_income": employment.gross_monthly_income,
             "employment_contract": employment.employment_contract,
@@ -694,13 +686,6 @@ async def get_employment_profiles(
             }
             
         if employment:  # Check if employment is not None
-            job_classification_ids = None
-            if employment.job and employment.job.classifications:
-                job_classification_ids = {classification.id for classification in employment.job.classifications}
-            if user_course_classification_ids is not None and job_classification_ids is not None:
-                aligned_with_academic_program = bool(user_course_classification_ids & job_classification_ids)
-            else:
-                aligned_with_academic_program = False
             user_data[user.id]["employments"].append(
                 {
                     "id": employment.id,
@@ -710,7 +695,7 @@ async def get_employment_profiles(
                     "date_hired": employment.date_hired,
                     "date_end": employment.date_end,
                     "classification": employment.job.classifications[0].name if employment.job and employment.job.classifications else '',
-                    "aligned_with_academic_program": aligned_with_academic_program,
+                    "aligned_with_academic_program": employment.aligned_with_academic_program,
                     "finding_job_means": employment.finding_job_means,
                     "gross_monthly_income": employment.gross_monthly_income,
                     "employment_contract": employment.employment_contract,
@@ -772,6 +757,21 @@ async def put_employment(
             if job_instance is None:
                 raise HTTPException(status_code=404, detail="Course not found")
         
+        profile = db.query(models.User).filter(models.User.id == employment.user.id).first()
+
+        user_course_classification_ids = None
+        if profile.course and profile.course.classifications:
+            user_course_classification_ids = {classification.id for classification in profile.course.classifications}
+
+        job_classification_ids = None
+        if employment.job and employment.job.classifications:
+            job_classification_ids = {classification.id for classification in employment.job.classifications}
+
+        if user_course_classification_ids is not None and job_classification_ids is not None:
+            aligned_with_academic_program = bool(user_course_classification_ids & job_classification_ids)
+        else:
+            aligned_with_academic_program = False
+        
         profile = {
             'job': job_instance,
             'company_name': company_name,
@@ -782,6 +782,7 @@ async def put_employment(
             'employment_contract': employment_contract,
             'job_position': job_position,
             'employer_type': employer_type,
+            'aligned_with_academic_program': aligned_with_academic_program,
             'is_international': is_international,
             'address': address,
             'country': country,
@@ -830,7 +831,22 @@ async def post_employment(
     job_instance = db.query(models.Job).filter_by(id=job).first()
     if job_instance is None:
         raise HTTPException(status_code=404, detail="Course not found")
-    
+
+
+    profile = db.query(models.User).filter(models.User.id == user.id).first()
+
+    user_course_classification_ids = None
+    if profile.course and profile.course.classifications:
+        user_course_classification_ids = {classification.id for classification in profile.course.classifications}
+
+    job_classification_ids = None
+    job_classification_ids = {classification.id for classification in job_instance.classifications}
+
+    if user_course_classification_ids is not None and job_classification_ids is not None:
+        aligned_with_academic_program = bool(user_course_classification_ids & job_classification_ids)
+    else:
+        aligned_with_academic_program = False
+
     try:
       employment = models.Employment(
           company_name=company_name,
@@ -843,6 +859,7 @@ async def post_employment(
           job=job_instance,
           job_position=job_position,
           employer_type=employer_type,
+          aligned_with_academic_program=aligned_with_academic_program,
           is_international=is_international,
           country=country,
           region=region,
@@ -874,20 +891,6 @@ async def get_employment(
         if not employment:
             raise HTTPException(status_code=404, detail="Employment not found")
         
-        profile = db.query(models.User).filter(models.User.id == employment.user.id).first()
-
-        user_course_classification_ids = None
-        if profile.course and profile.course.classifications:
-            user_course_classification_ids = {classification.id for classification in profile.course.classifications}
-
-        job_classification_ids = None
-        if employment.job and employment.job.classifications:
-            job_classification_ids = {classification.id for classification in employment.job.classifications}
-
-        if user_course_classification_ids is not None and job_classification_ids is not None:
-            aligned_with_academic_program = bool(user_course_classification_ids & job_classification_ids)
-        else:
-            aligned_with_academic_program = False
 
         # Convert the employment object to a dictionary or use a Pydantic model for serialization
         employment_dict = {
@@ -898,7 +901,7 @@ async def get_employment(
             "date_hired": employment.date_hired,
             "date_end": employment.date_end,
             "classification": employment.job.classifications[0].name if employment.job and employment.job.classifications else None,
-            "aligned_with_academic_program": aligned_with_academic_program,
+            "aligned_with_academic_program": employment.aligned_with_academic_program,
             "finding_job_means": employment.finding_job_means,
             "gross_monthly_income": employment.gross_monthly_income,
             "employment_contract": employment.employment_contract,

@@ -53,9 +53,10 @@ const AddClassification = ({ open, onClose }) => {
         queryClient.invalidateQueries("classifications-all");
         queryClient.invalidateQueries("classifications-specific");
         queryClient.invalidateQueries("profile-me");
-
+        
         setMessage("Classification Added Successfully");
         setSeverity("success");
+        setOpenSnackbar(true);
       },
     }
   );
