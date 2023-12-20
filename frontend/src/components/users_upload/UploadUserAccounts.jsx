@@ -38,54 +38,9 @@ export const UploadProfiles = () => {
   const [value, setValue] = useState(0);
   const [activeTab, setActiveTab] = useState("display_all");
 
-  const { data: history, isLoading: isLoadingHistory } = useGetHistoryAll();
-
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
-
-  // Function to filter UploadHistory objects by type
-  function filterUploadHistoryByType(uploadHistoryArray, targetType) {
-    return uploadHistoryArray.filter((history) => history.type === targetType);
-  }
-
-  if (isLoadingHistory) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "100vh",
-          width: "100%",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  // Example usage
-  const filteredProfileUploads = filterUploadHistoryByType(
-    history?.data,
-    "Profile"
-  );
-  const filteredEducationUploads = filterUploadHistoryByType(
-    history?.data,
-    "Education"
-  );
-  const filteredAchievementUploads = filterUploadHistoryByType(
-    history?.data,
-    "Achievement"
-  );
-  const filteredEmploymentUploads = filterUploadHistoryByType(
-    history?.data,
-    "Employment"
-  );
-  const filteredTwoWayLinkUploads = filterUploadHistoryByType(
-    history?.data,
-    "TwoWayLink"
-  );
 
   return (
     <Box

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Navbar from "../components/navigator/Navbar";
-import { Box, Grid, IconButton, Stack } from "@mui/material";
+import { Box, Grid, IconButton } from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
 import AdminSidebar from "../components/navigator/AdminSidebar";
 function AdminDashboardLayout({ children, mode, setMode, activeIndex }) {
@@ -43,7 +43,7 @@ function AdminDashboardLayout({ children, mode, setMode, activeIndex }) {
             <AdminSidebar mode={open}/>
         </Grid>
         <Grid item xs={open ? 11.4 : 10.2} ml={sidebarWidth + "%"}>
-          <Box sx={{minHeight: "100vh"}} width={100 - sidebarWidth + "%"}>{children}</Box>
+          <Box sx={{minHeight: "100vh"}} >{children}</Box>
         </Grid>
       </Grid>
     </Box>

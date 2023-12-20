@@ -17,6 +17,7 @@ import EditableAchievementModal from "../components/profile_edit/EditableAchieve
 import EditableEducationProfile from "../components/profile_edit/EditableEducationProfile";
 import { UploadProfiles } from "../components/users_upload/UploadUserAccounts";
 import DisplayProfile from "../components/profile_display/DisplayProfile";
+import MainDashboard from "../components/analytics/MainDashboard";
 import AdminDashboardLayout from "../layout/AdminDashboardLayout";
 const RoleBasedRoutes = ({ mode, setMode }) => {
   const { auth } = useAuth();
@@ -165,7 +166,7 @@ const RoleBasedRoutes = ({ mode, setMode }) => {
           path="dashboard"
           element={
             <AdminDashboardLayout mode={mode} setMode={setMode}>
-              <UploadProfiles />
+              <MainDashboard />
             </AdminDashboardLayout>
           }
         />
