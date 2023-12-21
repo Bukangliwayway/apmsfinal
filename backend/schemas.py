@@ -3,7 +3,6 @@ import uuid
 from pydantic import BaseModel, EmailStr, validator
 from typing import List, Optional, Text 
 from fastapi import File, Form, HTTPException, UploadFile
-from pydantic_sqlalchemy import sqlalchemy_to_pydantic
 
 class UserBaseSchema(BaseModel):
     username: str

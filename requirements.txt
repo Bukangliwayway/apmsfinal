@@ -60,4 +60,3 @@ pydantic==2.4.2
 yagmail
 fuzzywuzzy
 python-Levenshtein
-pydantic_sqlalchemy
