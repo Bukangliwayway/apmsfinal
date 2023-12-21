@@ -1,11 +1,41 @@
 import { ResponsivePie } from "@nivo/pie";
 import mockdatapie from "../mockdata/mockdatapie";
 import React from "react";
+import useOverallMonthlyIncome from "../../hooks/analytics/useOverallMonthlyIncome";
+import { Box, Skeleton } from "@mui/material";
 
 const OverallMonthlyIncome = () => {
+  const { data: overallMonthlyIncome, isLoading: isLoadingMonthlyIncome } =
+    useOverallMonthlyIncome();
+
+  if (isLoadingMonthlyIncome) {
+    return (
+      <Box>
+        <Skeleton variant="rectangular" width={"100%"} height={"100%"} />
+      </Box>
+    );
+  }
+
+  // Find the item with the highest value
+  const maxItem = overallMonthlyIncome?.data?.responses.reduce(
+    (max, current) => (current.value > max.value ? current : max),
+    { value: -Infinity }
+  );
+
+  const sumOfValues = overallMonthlyIncome?.data?.responses.reduce(
+    (sum, item) => sum + item.value,
+    0
+  );
+
+  // Calculate the percentage for the maxItem based on the sum of all values
+  const percentageDict = {
+    label: maxItem.label,
+    percentage: Math.round((maxItem.value / sumOfValues) * 100),
+  };
+
   return (
     <ResponsivePie
-      data={mockdatapie}
+      data={overallMonthlyIncome?.data?.responses}
       margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
       innerRadius={0.7}
       padAngle={2}
@@ -46,7 +76,7 @@ const OverallMonthlyIncome = () => {
                 fill: "#333333",
               }}
             >
-              50%
+              {percentageDict.percentage}%
             </text>
             <text
               x={0}
@@ -58,7 +88,7 @@ const OverallMonthlyIncome = () => {
                 fill: "#333333",
               }}
             >
-              Majority are in
+              Majority are Under
             </text>
             <text
               x={0}
@@ -70,7 +100,7 @@ const OverallMonthlyIncome = () => {
                 fill: "#333333",
               }}
             >
-              ₱18,200 to ₱36,400
+              {percentageDict.label}
             </text>
           </g>
         ),

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.config import settings
-from backend.routers import user, auth, profiles, selections, uploads
+from backend.routers import user, auth, profiles, selections, uploads, analytics
 
 
 app = FastAPI()
@@ -24,3 +24,4 @@ app.include_router(user.router, tags=['Users'], prefix='/api/v1/users')
 app.include_router(profiles.router, tags=['Profiles'], prefix='/api/v1/profiles')
 app.include_router(selections.router, tags=['Selections'], prefix='/api/v1/selections')
 app.include_router(uploads.router, tags=['Uploads'], prefix='/api/v1/uploads')
+app.include_router(analytics.router, tags=['Analytics'], prefix='/api/v1/analytics')

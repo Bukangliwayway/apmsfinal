@@ -243,7 +243,7 @@ const EditCourseModal = ({ open, onClose, courseID }) => {
     setOpenSnackbar(false);
   };
 
-  if (isLoadingCourse || isFetchingCourse) {
+  if (isLoadingCourse || isLoadingClassification) {
     return (
       <Dialog open={true}>
         <DialogTitle>

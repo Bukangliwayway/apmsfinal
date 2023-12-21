@@ -1,4 +1,4 @@
-import { Box, Card, Grid } from "@mui/material";
+import { Box, Card, Grid, Typography } from "@mui/material";
 import React from "react";
 import AlumniResponseRate from "./OverallResponseRate";
 import JobClassificationEmploymentRate from "./JobClassificationEmploymentRate";
@@ -35,7 +35,15 @@ const MainDashboard = () => {
               height: "23vh",
             }}
           >
-            <AlumniResponseRate />
+            <Typography
+              variant="subtitle2"
+              sx={{ textAlign: "center", fontWeight: "800" }}
+            >
+              Overall Response Rate
+            </Typography>
+            <Box height={"19vh"}>
+              <AlumniResponseRate />
+            </Box>
           </Grid>
           <Grid
             item
@@ -112,7 +120,15 @@ const MainDashboard = () => {
             height: "28vh",
           }}
         >
-          <OverallMonthlyIncome />
+          <Typography
+            variant="subtitle2"
+            sx={{ textAlign: "center", fontWeight: "800" }}
+          >
+            Overall Monthly Income
+          </Typography>
+          <Box height={"25vh"}>
+            <OverallMonthlyIncome />
+          </Box>
         </Grid>
         <Grid
           item
@@ -122,7 +138,15 @@ const MainDashboard = () => {
             height: "28vh",
           }}
         >
-          <OverallGender />
+          <Typography
+            variant="subtitle2"
+            sx={{ textAlign: "center", fontWeight: "800" }}
+          >
+            Overall Gender
+          </Typography>
+          <Box height={"25vh"}>
+            <OverallGender />
+          </Box>
         </Grid>
         <Grid
           item
@@ -132,7 +156,15 @@ const MainDashboard = () => {
             height: "28vh",
           }}
         >
-          <OverallCivilStatus />
+          <Typography
+            variant="subtitle2"
+            sx={{ textAlign: "center", fontWeight: "800" }}
+          >
+            Overall Civil Status
+          </Typography>
+          <Box height={"25vh"}>
+            <OverallCivilStatus />
+          </Box>
         </Grid>
         <Grid
           item
@@ -142,7 +174,15 @@ const MainDashboard = () => {
             height: "28vh",
           }}
         >
-          <OverallEmploymentStatus />
+          <Typography
+            variant="subtitle2"
+            sx={{ textAlign: "center", fontWeight: "800" }}
+          >
+            Overall Employment Status
+          </Typography>
+          <Box height={"25vh"}>
+            <OverallEmploymentStatus />
+          </Box>
         </Grid>
         <Grid
           item
@@ -152,7 +192,15 @@ const MainDashboard = () => {
             height: "28vh",
           }}
         >
-          <OverallEmploymentContract />
+          <Typography
+            variant="subtitle2"
+            sx={{ textAlign: "center", fontWeight: "800" }}
+          >
+            Overall Employment Contract
+          </Typography>
+          <Box height={"25vh"}>
+            <OverallEmploymentContract />
+          </Box>
         </Grid>
         <Grid
           item
@@ -162,7 +210,15 @@ const MainDashboard = () => {
             height: "28vh",
           }}
         >
-          <OverallEmployerType />
+          <Typography
+            variant="subtitle2"
+            sx={{ textAlign: "center", fontWeight: "800" }}
+          >
+            Overall Employer Type
+          </Typography>
+          <Box height={"25vh"}>
+            <OverallEmployerType />
+          </Box>
         </Grid>
       </Grid>
     </Box>
