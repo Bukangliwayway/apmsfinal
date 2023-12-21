@@ -39,11 +39,10 @@ async def afterEmploymentPostRoutine(user_id, db: Session):
 
 async def isProfileCompleted(user_id, db: Session):
     user = db.query(models.User).filter(models.User.id == user_id).first()
-    if user:
-        if user.present_employment_status == 'unanswered':
-            return False
+    employments = db.query(models.Employment).filter(models.Employment.user_id == user_id).all()
+    if user and employments and user.present_employment_status != 'unanswered':
         # Check if any of the specified columns is null or blank
-        required_columns = [
+        required_demo_columns = [
             'username',
             'first_name',
             'last_name',
@@ -53,19 +52,32 @@ async def isProfileCompleted(user_id, db: Session):
             'gender',
             'email',
             'date_graduated',
+            'present_employment_status',
             'course_id',
+            'batch_year',
+        ]
+        required_employment_columns = [
+            'date_hired', 
+            'gross_monthly_income', 
+            'employment_contract', 
+            'job_position', 
+            'employer_type', 
+            'company_name',
+            'batch_year'
         ]
 
-        for column_name in required_columns:
+        for column_name in required_demo_columns:
             column_value = getattr(user, column_name)
             if column_value is None or (isinstance(column_value, str) and column_value.strip() == ''):                
-                print("naniii", column_name)
                 return False
-        
-    else: return False
-
-    return True
-
+        for employment in employments:
+            for column_name in required_employment_columns:
+                column_value = getattr(employment, column_name)
+                if column_value is None or (isinstance(column_value, str) and column_value.strip() == ''):                
+                    return False
+        return True
+    
+    return False
 
 @router.get("/check/{username}")
 async def check_username(

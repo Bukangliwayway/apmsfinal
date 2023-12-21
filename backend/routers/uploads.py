@@ -12,9 +12,12 @@ from backend import models, utils
 from typing import Annotated, List, Optional
 from starlette import status
 from backend.schemas import UserResponse
+from backend.routers.profiles import afterEmploymentPostRoutine, isProfileCompleted
 from backend import models
 import cloudinary.uploader
 import pandas as pd
+from fuzzywuzzy import process 
+
 import os
 
 
@@ -229,40 +232,47 @@ def validate_columns(df, expected_columns):
         missing_columns = list(set(expected_columns) - set(df.columns))
         raise HTTPException(status_code=400, detail=f"Invalid file format as there are missing or extra columns: {missing_columns}")
 
-def process_post_grad_act(value):
+def process_post_grad_act(values):
     allowed_activities = ['PersonalResponsibilities', 'Career Transition', 'Volunteering', 'Travel', 'Freelancing', 'Internship', 'Education', 'Employment']
-    result = [activity.strip() for activity in value if activity.strip() in allowed_activities]
-    return result
+    return [process.extractOne(value.strip().lower(), allowed_activities)[0] for value in values if process.extractOne(value.strip().lower(), allowed_activities)[1] >= 80]
 
-def process_unemployment_reason(value):
+def process_unemployment_reason(values):
     allowed_reasons = ['demand-deficient unemployment', 'advances in technology', 'job outsourcing', 'voluntary', 'relocation', 'new force', 'reenter force']
-    result = [reason.strip() for reason in value if reason.strip() in allowed_reasons]
-    return result
+    return [process.extractOne(value.strip().lower(), allowed_reasons)[0] for value in values if process.extractOne(value.strip().lower(), allowed_reasons)[1] >= 80]
 
 def process_profile_data(df):
-    # Create a password with random letters 
-    alphabet = string.ascii_letters + string.digits
-    df['username'] = [f"{last_name}{''.join(secrets.choice(string.digits) for _ in range(4))}" for last_name in df['last_name']]
-    df['password'] = [utils.hash_password(''.join(secrets.choice(alphabet) for _ in range(10))) for _ in range(len(df))]
-
     # Clean the data: trim leading/trailing whitespace
     df = df.apply(lambda col: col.str.strip() if isinstance(col, str) else col)
 
+    # Clean Unique Columns First
+    df['email'] = df['email'].str.strip().str.lower()
+    df['student_number'] = df['student_number'].str.strip().str.upper()
 
+    # Drop duplicates based on 'student_number'
+    df.drop_duplicates(subset=['student_number'], keep='first', inplace=True)
 
-    # Remove duplicate entries based on must-be-unique columns
-    df.drop_duplicates(subset=['student_number', 'email'], keep='first', inplace=True)
+    # Drop duplicates based on 'email'
+    df.drop_duplicates(subset=['email'], keep='first', inplace=True)
+
+    # Process 'batch_year' column and save as integer
+    df['batch_year'] = pd.to_numeric(df['batch_year'], errors='coerce', downcast='integer')
 
     # Convert date columns to datetime objects
     date_columns = ['birthdate', 'date_graduated']
 
     # Check if 'date_graduated' is just a year and modify it
     df['date_graduated'] = df['date_graduated'].astype(str)
-    mask = df['date_graduated'].notna()
-    df.loc[mask, 'date_graduated'] = df.loc[mask, 'date_graduated'] + '-09-01'
 
+    # Define a function to modify the date
+    def modify_date(date):
+        if len(date) == 4:  # If the date is a year
+            return date + '-09-01'  # Append '-09-01'
+        else:  # If the date is not a year
+            return date  # Return the date as is
 
-
+    # Apply the function to the 'date_graduated' column
+    df['date_graduated'] = df['date_graduated'].apply(modify_date)
+    
     for col in date_columns:
         date_format = "%Y-%m-%d"  # Adjust the format according to your actual date format
         df[col] = pd.to_datetime(df[col], errors='coerce', format=date_format)
@@ -278,12 +288,21 @@ def process_profile_data(df):
     for col in bool_columns:
         df[col] = df[col].apply(lambda x: str(x).lower() in affirmative_words)
 
+    specific_columns = {
+        'gender': ['male', 'female', 'lgbtqia+'],
+        'civil_status': ['single', 'married', 'divorced', 'widowed'],
+        'present_employment_status': ['employed', 'self-employed', 'never been employed', 'unable to work', 'unemployed'],
+    }
+
+    for col, valid_values in specific_columns.items():
+        df[col] = df[col].apply(lambda x: process.extractOne(str(x).lower(), valid_values)[0].capitalize())
+
     # Convert array columns to array type
     df['post_grad_act'] = df['post_grad_act'].apply(lambda x: process_post_grad_act(x.split(',')) if isinstance(x, str) else [])
     df['unemployment_reason'] = df['unemployment_reason'].apply(lambda x: process_unemployment_reason(x.split(',')) if isinstance(x, str) else [])
 
     # Convert all other columns to string type
-    other_columns = ['student_number', 'first_name', 'last_name', 'email', 'gender', 'civil_status', 'headline', 'present_employment_status', 'country', 'region', 'city', 'barangay', 'origin_country', 'origin_region', 'origin_city', 'origin_barangay', 'course', 'mobile_number', 'telephone_number']
+    other_columns = ['student_number', 'first_name', 'last_name', 'email', 'gender', 'civil_status', 'headline', 'present_employment_status', 'country', 'region', 'city', 'barangay', 'origin_country', 'origin_region', 'origin_city', 'origin_barangay', 'course_code', 'mobile_number', 'telephone_number']
     for col in other_columns:
         df[col] = df[col].astype(str)
 
@@ -301,8 +320,6 @@ def process_education_data(df):
     df['date_graduated'] = df['date_graduated'].astype(str)
     mask = df['date_graduated'].notna()
     df.loc[mask, 'date_graduated'] = df.loc[mask, 'date_graduated'] + '-09-01'
-
-
 
     # Check if 'date_start' is just a year and modify it
     df.loc[df['date_start'].str.len() == 4, 'date_start'] = df['date_start'] + '-09-01'
@@ -376,8 +393,18 @@ def process_employment_data(df):
     for col in bool_columns:
         df[col] = df[col].apply(lambda x: str(x).lower() in affirmative_words)
 
+    specific_columns = {
+        'gross_monthly_income': ['Less than ₱9,100', '₱9,100 to ₱18,200', '₱18,200 to ₱36,400', '₱36,400 to ₱63,700', '₱63,700 to ₱109,200', '₱109,200 to ₱182,000', 'Above ₱182,000'],
+        'employment_contract': ['Regular', 'Casual', 'Project', 'Seasonal', 'Fixed-term', 'Probationary'],
+        'job_position': ['Chairperson / Board of Directors', 'Chief Executive Offices & C-Suite', 'Vice President', 'Director', 'Manager', 'Individual Contributor', 'Entry Level'],
+        'employer_type': ['Public / Government', 'Private Sector', 'Non-profit / Third sector', 'Self-Employed / Independent']
+    }
+
+    for col, valid_values in specific_columns.items():
+        df[col] = df[col].apply(lambda x: process.extractOne(str(x).lower(), valid_values)[0].capitalize())
+
     # Convert all other columns to string type
-    other_columns = ['student_number', 'job', 'company_name', 'gross_monthly_income', 'employment_contract', 'job_position', 'employer_type', 'country', 'region', 'city']
+    other_columns = ['student_number', 'job_code', 'company_name', 'gross_monthly_income', 'employment_contract', 'job_position', 'employer_type', 'country', 'region', 'city']
     for col in other_columns:
         df[col] = df[col].astype(str)
 
@@ -388,26 +415,21 @@ def process_unclaimed_data(df):
     # Clean the data: trim leading/trailing whitespace
     df = df.apply(lambda col: col.str.strip() if isinstance(col, str) else col)
 
-
-
-    #Create a random password for each users
-    alphabet = string.ascii_letters + string.digits
-    df['password'] = [utils.hash_password(''.join(secrets.choice(alphabet) for _ in range(10))) for _ in range(len(df))]
-    df['username'] = [f"{last_name}{''.join(secrets.choice(string.digits) for _ in range(4))}" for last_name in df['last_name']]
-
-
-    #Set all the role to unclaimed
-    df['role'] = ["unclaimed" for _ in range(len(df))]
-
     # Convert date columns to datetime objects
     date_columns = ['birthdate', 'date_graduated']
+
+    # Clean Unique Column First
+    df['student_number'] = df['student_number'].str.strip().str.upper()
+
+    # Drop duplicates based on 'student_number'
+    df.drop_duplicates(subset=['student_number'], keep='first', inplace=True)
+
+    df['batch_year'] = pd.to_numeric(df['batch_year'], errors='coerce', downcast='integer')
 
     # Check if 'date_graduated' is just a year and modify it
     df['date_graduated'] = df['date_graduated'].astype(str)
     mask = df['date_graduated'].notna()
     df.loc[mask, 'date_graduated'] = df.loc[mask, 'date_graduated'] + '-09-01'
-
-
 
     for col in date_columns:
         date_format = "%Y-%m-%d"  # Adjust the format according to your actual date format
@@ -418,7 +440,7 @@ def process_unclaimed_data(df):
         df[col] = df[col].astype(object).where(pd.notna(df[col]), None)
 
     # Convert all other columns to string type
-    other_columns = ['student_number', 'first_name', 'last_name', 'course']
+    other_columns = ['student_number', 'first_name', 'last_name', 'course_code']
     for col in other_columns:
         df[col] = df[col].astype(str)
 
@@ -461,7 +483,7 @@ async def profile_upload(file: UploadFile = File(...), db: Session = Depends(get
     else:
         raise HTTPException(status_code=400, detail="Upload failed: The file format is not supported.")
     
-    expected_columns = ['student_number','first_name','last_name','email','gender','birthdate','mobile_number','telephone_number','headline','civil_status','date_graduated','course','is_international','country','region','city','barangay','origin_is_international','origin_country','origin_region','origin_city','origin_barangay', 'post_grad_act', 'unemployment_reason', 'present_employment_status']
+    expected_columns = ['student_number','first_name','last_name','email','gender','birthdate','mobile_number','telephone_number','headline','civil_status','date_graduated','course_code','is_international','country','region','city','barangay','origin_is_international','origin_country','origin_region','origin_city','origin_barangay', 'post_grad_act', 'unemployment_reason', 'present_employment_status', 'batch_year']
     
     validate_columns(df, expected_columns)
 
@@ -470,43 +492,42 @@ async def profile_upload(file: UploadFile = File(...), db: Session = Depends(get
 
     existing_studnums = {alumni.student_number for alumni in db.query(models.User).all()}
     existing_emails = {alumni.email for alumni in db.query(models.User).all()}
+    required_fields = ['email', 'student_number', 'birthdate', 'first_name', 'last_name',
+    'course_code', 'gender', 'civil_status', 'date_graduated',
+    'present_employment_status', 'batch_year']
     # Insert the data into the database
     inserted = []
     not_inserted = []  # List to store alumni that did not inserted
     incomplete_column = []
 
     try:
-        
         for _, row in df.iterrows():
-
-            if row['student_number'] in existing_studnums or row['email'] in existing_emails:
-                not_inserted.append(row)
-            elif pd.isnull(row['email']) or row['student_number'] or not row['birthdate'] or not row['first_name'] or not row['last_name'] or not row['course']:
+            if any(not row[field] for field in required_fields):
                 incomplete_column.append(row)
-            else:
-                # Check if the course exists
-                actual_course = db.query(models.Course).filter(models.Course.name == row['course'].lower()).first()
+                continue
 
-                # If not, create a new course
-                if not actual_course:
-                    actual_course = models.Course(
-                        name=row['course'],
-                    )
-                    # Add to the session
-                    db.add(actual_course)
-                    db.commit()
-                    db.refresh(actual_course)
+            actual_course = db.query(models.Course).filter(models.Course.code == row['course_code'].lower()).first()
 
-                # Update the row with the course instance and course_id
-                row['course'] = actual_course
-                row['course_id'] = actual_course.id
+            if row['student_number'] in existing_studnums or row['email'] in existing_emails or not actual_course:
+                not_inserted.append(row)
+                continue
 
-                # Create the new user
-                new_user = models.User(**row.to_dict())
-                db.add(new_user)
-                inserted.append(row)
+            # Additional Rows
+            alphabet = string.ascii_letters + string.digits
+            row['course'] = actual_course
+            row['course_id'] = actual_course.id
+            row['username'] = f"{row['last_name']}{''.join(secrets.choice(string.digits) for _ in range(4))}"
+            row['password'] = utils.hash_password(''.join(secrets.choice(alphabet) for _ in range(10)))
+            row['role'] = 'alumni'
 
-        db.commit()
+            # Create the new user
+            new_user_data = row.to_dict()
+            new_user_data.pop('course_code', None)  # Remove 'code' key if it exists
+            new_user = models.User(**new_user_data)
+            db.add(new_user)
+            inserted.append(row)
+
+        db.commit() 
     except Exception as e:
         raise HTTPException(status_code=400, detail="Upload failed.")  
     
@@ -712,7 +733,7 @@ async def achievement_upload(file: UploadFile = File(...), db: Session = Depends
         raise HTTPException(status_code=500, detail=f"An error occurred while generating the report: {str(e)}")
     
 @router.post("/upload_employment_profile/")
-async def achievement_upload(file: UploadFile = File(...), db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+async def employment_upload(file: UploadFile = File(...), db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
     if user.role not in ["admin", "officer"]:
         raise HTTPException(status_code=401, detail="Unauthorized: Access Denied")
 
@@ -723,48 +744,38 @@ async def achievement_upload(file: UploadFile = File(...), db: Session = Depends
     else:
         raise HTTPException(status_code=400, detail="Upload failed: The file format is not supported.")
     
-    expected_columns = ['student_number', 'job', 'company_name', 'date_hired', 'date_end', 'finding_job_means', 'gross_monthly_income', 'employment_contract', 'job_position', 'employer_type', 'is_international', 'country', 'region', 'city']
+    expected_columns = ['student_number', 'job_code', 'company_name', 'date_hired', 'date_end', 'finding_job_means', 'gross_monthly_income', 'employment_contract', 'job_position', 'employer_type', 'is_international', 'country', 'region', 'city']
     
     validate_columns(df, expected_columns)
 
     # Process the data
     df = process_employment_data(df)
+    
+    required_fields = ['student_number', 'job_code', 'date_hired', 'gross_monthly_income',
+    'employment_contract', 'job_position', 'employer_type', 'company_name', 'batch_year']
 
     # Insert the data into the database
     inserted = []
     not_inserted = []  # List to store alumni that did not inserted
     incomplete_column = []
 
-    # try:
     for _, row in df.iterrows():
 
         # Check if required columns do have value
-        if not row['student_number'] or not row['job'] or not row['date_hired']:
+        if any(not row[field] for field in required_fields):
             incomplete_column.append(row)
             continue
 
         actual_user = db.query(models.User).filter(models.User.student_number == row['student_number']).first()
-
+        actual_job = db.query(models.Job).filter(models.Job.code == row['job_code']).first()
+        
         # Check if there a valid user
-        if not actual_user:
+        if not actual_user or not actual_job:
             not_inserted.append(row)
             continue
-    
-        # Check if the course exists
-        actual_job = db.query(models.Job).filter(models.Job.name == row['job'].lower()).first()
-
-        # If not, create a new job
-        if not actual_job:
-            actual_job = models.Job(
-                name=row['job'],
-            )
-            # Add to the session
-            db.add(actual_job)
-            db.commit()
-            db.refresh(actual_job)
 
         # Create the new user
-        new_data = models.Employment(
+        new_employment = models.Employment(
             user_id=actual_user.id,
             job_id=actual_job.id,
             company_name=row['company_name'],
@@ -781,13 +792,26 @@ async def achievement_upload(file: UploadFile = File(...), db: Session = Depends
             job=actual_job,
             user=actual_user,
         )
-        db.add(new_data)
+        db.add(new_employment)
+        db.commit()
+        db.refresh(new_employment)
         inserted.append(row)
-    db.commit()
 
-    # except Exception as e:
-    #     raise HTTPException(status_code=400, detail="Upload failed.")
+        user_course_classification_ids = None
+        if actual_user.course and actual_user.course.classifications:
+            user_course_classification_ids = {classification.id for classification in actual_user.course.classifications}
 
+        job_classification_ids = None
+        if new_employment.job and new_employment.job.classifications:
+            job_classification_ids = {classification.id for classification in new_employment.job.classifications}
+
+        if user_course_classification_ids is not None and job_classification_ids is not None:
+            new_employment.aligned_with_academic_program = bool(user_course_classification_ids & job_classification_ids)
+            db.commit()
+
+        await afterEmploymentPostRoutine(actual_user.id, db)
+        await isProfileCompleted(actual_user.id, db)
+        
     try:
         # Prepare the data for the report
         data = [inserted, not_inserted, incomplete_column]
@@ -811,7 +835,7 @@ async def achievement_upload(file: UploadFile = File(...), db: Session = Depends
         raise HTTPException(status_code=500, detail=f"An error occurred while generating the report: {str(e)}")
     
 @router.post("/upload_unclaimed_profile/")
-async def achievement_upload(file: UploadFile = File(...), db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+async def unclaimed_upload(file: UploadFile = File(...), db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
     if user.role not in ["admin", "officer"]:
         raise HTTPException(status_code=401, detail="Unauthorized: Access Denied")
 
@@ -822,66 +846,61 @@ async def achievement_upload(file: UploadFile = File(...), db: Session = Depends
     else:
         raise HTTPException(status_code=400, detail="Upload failed: The file format is not supported.")
     
-    expected_columns = ['student_number', 'first_name', 'last_name', 'birthdate', 'course', 'date_graduated']
+    expected_columns = ['student_number', 'first_name', 'last_name', 'birthdate', 'course_code', 'date_graduated', 'batch_year']
     
     validate_columns(df, expected_columns)
 
     # Process the data
     df = process_unclaimed_data(df)
 
+    required_fields = ['student_number', 'birthdate', 'first_name', 'last_name',
+    'course_code', 'batch_year']
+
     # Insert the data into the database
     inserted = []
     not_inserted = []  # List to store alumni that did not inserted
     incomplete_column = []
 
-    # try:
-    for _, row in df.iterrows():
+    try:
+        for _, row in df.iterrows():
+            #Create a random password for each users
+            alphabet = string.ascii_letters + string.digits
+            password = utils.hash_password(''.join(secrets.choice(alphabet) for _ in range(10))) 
+            username = f"{row['last_name']}{ ''.join(secrets.choice(string.digits) for _ in range(4)) }"
 
-        # Check if required columns do have value
-        if not row['student_number'] or not row['birthdate'] or not row['first_name'] or not row['last_name'] or not row['course']:
-            incomplete_column.append(row)
-            continue
+            # Check if required columns do have value
+            if any(not row[field] for field in required_fields):
+                incomplete_column.append(row)
+                continue
 
-        actual_user = db.query(models.User).filter(models.User.student_number == row['student_number']).first()
+            actual_user = db.query(models.User).filter(models.User.student_number == row['student_number']).first()
+            actual_course = db.query(models.Course).filter(models.Course.code == row['course_code'].lower()).first()
 
-        # Check if there is an existing user already
-        if actual_user:
-            not_inserted.append(row)
-            continue
+            # Check if there is an existing user already
+            if actual_user or not actual_course:
+                not_inserted.append(row)
+                continue      
 
-
-        actual_course = db.query(models.Course).filter(models.Course.name == row['course'].lower()).first()
-
-        if not actual_course:
-            actual_course = models.Course(
-                name=row['course'],
-                in_pupqc=True,
+            # Create the new user
+            new_data = models.User(
+                student_number=row['student_number'],
+                birthdate=row['birthdate'],
+                first_name=row['first_name'],
+                last_name=row['last_name'],
+                date_graduated=row['date_graduated'],
+                batch_year=row['batch_year'],
+                role='unclaimed',
+                password=password,
+                username=username,
+                course=actual_course,
+                course_id=actual_course.id,
             )
-            # Add to the session
-            db.add(actual_course)
-            db.commit()
-            db.refresh(actual_course)
+            db.add(new_data)
+            inserted.append(row)
+        db.commit()
 
-
-        # Create the new user
-        new_data = models.User(
-            student_number=row['student_number'],
-            birthdate=row['birthdate'],
-            first_name=row['first_name'],
-            last_name=row['last_name'],
-            date_graduated=row['date_graduated'],
-            role=row['role'],
-            password=row['password'],
-            username=row['username'],
-            course=actual_course,
-            course_id=actual_course.id,
-        )
-        db.add(new_data)
-        inserted.append(row)
-    db.commit()
-
-    # except Exception as e:
-    #     raise HTTPException(status_code=400, detail="Upload failed.")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Upload failed.")
 
     try:
         # Prepare the data for the report
@@ -906,7 +925,7 @@ async def achievement_upload(file: UploadFile = File(...), db: Session = Depends
         raise HTTPException(status_code=500, detail=f"An error occurred while generating the report: {str(e)}")
 
 @router.get("/history/all")
-async def get_unclaimed_profile(
+async def get_history_all(
     db: Session = Depends(get_db),
     user: UserResponse = Depends(get_current_user)
 ):

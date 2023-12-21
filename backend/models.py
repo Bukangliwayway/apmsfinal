@@ -59,6 +59,7 @@ class User(Base):
 
     #PUPQC Education Profile
     date_graduated = Column(Date)
+    batch_year = Column(Integer)
     post_grad_act = Column(ARRAY(String))
 
     #Employment Status
