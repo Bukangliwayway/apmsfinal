@@ -53,7 +53,6 @@ function UpdateProfile() {
     career: false,
     employment: false,
     add_achievement: false,
-    add_achievement: false,
     add_education: false,
   });
 

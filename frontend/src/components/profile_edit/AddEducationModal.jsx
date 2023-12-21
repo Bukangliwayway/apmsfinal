@@ -168,8 +168,6 @@ const AddEducationModal = ({ open, onClose }) => {
         address: educationProfile?.country,
         region: "",
         region_code: "",
-        region: "",
-        region_code: "",
       }));
     }
 

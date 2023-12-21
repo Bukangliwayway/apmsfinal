@@ -139,7 +139,6 @@ export const AchievementProfile = ({ data, isLoading }) => {
                     <Typography
                       variant="subtitle1"
                       sx={{
-                        textTransform: "capitalize",
                         fontWeight: "bold",
                         textTransform: "capitalize",
                       }}
