@@ -85,7 +85,7 @@ export default function JobsRow() {
 
   const columns = [
     {
-      label: "job name",
+      label: "Job Name",
       dataKey: "name",
     },
   ];
@@ -183,7 +183,7 @@ export default function JobsRow() {
 
   return (
     <>
-      <Card style={{ height: 400, width: "100%" }}>
+      <Card style={{ height: 650, width: "100%" }}>
         <Search style={{ margin: "1rem" }}>
           <SearchIconWrapper>
             <SearchIcon />

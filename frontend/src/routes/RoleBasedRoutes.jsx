@@ -1,11 +1,8 @@
-import { useLocation, Navigate, Routes, Route } from "react-router-dom";
+import { useLocation, Routes, Route } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 
 import Feed from "../components/Feed";
 import Explore from "../components/Explore";
-import Announcements from "../components/Announcements";
-import News from "../components/News";
-import Events from "../components/Events";
 import UpdateProfile from "../components/profile_edit/UpdateProfile";
 import Fundraise from "../components/Fundraise";
 import Missing from "../components/status_display/UserNotFound";

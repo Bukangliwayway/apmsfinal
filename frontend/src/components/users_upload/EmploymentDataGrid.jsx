@@ -170,7 +170,7 @@ const EmploymentDataGrid = () => {
   }
 
   return (
-    <Box sx={{ height: 400, width: "100%" }}>
+    <Box sx={{ height: "auto", width: "100%" }}>
       <DataGrid
         rows={allEmployments?.data?.employments}
         columns={columns}
@@ -179,14 +179,14 @@ const EmploymentDataGrid = () => {
         initialState={{
           pagination: {
             paginationModel: {
-              pageSize: 25,
+              pageSize: 10,
             },
           },
           columns: {
             columnVisibilityModel,
           },
         }}
-        pageSizeOptions={[25]}
+        pageSizeOptions={[10]}
         disableRowSelectionOnClick
         slots={{ toolbar: GridToolbar }}
         slotProps={{

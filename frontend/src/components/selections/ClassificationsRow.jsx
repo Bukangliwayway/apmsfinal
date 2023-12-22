@@ -85,11 +85,11 @@ export default function ClassficationsRow() {
 
   const columns = [
     {
-      label: "classification name",
+      label: "Classification Name",
       dataKey: "name",
     },
     {
-      label: "classification code",
+      label: "Classification Code",
       dataKey: "code",
       numeric: true,
     },
@@ -181,7 +181,7 @@ export default function ClassficationsRow() {
 
   return (
     <>
-      <Card style={{ height: 400, width: "100%" }}>
+      <Card style={{ height: 650, width: "100%" }}>
         <Search style={{ margin: "1rem" }}>
           <SearchIconWrapper>
             <SearchIcon />

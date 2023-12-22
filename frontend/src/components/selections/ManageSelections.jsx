@@ -1,19 +1,9 @@
-import { Link as RouterLink } from "react-router-dom";
 import {
   Box,
-  Breadcrumbs,
-  Button,
-  Divider,
   Fab,
-  Link,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
   Paper,
   Tab,
   Tabs,
-  TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -21,13 +11,8 @@ import React, { useState } from "react";
 import {
   Add,
   Business,
-  Edit,
-  FilterList,
   Label,
   MenuBook,
-  PersonPin,
-  School,
-  Work,
 } from "@mui/icons-material";
 import ClassificationsRow from "./ClassificationsRow";
 import CoursesRow from "./CoursesRow";
@@ -129,7 +114,6 @@ export const ManageSelections = () => {
             id="manage_classifications"
           >
             <Typography
-              variant="h1"
               fontWeight={800}
               sx={{
                 padding: "10px",
@@ -137,9 +121,9 @@ export const ManageSelections = () => {
                 color: "primary",
               }}
             >
-              manage classifications
+              Manage Classifications
             </Typography>
-            <Tooltip title="add classifications">
+            <Tooltip title="Add Classifications">
               <Fab
                 size="small"
                 color="primary"
@@ -171,7 +155,6 @@ export const ManageSelections = () => {
             id="manage_courses"
           >
             <Typography
-              variant="h1"
               fontWeight={800}
               sx={{
                 padding: "10px",
@@ -179,9 +162,9 @@ export const ManageSelections = () => {
                 color: "primary",
               }}
             >
-              manage courses
+              Manage Courses
             </Typography>
-            <Tooltip title="add courses">
+            <Tooltip title="Add Courses">
               <Fab
                 size="small"
                 color="primary"
@@ -213,7 +196,6 @@ export const ManageSelections = () => {
             id="manage_jobs"
           >
             <Typography
-              variant="h1"
               fontWeight={800}
               sx={{
                 padding: "10px",
@@ -221,9 +203,9 @@ export const ManageSelections = () => {
                 color: "primary",
               }}
             >
-              manage jobs
+              Manage Jobs
             </Typography>
-            <Tooltip title="add jobs">
+            <Tooltip title="Add Jobs">
               <Fab
                 size="small"
                 color="primary"

@@ -121,7 +121,7 @@ const AchievementDataGrid = () => {
   }
 
   return (
-    <Box sx={{ height: 400, width: "100%" }}>
+    <Box sx={{ height: "Auto", width: "100%" }}>
       <DataGrid
         rows={allAchievements?.data?.achievements}
         columns={columns}
@@ -130,14 +130,14 @@ const AchievementDataGrid = () => {
         initialState={{
           pagination: {
             paginationModel: {
-              pageSize: 25,
+              pageSize: 10,
             },
           },
           columns: {
             columnVisibilityModel,
           },
         }}
-        pageSizeOptions={[25]}
+        pageSizeOptions={[10]}
         disableRowSelectionOnClick
         slots={{ toolbar: GridToolbar }}
         slotProps={{

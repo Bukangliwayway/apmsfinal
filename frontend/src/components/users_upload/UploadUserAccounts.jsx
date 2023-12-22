@@ -111,7 +111,6 @@ export const UploadProfiles = () => {
           />
         </Tabs>
       </Box>
-
       {activeTab === "display_all" && (
         <Grid
           container
@@ -129,8 +128,7 @@ export const UploadProfiles = () => {
           id="display_all"
         >
           <Grid item xs={12}>
-            <Typography
-              variant="h1"
+          <Typography
               fontWeight={800}
               sx={{
                 padding: "10px",
@@ -140,8 +138,6 @@ export const UploadProfiles = () => {
             >
               All Profiles
             </Typography>
-          </Grid>
-          <Grid item xs={12}>
             <AllProfileDataGrid />
           </Grid>
         </Grid>
@@ -162,9 +158,9 @@ export const UploadProfiles = () => {
           }}
           id="pending_profiles"
         >
+
           <Grid item xs={12}>
-            <Typography
-              variant="h1"
+          <Typography
               fontWeight={800}
               sx={{
                 padding: "10px",
@@ -174,8 +170,6 @@ export const UploadProfiles = () => {
             >
               Approve Registration
             </Typography>
-          </Grid>
-          <Grid item xs={12}>
             <PendingProfilesDataGrid />
           </Grid>
         </Grid>
@@ -187,7 +181,6 @@ export const UploadProfiles = () => {
             backgroundColor: (theme) => theme.palette.common.main,
             padding: 2,
             borderRadius: 3,
-            minHeight: "88vh",
             position: "relative",
             opacity: activeTab === "upload_profiles" ? 1 : 0,
             display: activeTab === "upload_profiles" ? "flex" : "none",
@@ -198,7 +191,6 @@ export const UploadProfiles = () => {
         >
           <Grid item xs={12}>
             <Typography
-              variant="h1"
               fontWeight={800}
               sx={{
                 padding: "10px",
@@ -224,7 +216,6 @@ export const UploadProfiles = () => {
             backgroundColor: (theme) => theme.palette.common.main,
             padding: 2,
             borderRadius: 3,
-            minHeight: "88vh",
             position: "relative",
             opacity: activeTab === "upload_education" ? 1 : 0,
             display: activeTab === "upload_education" ? "flex" : "none",
@@ -235,7 +226,6 @@ export const UploadProfiles = () => {
         >
           <Grid item xs={12}>
             <Typography
-              variant="h1"
               fontWeight={800}
               sx={{
                 padding: "10px",
@@ -261,7 +251,6 @@ export const UploadProfiles = () => {
             backgroundColor: (theme) => theme.palette.common.main,
             padding: 2,
             borderRadius: 3,
-            minHeight: "88vh",
             position: "relative",
             opacity: activeTab === "upload_employments" ? 1 : 0,
             display: activeTab === "upload_employments" ? "flex" : "none",
@@ -272,7 +261,6 @@ export const UploadProfiles = () => {
         >
           <Grid item xs={12}>
             <Typography
-              variant="h1"
               fontWeight={800}
               sx={{
                 padding: "10px",
@@ -298,7 +286,6 @@ export const UploadProfiles = () => {
             backgroundColor: (theme) => theme.palette.common.main,
             padding: 2,
             borderRadius: 3,
-            minHeight: "88vh",
             position: "relative",
             opacity: activeTab === "upload_achievements" ? 1 : 0,
             display: activeTab === "upload_achievements" ? "flex" : "none",
@@ -309,7 +296,6 @@ export const UploadProfiles = () => {
         >
           <Grid item xs={12}>
             <Typography
-              variant="h1"
               fontWeight={800}
               sx={{
                 padding: "10px",
@@ -335,7 +321,6 @@ export const UploadProfiles = () => {
             backgroundColor: (theme) => theme.palette.common.main,
             padding: 2,
             borderRadius: 3,
-            minHeight: "88vh",
             position: "relative",
             opacity: activeTab === "two_way_link" ? 1 : 0,
             display: activeTab === "two_way_link" ? "flex" : "none",
@@ -346,7 +331,6 @@ export const UploadProfiles = () => {
         >
           <Grid item xs={12}>
             <Typography
-              variant="h1"
               fontWeight={800}
               sx={{
                 padding: "10px",
@@ -382,8 +366,7 @@ export const UploadProfiles = () => {
           id="upload_history"
         >
           <Grid item xs={12}>
-            <Typography
-              variant="h1"
+          <Typography
               fontWeight={800}
               sx={{
                 padding: "10px",
@@ -393,8 +376,6 @@ export const UploadProfiles = () => {
             >
               Upload History
             </Typography>
-          </Grid>
-          <Grid item xs={12}>
             <UploadHistoryDataGrid />
           </Grid>
         </Grid>

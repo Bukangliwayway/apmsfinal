@@ -218,7 +218,7 @@ const DemoProfileDataGrid = () => {
 
   if (isLoadingAllProfiles) {
     return (
-      <Box sx={{ height: 400, width: "100%" }}>
+      <Box sx={{ height: 525, width: "100%" }}>
         <Grid container spacing={1}>
           <Grid item xs={3}>
             <Skeleton variant="rectangular" height={20} />
@@ -253,7 +253,7 @@ const DemoProfileDataGrid = () => {
   }
 
   return (
-    <Box sx={{ height: 525, width: "100%" }}>
+    <Box sx={{ height: "auto", width: "100%" }}>
       <DataGrid
         rows={allProfiles?.data?.profiles}
         columns={columns}
@@ -262,14 +262,14 @@ const DemoProfileDataGrid = () => {
         initialState={{
           pagination: {
             paginationModel: {
-              pageSize: 25,
+              pageSize: 10,
             },
           },
           columns: {
             columnVisibilityModel,
           },
         }}
-        pageSizeOptions={[25]}
+        pageSizeOptions={[10]}
         disableRowSelectionOnClick
         slots={{ toolbar: GridToolbar }}
         slotProps={{

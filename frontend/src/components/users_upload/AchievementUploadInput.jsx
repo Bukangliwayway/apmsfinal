@@ -140,7 +140,6 @@ const AchievementUploadInput = () => {
               alignItems: "center",
               gap: "2rem",
               paddingX: "2rem",
-              marginY: "1rem",
             }}
           >
             <Button

@@ -243,7 +243,7 @@ const Login = () => {
             <Typography
               color="textSecondary"
               variant="body2"
-              my={2}
+              my= {1}
             >
               {refreshMessage}
             </Typography>
