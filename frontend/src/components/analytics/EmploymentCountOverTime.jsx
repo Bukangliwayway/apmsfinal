@@ -1,11 +1,27 @@
 import React from "react";
 import { ResponsiveLine } from "@nivo/line";
-import mockdataline from "../mockdata/mockdataline";
+import useEmploymentCountOverTime from "../../hooks/analytics/useEmploymentCountOverTime";
+import { Box, Skeleton } from "@mui/material";
 
-const CourseEmploymentRateOverTime = () => {
+
+const EmploymentCountOverTime = () => {
+
+  const {
+    data: employmentCountOverTime,
+    isLoading: isLoadingEmploymentCountOverTIme,
+  } = useEmploymentCountOverTime();
+
+  if (isLoadingEmploymentCountOverTIme) {
+    return (
+      <Box>
+        <Skeleton variant="rectangular" width={"100%"} height={"100%"} />
+      </Box>
+    );
+  }
+
   return (
     <ResponsiveLine
-      data={mockdataline}
+      data={employmentCountOverTime?.data}
       margin={{ top: 20, right: 30, bottom: 50, left: 60 }}
       xScale={{ type: "point" }}
       yScale={{
@@ -45,8 +61,9 @@ const CourseEmploymentRateOverTime = () => {
       pointBorderColor={{ from: "serieColor" }}
       pointLabelYOffset={-12}
       useMesh={true}
+      enableSlices="x"
     />
   );
 };
 
-export default CourseEmploymentRateOverTime;
+export default EmploymentCountOverTime;
