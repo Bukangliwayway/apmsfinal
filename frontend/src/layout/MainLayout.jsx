@@ -1,7 +1,7 @@
 import React from "react";
 import Sidebar from "../components/navigator/Sidebar";
 import Navbar from "../components/navigator/Navbar";
-import { Box, Grid, Stack } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 import Rightbar from "../components/navigator/Rightbar";
 function MainLayout({ children, mode, setMode, activeIndex }) {
   const sidebarWidth = 25; // Update as needed

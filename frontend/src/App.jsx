@@ -17,46 +17,46 @@ const App = () => {
   const [mode, setMode] = useState("light");
   const theme = createTheme({
     
-    palette: {
-      mode: mode,
-      primary: {
-        main: mode === "dark" ? "#555" : "#282a3e", // Set #282a3e as the main color
-        contrastText: "#fff", // Contrast text color for primary
-      },
-      secondary: {
-        main: mode === "dark" ? "#333" : "#F0F2F5", // Text color based on mode
-      },
-      common: {
-        main: mode === "dark" ? "#121212" : "#fff",
-      },
-      text: {
-        primary: mode === "dark" ? "#fff" : "#282a3e",
-      },
-    },
+    // palette: {
+    //   mode: mode,
+    //   primary: {
+    //     main: mode === "dark" ? "#555" : "#282a3e", // Set #282a3e as the main color
+    //     contrastText: "#fff", // Contrast text color for primary
+    //   },
+    //   secondary: {
+    //     main: mode === "dark" ? "#333" : "#F0F2F5", // Text color based on mode
+    //   },
+    //   common: {
+    //     main: mode === "dark" ? "#121212" : "#fff",
+    //   },
+    //   text: {
+    //     primary: mode === "dark" ? "#fff" : "#282a3e",
+    //   },
+    // },
     typography: {
-      fontSize: 16, // You can set the base font size to any value you prefer
+      fontSize: 14, // You can set the base font size to any value you prefer
       fontFamily: "Inter, Arial, sans-serif", // Font family
     },
-    components: {
-      MuiIconButton: {
-        styleOverrides: {
-          root: {
-            "& svg": {
-              color: mode === "dark" ? "#fff" : "#282a3e", // Replace with your desired icon color
-            },
-          },
-        },
-      },
-      MuiListItemButton: {
-        styleOverrides: {
-          root: {
-            "& svg": {
-              color: mode === "dark" ? "#fff" : "#282a3e", // Replace with your desired icon color
-            },
-          },
-        },
-      },
-    },
+    // components: {
+    //   MuiIconButton: {
+    //     styleOverrides: {
+    //       root: {
+    //         "& svg": {
+    //           color: mode === "dark" ? "#fff" : "#282a3e", // Replace with your desired icon color
+    //         },
+    //       },
+    //     },
+    //   },
+    //   MuiListItemButton: {
+    //     styleOverrides: {
+    //       root: {
+    //         "& svg": {
+    //           color: mode === "dark" ? "#fff" : "#282a3e", // Replace with your desired icon color
+    //         },
+    //       },
+    //     },
+    //   },
+    // },
   });
   const queryClient = new QueryClient();
   return (

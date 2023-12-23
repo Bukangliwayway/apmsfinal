@@ -15,7 +15,7 @@ const PrivateRoutes = () => {
       state={{
         from: location,
         message:
-          "you have been logout automatically for security purposes, please login again",
+          "You have been logout automatically for security purposes, please login again",
       }}
       replace
     />
