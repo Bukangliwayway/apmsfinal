@@ -121,7 +121,6 @@ const AddJob = ({ open, onClose }) => {
 
     if (
       jobProfile.name == "" ||
-      jobProfile.code == "" ||
       !jobProfile?.classification_ids ||
       jobProfile.classification_ids.length === 0
     ) {
@@ -133,8 +132,6 @@ const AddJob = ({ open, onClose }) => {
 
     const data = [{
       name: jobProfile?.name,
-      certified_job: jobProfile?.certified_job,
-      code: jobProfile?.code,
       classification_ids: jobProfile?.classification_ids,
     }];
 
@@ -204,39 +201,6 @@ const AddJob = ({ open, onClose }) => {
       <DialogTitle>Add Job</DialogTitle>
       <DialogContent sx={{ width: "40vw" }}>
         <Grid container spacing={2} p={2}>
-          {auth?.role == "admin" && (
-            <>
-              <Grid item xs={12}>
-                <FormControlLabel
-                  required
-                  control={
-                    <Switch
-                      name="certified_job"
-                      value={jobProfile?.certified_job}
-                      checked={jobProfile?.certified_job}
-                      onChange={(event) => {
-                        const { checked } = event.target;
-                        setJobProfile((prevProfile) => ({
-                          ...prevProfile,
-                          certified_job: checked,
-                        }));
-                      }}
-                    />
-                  }
-                  label="Job to be Included in Analytics"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  name="code"
-                  label="Job Occupational Code"
-                  value={jobProfile?.code}
-                  onChange={handleChange}
-                  sx={{ width: "100%" }}
-                />
-              </Grid>
-            </>
-          )}
           <Grid item xs={12}>
             <TextField
               name="name"

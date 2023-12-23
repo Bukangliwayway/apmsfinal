@@ -397,14 +397,15 @@ def process_employment_data(df):
         'gross_monthly_income': ['Less than ₱9,100', '₱9,100 to ₱18,200', '₱18,200 to ₱36,400', '₱36,400 to ₱63,700', '₱63,700 to ₱109,200', '₱109,200 to ₱182,000', 'Above ₱182,000'],
         'employment_contract': ['Regular', 'Casual', 'Project', 'Seasonal', 'Fixed-term', 'Probationary'],
         'job_position': ['Chairperson / Board of Directors', 'Chief Executive Offices & C-Suite', 'Vice President', 'Director', 'Manager', 'Individual Contributor', 'Entry Level'],
-        'employer_type': ['Public / Government', 'Private Sector', 'Non-profit / Third sector', 'Self-Employed / Independent']
+        'employer_type': ['Public / Government', 'Private Sector', 'Non-profit / Third sector', 'Self-Employed / Independent'],
+        'finding_job_means': ['others', 'pup job fair', 'job advertisement', 'recommendations', 'On the Job Training', 'Information from friends', 'Government-sponsored job Fair', 'Family Business', 'Walk-in Applicant']
     }
 
     for col, valid_values in specific_columns.items():
         df[col] = df[col].apply(lambda x: process.extractOne(str(x).lower(), valid_values)[0].capitalize())
 
     # Convert all other columns to string type
-    other_columns = ['student_number', 'job_code', 'company_name', 'gross_monthly_income', 'employment_contract', 'job_position', 'employer_type', 'country', 'region', 'city']
+    other_columns = ['student_number', 'job_name', 'finding_job_means','company_name', 'gross_monthly_income', 'employment_contract', 'job_position', 'employer_type', 'country', 'region', 'city']
     for col in other_columns:
         df[col] = df[col].astype(str)
 
@@ -525,9 +526,11 @@ async def profile_upload(file: UploadFile = File(...), db: Session = Depends(get
             new_user_data.pop('course_code', None)  # Remove 'code' key if it exists
             new_user = models.User(**new_user_data)
             db.add(new_user)
-            inserted.append(row)
+            db.commit() 
+            db.refresh(new_user)
+            await isProfileCompleted(new_user.id, db)
 
-        db.commit() 
+            inserted.append(row)
     except Exception as e:
         raise HTTPException(status_code=400, detail="Upload failed.")  
     
@@ -744,15 +747,15 @@ async def employment_upload(file: UploadFile = File(...), db: Session = Depends(
     else:
         raise HTTPException(status_code=400, detail="Upload failed: The file format is not supported.")
     
-    expected_columns = ['student_number', 'job_code', 'company_name', 'date_hired', 'date_end', 'finding_job_means', 'gross_monthly_income', 'employment_contract', 'job_position', 'employer_type', 'is_international', 'country', 'region', 'city']
+    expected_columns = ['student_number', 'job_name', 'company_name', 'date_hired', 'date_end', 'finding_job_means', 'gross_monthly_income', 'employment_contract', 'job_position', 'employer_type', 'is_international', 'country', 'region', 'city']
     
     validate_columns(df, expected_columns)
 
     # Process the data
     df = process_employment_data(df)
     
-    required_fields = ['student_number', 'job_code', 'date_hired', 'gross_monthly_income',
-    'employment_contract', 'job_position', 'employer_type', 'company_name', 'batch_year']
+    required_fields = ['student_number', 'job_name', 'date_hired', 'gross_monthly_income',
+    'employment_contract', 'job_position', 'employer_type', 'company_name']
 
     # Insert the data into the database
     inserted = []
@@ -760,15 +763,14 @@ async def employment_upload(file: UploadFile = File(...), db: Session = Depends(
     incomplete_column = []
 
     for _, row in df.iterrows():
-
         # Check if required columns do have value
         if any(not row[field] for field in required_fields):
             incomplete_column.append(row)
             continue
 
         actual_user = db.query(models.User).filter(models.User.student_number == row['student_number']).first()
-        actual_job = db.query(models.Job).filter(models.Job.code == row['job_code']).first()
-        
+        actual_job = db.query(models.Job).filter(models.Job.name == row['job_name']).first()
+
         # Check if there a valid user
         if not actual_user or not actual_job:
             not_inserted.append(row)
@@ -783,6 +785,7 @@ async def employment_upload(file: UploadFile = File(...), db: Session = Depends(
             date_end=row['date_end'],
             gross_monthly_income=row['gross_monthly_income'],
             employment_contract=row['employment_contract'],
+            finding_job_means=row['finding_job_means'],
             job_position=row['job_position'],
             employer_type=row['employer_type'],
             is_international=row['is_international'],
@@ -810,8 +813,11 @@ async def employment_upload(file: UploadFile = File(...), db: Session = Depends(
             db.commit()
 
         await afterEmploymentPostRoutine(actual_user.id, db)
-        await isProfileCompleted(actual_user.id, db)
-        
+        complete = await isProfileCompleted(user.id, db)
+        if complete:
+            actual_user.is_completed =  True
+            db.commit()
+    
     try:
         # Prepare the data for the report
         data = [inserted, not_inserted, incomplete_column]

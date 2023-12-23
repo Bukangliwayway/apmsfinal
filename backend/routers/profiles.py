@@ -18,27 +18,32 @@ router = APIRouter()
 user_dependency = Annotated[dict, Depends(get_current_user)]
 
 async def afterEmploymentPostRoutine(user_id, db: Session):
-  employments = db.query(models.Employment).filter(models.Employment.user_id == user_id).all()
   user = db.query(models.User).filter(models.User.id == user_id).first()
+  employments = db.query(models.Employment).filter(models.Employment.user_id == user_id).all()
+  if not employments:
+    user.present_employment_status = "Never been employed"
+    db.commit()
+    return
   
-  # Sort employments by date_hired in ascending order
-  employments.sort(key=lambda employment: employment.date_hired)
-
-  if employments:
-    # Set the initial employment status to "unemployed"
+  if user.present_employment_status.lower() == "never been employed" and employments:
     user.present_employment_status = "unemployed"
 
+  if employments:
     # Iterate through employments to check for "employed" status
     for employment in employments:
         if not employment.date_end or employment.date_end == "":
             # If there's an active employment, update the status to "employed"
             user.present_employment_status = "employed"
-            break  # Exit the loop since we found an active employment
+            break  
 
   db.commit()
 
 async def isProfileCompleted(user_id, db: Session):
     user = db.query(models.User).filter(models.User.id == user_id).first()
+
+    if user and user.present_employment_status.lower() == 'never been employed' and user.unemployment_reason is not None:
+        return True
+    
     employments = db.query(models.Employment).filter(models.Employment.user_id == user_id).all()
     if user and employments and user.present_employment_status != 'unanswered':
         # Check if any of the specified columns is null or blank
@@ -63,12 +68,11 @@ async def isProfileCompleted(user_id, db: Session):
             'job_position', 
             'employer_type', 
             'company_name',
-            'batch_year'
         ]
 
         for column_name in required_demo_columns:
             column_value = getattr(user, column_name)
-            if column_value is None or (isinstance(column_value, str) and column_value.strip() == ''):                
+            if column_value is None or (isinstance(column_value, str) and column_value.strip() == ''):  
                 return False
         for employment in employments:
             for column_name in required_employment_columns:
@@ -76,7 +80,7 @@ async def isProfileCompleted(user_id, db: Session):
                 if column_value is None or (isinstance(column_value, str) and column_value.strip() == ''):                
                     return False
         return True
-    
+
     return False
 
 @router.get("/check/{username}")

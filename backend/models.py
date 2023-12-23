@@ -186,8 +186,6 @@ class Job(Base):
     updated_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text("now()"))
     deleted_at = Column(TIMESTAMP(timezone=True))  # Deletion timestamp (null if not deleted)
     name = Column(String, nullable=False, index=True)
-    code = Column(String, index=True)
-    certified_job = Column(Boolean, nullable=False, server_default='False')
     employment = relationship("Employment", back_populates="job")
     classifications = relationship("Classification", secondary="job_classification", back_populates="jobs", overlaps="job_classifications")
     job_classifications = relationship("JobClassification", back_populates="job", overlaps="classifications")

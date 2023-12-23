@@ -81,8 +81,6 @@ const EditJobModal = ({ open, onClose, jobID }) => {
       );
       setJobProfile({
         name: cachedData?.data?.job?.name || "",
-        code: cachedData?.data?.job?.code || "",
-        certified_job: cachedData?.data?.job?.certified_job || false,
         classification_ids:
           cachedData?.data?.classifications?.map(
             (item) => item.classification_id
@@ -189,7 +187,6 @@ const EditJobModal = ({ open, onClose, jobID }) => {
 
     if (
       jobProfile.name == "" ||
-      jobProfile.code == "" ||
       !jobProfile?.classification_ids ||
       jobProfile.classification_ids.length === 0
     ) {
@@ -201,8 +198,6 @@ const EditJobModal = ({ open, onClose, jobID }) => {
 
     const data = {
       name: jobProfile?.name,
-      certified_job: jobProfile?.certified_job,
-      code: jobProfile?.code,
       classification_ids: jobProfile?.classification_ids,
     };
     // Convert the object to a JSON string
@@ -284,39 +279,6 @@ const EditJobModal = ({ open, onClose, jobID }) => {
           <DialogTitle>Edit Job</DialogTitle>
           <DialogContent sx={{ width: "40vw" }}>
             <Grid container spacing={2} p={2}>
-              {auth?.role == "admin" && (
-                <>
-                  <Grid item xs={12}>
-                    <FormControlLabel
-                      required
-                      control={
-                        <Switch
-                          name="certified_job"
-                          value={jobProfile?.certified_job}
-                          checked={jobProfile?.certified_job}
-                          onChange={(event) => {
-                            const { checked } = event.target;
-                            setJobProfile((prevProfile) => ({
-                              ...prevProfile,
-                              certified_job: checked,
-                            }));
-                          }}
-                        />
-                      }
-                      label="Job to be Included in Analytics"
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      name="code"
-                      label="Job Occupational Code"
-                      value={jobProfile?.code}
-                      onChange={handleChange}
-                      sx={{ width: "100%" }}
-                    />
-                  </Grid>
-                </>
-              )}
               <Grid item xs={12}>
                 <TextField
                   name="name"
