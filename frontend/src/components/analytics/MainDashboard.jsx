@@ -124,10 +124,10 @@ const MainDashboard = () => {
             variant="subtitle2"
             sx={{ textAlign: "center", fontWeight: "800" }}
           >
-            Overall Monthly Income
+            Overall Employment Status
           </Typography>
           <Box height={"25vh"}>
-            <OverallMonthlyIncome />
+            <OverallEmploymentStatus />
           </Box>
         </Grid>
         <Grid
@@ -178,10 +178,10 @@ const MainDashboard = () => {
             variant="subtitle2"
             sx={{ textAlign: "center", fontWeight: "800" }}
           >
-            Overall Employment Status
+            Overall Monthly Income
           </Typography>
           <Box height={"25vh"}>
-            <OverallEmploymentStatus />
+            <OverallMonthlyIncome />
           </Box>
         </Grid>
         <Grid
