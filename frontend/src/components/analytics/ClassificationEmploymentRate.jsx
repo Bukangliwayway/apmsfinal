@@ -1,15 +1,28 @@
 import { ResponsiveBar } from "@nivo/bar";
 import mockdatabar from "../mockdata/mockdatabar";
+import useClassificationEmploymentRate from "../../hooks/analytics/useClassificationEmploymentRate";
+import { Box, Skeleton } from "@mui/material";
 
-const JobClassificationEmploymentRate = () => {
+const ClassificationEmploymentRate = () => {
+   const { data: classificationResponseRate, isLoading: isLoadingClassificationResponseRate } =
+     useClassificationEmploymentRate();
+
+   if (isLoadingClassificationResponseRate) {
+     return (
+       <Box>
+         <Skeleton variant="rectangular" width={"100%"} height={"100%"} />
+       </Box>
+     );
+   }
   return (
     <div style={{ height: "25vh" }}>
       <ResponsiveBar
-        data={mockdatabar}
-        keys={["hot dog", "burger", "sandwich", "kebab", "fries", "donut"]}
-        indexBy="country"
+        data={classificationResponseRate?.data?.classification}
+        keys={classificationResponseRate?.data?.keys}
+        indexBy="classification_name"
         margin={{ top: 25, right: 100, bottom: 50, left: 50 }}
         padding={0.2}
+        groupMode="grouped"
         valueScale={{ type: "linear" }}
         indexScale={{ type: "band", round: true }}
         colors={{ scheme: "blues" }}
@@ -97,4 +110,4 @@ const JobClassificationEmploymentRate = () => {
   );
 };
 
-export default JobClassificationEmploymentRate;
+export default ClassificationEmploymentRate;

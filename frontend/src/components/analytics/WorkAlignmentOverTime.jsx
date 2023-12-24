@@ -1,12 +1,25 @@
 import React from "react";
 import { ResponsiveLine } from "@nivo/line";
-import mockdataline from "../mockdata/mockdataline";
-import { Typography } from "@mui/material";
+import { Box, Skeleton } from "@mui/material";
+import useWorkAlignmentOverTime from "../../hooks/analytics/useWorkAlignmentOverTime";
 
-const WorkAllignmentCourse = () => {
+
+const WorkAlignmentOverTime = () => {
+  const {
+    data: workAlignmment,
+    isLoading: isLoadingWorkAlignment,
+  } = useWorkAlignmentOverTime();
+
+  if (isLoadingWorkAlignment) {
+    return (
+      <Box>
+        <Skeleton variant="rectangular" width={"100%"} height={"100%"} />
+      </Box>
+    );
+  }
   return (
     <ResponsiveLine
-      data={mockdataline}
+      data={workAlignmment?.data}
       margin={{ top: 20, right: 30, bottom: 50, left: 60 }}
       xScale={{ type: "point" }}
       yScale={{
@@ -46,8 +59,9 @@ const WorkAllignmentCourse = () => {
       pointBorderColor={{ from: "serieColor" }}
       pointLabelYOffset={-12}
       useMesh={true}
+      enableSlices="x"
     />
   );
 };
 
-export default WorkAllignmentCourse;
+export default WorkAlignmentOverTime;

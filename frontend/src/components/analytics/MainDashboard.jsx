@@ -1,11 +1,11 @@
 import { Box, Card, Grid, Typography } from "@mui/material";
 import React from "react";
 import AlumniResponseRate from "./OverallResponseRate";
-import JobClassificationEmploymentRate from "./JobClassificationEmploymentRate";
-import WorkAllignmentCourse from "./WorkAllignmentCourse";
+import ClassificationEmploymentRate from "./ClassificationEmploymentRate";
+import WorkAlignmentOverTime from "./WorkAlignmentOverTime";
 import CourseLowestResponseRate from "./CourseLowestResponseRate";
-import EmploymentRatePerCourse from "./EmploymentRatePerCourse";
-import CourseEmploymentRateOverTime from "./EmploymentRateOverTime";
+import CourseEmploymentRate from "./CourseEmploymentRate";
+import EmploymentCountOverTime from "./EmploymentCountOverTime";
 import OverallEmployerType from "./OverallEmployerType";
 import OverallMonthlyIncome from "./OverallMonthlyIncome";
 import OverallGender from "./OverallGender";
@@ -65,7 +65,7 @@ const MainDashboard = () => {
               height: "28vh",
             }}
           >
-            <WorkAllignmentCourse />
+            <WorkAlignmentOverTime />
           </Grid>
           <Grid
             item
@@ -75,7 +75,7 @@ const MainDashboard = () => {
               height: "28vh",
             }}
           >
-            <CourseEmploymentRateOverTime />
+            <EmploymentCountOverTime />
           </Grid>
         </Grid>
         <Grid item container xs={3.41}>
@@ -87,7 +87,7 @@ const MainDashboard = () => {
               height: "56vh" + "1rem",
             }}
           >
-            <EmploymentRatePerCourse />
+            <CourseEmploymentRate />
           </Grid>
         </Grid>
       </Grid>
@@ -100,7 +100,7 @@ const MainDashboard = () => {
             height: "30vh",
           }}
         >
-          <JobClassificationEmploymentRate />
+          <ClassificationEmploymentRate />
         </Grid>
       </Grid>
       <Grid
@@ -124,10 +124,10 @@ const MainDashboard = () => {
             variant="subtitle2"
             sx={{ textAlign: "center", fontWeight: "800" }}
           >
-            Overall Monthly Income
+            Overall Employment Status
           </Typography>
           <Box height={"25vh"}>
-            <OverallMonthlyIncome />
+            <OverallEmploymentStatus />
           </Box>
         </Grid>
         <Grid
@@ -178,10 +178,10 @@ const MainDashboard = () => {
             variant="subtitle2"
             sx={{ textAlign: "center", fontWeight: "800" }}
           >
-            Overall Employment Status
+            Overall Monthly Income
           </Typography>
           <Box height={"25vh"}>
-            <OverallEmploymentStatus />
+            <OverallMonthlyIncome />
           </Box>
         </Grid>
         <Grid
