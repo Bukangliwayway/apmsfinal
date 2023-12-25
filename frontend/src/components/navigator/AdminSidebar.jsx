@@ -1,9 +1,5 @@
 import {
-  AccountCircle,
   CheckCircle,
-  Dashboard,
-  ExpandLess,
-  ExpandMore,
   Home,
   People,
   Settings,

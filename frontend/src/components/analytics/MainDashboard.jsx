@@ -18,7 +18,6 @@ const MainDashboard = () => {
     <Box
       p={{ sm: 4, md: 1 }}
       sx={{
-        backgroundColor: (theme) => theme.palette.secondary.main,
         display: "flex",
         gap: 1,
         height: "100%",

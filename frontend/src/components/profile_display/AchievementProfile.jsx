@@ -86,7 +86,6 @@ export const AchievementProfile = ({ data, isLoading }) => {
 
   const Chiptip = ({ icon, label, additional = "", actual = "" }) => (
     <Tooltip
-      color="secondary"
       title={actual !== "" ? actual : additional + label}
       sx={{ padding: "0.5rem" }}
     >

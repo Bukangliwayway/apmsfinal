@@ -59,7 +59,6 @@ import {
 export const EmploymentProfile = ({ data, isLoading }) => {
   const Chiptip = ({ icon, label, additional = "", actual = "" }) => (
     <Tooltip
-      color="secondary"
       title={actual !== "" ? actual : additional + label}
       sx={{ padding: "0.5rem" }}
     >
@@ -517,7 +516,7 @@ export const EmploymentProfile = ({ data, isLoading }) => {
                           fontWeight: "bold",
                         }}
                       >
-                        <Tooltip color="secondary" title="gross monthly income">
+                        <Tooltip title="gross monthly income">
                           {employment?.gross_monthly_income}
                         </Tooltip>
                       </Typography>

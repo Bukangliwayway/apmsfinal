@@ -119,7 +119,6 @@ export const EditableAchievementModal = () => {
 
   const Chiptip = ({ icon, label, additional = "", actual = "" }) => (
     <Tooltip
-      color="secondary"
       title={actual !== "" ? actual : additional + label}
       sx={{ padding: "0.5rem" }}
     >
@@ -164,7 +163,6 @@ export const EditableAchievementModal = () => {
         <Typography
           variant="h5"
           fontWeight={800}
-          // color="secondary"
           sx={{
             padding: "10px",
             borderBottom: "2px solid",

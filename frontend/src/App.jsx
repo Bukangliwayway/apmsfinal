@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import { Box, createTheme, ThemeProvider } from "@mui/material";
 import Login from "./components/auth/Login";
@@ -23,6 +22,12 @@ const App = () => {
         mode: prefersDarkMode ? 'dark' : 'light',
         main: "#206BC4"
       },
+      // secondary: {
+      //   main: "#F0F2F5"
+      // },
+      // common: {
+      //   main: "#FEFEFE"
+      // },
     },
 
     typography: {

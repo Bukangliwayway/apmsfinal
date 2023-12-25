@@ -17,7 +17,6 @@ function PublicLayout({ children }) {
       <Adaptive>
         <Box
           sx={{
-            backgroundColor: (theme) => theme.palette.secondary.main,
             marginY: "3vh",
             paddingY: "3vh",
           }}

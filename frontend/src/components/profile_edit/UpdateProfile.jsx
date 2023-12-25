@@ -140,7 +140,6 @@ function UpdateProfile() {
       flex={4}
       p={{ sm: 4, md: 2 }}
       sx={{
-        backgroundColor: (theme) => theme.palette.secondary.main,
         display: "flex",
         gap: 2,
         flexDirection: "column",
@@ -250,7 +249,6 @@ function UpdateProfile() {
             <Typography
               variant="h5"
               fontWeight={800}
-              // color="secondary"
               sx={{
                 padding: "10px",
                 borderBottom: "2px solid",
@@ -311,7 +309,6 @@ function UpdateProfile() {
             <Typography
               variant="h5"
               fontWeight={800}
-              // color="secondary"
               sx={{
                 padding: "10px",
                 borderBottom: "2px solid",
