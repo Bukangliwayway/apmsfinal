@@ -12,12 +12,33 @@ import LinkedInRedirect from "./components/auth/LinkedInRedirect";
 import { ReactQueryDevtools } from "react-query/devtools";
 import RoleBasedRoutes from "./routes/RoleBasedRoutes";
 import ResetPassword from "./components/auth/ResetPassword";
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 const App = () => {
-  const [mode, setMode] = useState("light");
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const theme = createTheme({
     
-    // palette: {
+    palette: {
+      primary: {
+        mode: prefersDarkMode ? 'dark' : 'light',
+        main: "#206BC4"
+      },
+    },
+
+    typography: {
+      fontFamily: "Inter, Arial, sans-serif", // Font family
+      fontWeightThin: 100,
+      fontWeightExtraLight: 200,
+      fontWeightLight: 300,
+      fontWeightRegular: 400,
+      fontWeightMedium: 500,
+      fontWeightSemiBold: 600,
+      fontWeightBold: 700,
+      fontWeightExtraBold: 800,
+      fontWeightBlack: 900,
+    },
+
+        // palette: {
     //   mode: mode,
     //   primary: {
     //     main: mode === "dark" ? "#555" : "#282a3e", // Set #282a3e as the main color
@@ -33,10 +54,7 @@ const App = () => {
     //     primary: mode === "dark" ? "#fff" : "#282a3e",
     //   },
     // },
-    typography: {
-      fontSize: 14, // You can set the base font size to any value you prefer
-      fontFamily: "Inter, Arial, sans-serif", // Font family
-    },
+
     // components: {
     //   MuiIconButton: {
     //     styleOverrides: {
@@ -81,7 +99,7 @@ const App = () => {
               <Route path="/" element={<PrivateRoutes />}>
                 <Route
                   path="*"
-                  element={<RoleBasedRoutes mode={mode} setMode={setMode} />}
+                  element={<RoleBasedRoutes />}
                 />
               </Route>
             </Route>
