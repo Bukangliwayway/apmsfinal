@@ -18,16 +18,13 @@ const App = () => {
   const theme = createTheme({
     
     palette: {
+      mode: prefersDarkMode ? 'dark' : 'light',
       primary: {
-        mode: prefersDarkMode ? 'dark' : 'light',
         main: "#206BC4"
       },
-      // secondary: {
-      //   main: "#F0F2F5"
-      // },
-      // common: {
-      //   main: "#FEFEFE"
-      // },
+      secondary: {
+        main: "#6C7A91"
+      },
     },
 
     typography: {
