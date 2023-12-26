@@ -9,7 +9,6 @@ export const ManageEmployments = () => {
       flex={4}
       p={{ sm: 4, md: 2 }}
       sx={{
-        backgroundColor: (theme) => theme.palette.secondary.main,
         display: "flex",
         gap: 2,
         flexDirection: "column",

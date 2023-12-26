@@ -9,7 +9,6 @@ function LoadingCircular({baseHeight}) {
       alignItems="center"
       justifyContent="center"
       height={baseHeight || "90vh"}
-      bgcolor={(theme) => theme.palette.secondary.main}
     >
       <CircularProgress color="primary" />
     </Box>
