@@ -8,18 +8,17 @@ import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
 import Logout from "@mui/icons-material/Logout";
-import useLogout from "../../hooks/useLogout";
+import useLogout from "../../hooks/utilities/useLogout";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { useQuery } from "react-query";
-import { Card, CardActionArea } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 
 export default function AccountMenu() {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
-  const logout = useLogout();
 
+  const logout = useLogout();
   const axiosPrivate = useAxiosPrivate();
 
   const getProfile = async () => {
@@ -34,26 +33,6 @@ export default function AccountMenu() {
       // refetchOnWindowFocus: true,
     }
   );
-
-  if (isError) {
-    if (error?.response?.data?.detail === "Token has expired") {
-      setAuth({}); // Clears out all the token, logs you out
-      logout();
-      navigate("/login", {
-        state: {
-          from: location,
-          message:
-            "You have been logged out for security purposes, please login again",
-        },
-        replace: true,
-      });
-    }
-  }
-
-  const signOut = async () => {
-    logout();
-    navigate("/login");
-  };
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -115,7 +94,7 @@ export default function AccountMenu() {
           view profile
         </MenuItem>
         <Divider />
-        <MenuItem onClick={signOut}>
+        <MenuItem onClick={() => logout()}>
           <ListItemIcon>
             <Logout fontSize="small" />
           </ListItemIcon>

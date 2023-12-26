@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useQuery } from "react-query";
 import { useNavigate, useLocation } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import useAuth from "../../hooks/useAuth";
+import useAuth from "../../hooks/utilities/useAuth";
 import EducProfileEditModal from "./EditCareerModal";
 import useGetEducationProfiles from "../../hooks/useGetEducationProfiles";
 import PopupState, { bindTrigger, bindMenu } from "material-ui-popup-state";

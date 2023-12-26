@@ -220,6 +220,18 @@ const Register = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    const allFieldsFilled = Object.entries(formData).every(
+      ([fieldName, fieldValue]) =>
+        fieldName === "profile_picture" ||
+        (fieldValue !== "" && fieldValue !== null)
+    );
+    
+    if (!allFieldsFilled) {
+      setMessage("Please fill all fields");
+      setSeverity("error");
+      setOpenSnackbar(true);
+      return;
+    }
 
     const captchaValue = recaptcha.current.getValue();
     if (!captchaValue) {
@@ -318,9 +330,7 @@ const Register = () => {
         sx={{ display: "flex", alignItems: "center", flexDirection: "column" }}
       >
         <Grid item xs={7}>
-          <Typography variant="h5">
-            Alumni Registration
-          </Typography>
+          <Typography variant="h5">Alumni Registration</Typography>
         </Grid>
         <Grid
           item

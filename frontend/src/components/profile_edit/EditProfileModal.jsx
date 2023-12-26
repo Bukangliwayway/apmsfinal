@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient, useQuery } from "react-query";
 import { useState, useEffect, useRef, forwardRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import useLogout from "../../hooks/useLogout";
+import useLogout from "../../hooks/utilities/useLogout";
 import { IMaskInput } from "react-imask";
 import {
   Box,
@@ -131,8 +131,7 @@ const ProfileEditModal = ({ open, onClose }) => {
   };
 
   const signOut = async () => {
-    logout();
-    navigate("/login");
+    await logout();
   };
 
   const mutation = useMutation(

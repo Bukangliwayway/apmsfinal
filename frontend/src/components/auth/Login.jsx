@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
-import useAuth from "../../hooks/useAuth";
+import useAuth from "../../hooks/utilities/useAuth";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
-import { useMutation, } from "react-query";
+import { useMutation } from "react-query";
 import LinearProgress from "@mui/material/LinearProgress";
 import axios from "../../api/axios";
 import LinkedInLogin from "./LinkedInLogin";
@@ -34,7 +34,6 @@ const Login = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const from = location.state?.from?.pathname || "/home";
-  console.log(from);
   const refreshMessage =
     location.state?.message || "Ready to relive Memories? Just Login!";
   const snackbarMessage = location.state?.snackbar || "";
@@ -59,7 +58,7 @@ const Login = () => {
       setSeverity("success");
       setOpenSnackbar(true);
     }
-  }, [snackbarMessage]); 
+  }, [snackbarMessage]);
 
   const ResetMutation = useMutation(
     async (details) => {
@@ -110,6 +109,12 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!username || !password) {
+      setMessage("Username and password are required.");
+      setSeverity("error");
+      setOpenSnackbar(true);
+      return;
+    }
     const dataString =
       "grant_type=&username=" +
       username +
@@ -241,11 +246,7 @@ const Login = () => {
         >
           <CardContent>
             <Typography variant="h6">Alumni Login</Typography>
-            <Typography
-              color="textSecondary"
-              variant="body2"
-              my= {1}
-            >
+            <Typography color="textSecondary" variant="body2" my={1}>
               {refreshMessage}
             </Typography>
             <Grid container spacing={1.5}>
@@ -302,7 +303,7 @@ const Login = () => {
                 <FormControlLabel
                   control={
                     <Checkbox
-                      checked={persist}
+                      checked={persist || false}
                       onChange={handleChange}
                       inputProps={{ "aria-label": "controlled" }}
                     />

@@ -55,7 +55,7 @@ import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import useGetCareerProfile from "../../hooks/useGetCareerProfile";
 import useCourses from "../../hooks/useCourses";
-import useAuth from "../../hooks/useAuth";
+import useAuth from "../../hooks/utilities/useAuth";
 
 const careerProfileEditModal = ({ open, onClose }) => {
   const queryClient = useQueryClient();

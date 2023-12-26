@@ -11,22 +11,52 @@ import LinkedInRedirect from "./components/auth/LinkedInRedirect";
 import { ReactQueryDevtools } from "react-query/devtools";
 import RoleBasedRoutes from "./routes/RoleBasedRoutes";
 import ResetPassword from "./components/auth/ResetPassword";
-import useMediaQuery from '@mui/material/useMediaQuery';
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useState } from "react";
+import useMode from "./hooks/utilities/useMode";
 
 const App = () => {
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-  const theme = createTheme({
-    
+  const { mode, setMode } = useMode();
+
+  // const theme = createTheme({
+  //   palette: {
+  //     mode: mode,
+  //     primary: {
+  //       main: "#206BC4",
+  //     },
+  //     secondary: {
+  //       main: "#6C7A91",
+  //     },
+  //   },
+
+  //   typography: {
+  //     fontFamily: "Inter, Arial, sans-serif", // Font family
+  //     fontWeightThin: 100,
+  //     fontWeightExtraLight: 200,
+  //     fontWeightLight: 300,
+  //     fontWeightRegular: 400,
+  //     fontWeightMedium: 500,
+  //     fontWeightSemiBold: 600,
+  //     fontWeightBold: 700,
+  //     fontWeightExtraBold: 800,
+  //     fontWeightBlack: 900,
+  //   },
+  // });
+
+  const lightTheme = createTheme({
     palette: {
-      mode: prefersDarkMode ? 'dark' : 'light',
-      primary: {
-        main: "#206BC4"
+      mode: "light",
+      common: {
+        main: "#fff",
       },
-      secondary: {
-        main: "#6C7A91"
+      background: {
+        default: "#f6f8fb",
+        paper: "#f6f8fb",
+      },
+      primary: {
+        main: "#0054a6",
       },
     },
-
     typography: {
       fontFamily: "Inter, Arial, sans-serif", // Font family
       fontWeightThin: 100,
@@ -39,49 +69,50 @@ const App = () => {
       fontWeightExtraBold: 800,
       fontWeightBlack: 900,
     },
-
-        // palette: {
-    //   mode: mode,
-    //   primary: {
-    //     main: mode === "dark" ? "#555" : "#282a3e", // Set #282a3e as the main color
-    //     contrastText: "#fff", // Contrast text color for primary
-    //   },
-    //   secondary: {
-    //     main: mode === "dark" ? "#333" : "#F0F2F5", // Text color based on mode
-    //   },
-    //   common: {
-    //     main: mode === "dark" ? "#121212" : "#fff",
-    //   },
-    //   text: {
-    //     primary: mode === "dark" ? "#fff" : "#282a3e",
-    //   },
-    // },
-
-    // components: {
-    //   MuiIconButton: {
-    //     styleOverrides: {
-    //       root: {
-    //         "& svg": {
-    //           color: mode === "dark" ? "#fff" : "#282a3e", // Replace with your desired icon color
-    //         },
-    //       },
-    //     },
-    //   },
-    //   MuiListItemButton: {
-    //     styleOverrides: {
-    //       root: {
-    //         "& svg": {
-    //           color: mode === "dark" ? "#fff" : "#282a3e", // Replace with your desired icon color
-    //         },
-    //       },
-    //     },
-    //   },
-    // },
   });
+
+  const darkTheme = createTheme({
+    palette: {
+      mode: "dark",
+      common: {
+        main: "#182433",
+      },
+      background: {
+        default: "#151f2c",
+        paper: "#151f2c",
+      },
+      primary: {
+        main: "#182433",
+      },
+      action:{
+        active: "#fff"
+      }
+    },
+    components: {
+      MuiAppBar: {
+        defaultProps: {
+          enableColorOnDark: true,
+        },
+      },
+    },
+    typography: {
+      fontFamily: "Inter, Arial, sans-serif", // Font family
+      fontWeightThin: 100,
+      fontWeightExtraLight: 200,
+      fontWeightLight: 300,
+      fontWeightRegular: 400,
+      fontWeightMedium: 500,
+      fontWeightSemiBold: 600,
+      fontWeightBold: 700,
+      fontWeightExtraBold: 800,
+      fontWeightBlack: 900,
+    },
+  });
+
   const queryClient = new QueryClient();
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={mode == "light" ? lightTheme : darkTheme}>
         <Box bgcolor={"background.default"} color={"text.primary"}>
           <Routes>
             <Route path="/" element={<PublicRoutes />}>
@@ -99,10 +130,7 @@ const App = () => {
             </Route>
             <Route element={<PersistLogin />}>
               <Route path="/" element={<PrivateRoutes />}>
-                <Route
-                  path="*"
-                  element={<RoleBasedRoutes />}
-                />
+                <Route path="*" element={<RoleBasedRoutes />} />
               </Route>
             </Route>
             <Route path="*" element={<Missing />} />

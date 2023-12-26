@@ -30,7 +30,7 @@ import {
   OutlinedInput,
   Chip,
 } from "@mui/material";
-import useAuth from "../../hooks/useAuth";
+import useAuth from "../../hooks/utilities/useAuth";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -130,10 +130,12 @@ const AddJob = ({ open, onClose }) => {
       return; // Prevent form submission
     }
 
-    const data = [{
-      name: jobProfile?.name,
-      classification_ids: jobProfile?.classification_ids,
-    }];
+    const data = [
+      {
+        name: jobProfile?.name,
+        classification_ids: jobProfile?.classification_ids,
+      },
+    ];
 
     // Convert the object to a JSON string
     const payload = JSON.stringify(data);

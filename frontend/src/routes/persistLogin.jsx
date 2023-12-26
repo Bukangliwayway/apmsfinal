@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { useState, useEffect } from "react";
 import useRefreshToken from "../hooks/useRefreshToken";
-import useAuth from "../hooks/useAuth";
+import useAuth from "../hooks/utilities/useAuth";
 import LoadingCircular from "../components/status_display/LoadingCircular";
 
 const PersistLogin = () => {
@@ -26,9 +26,16 @@ const PersistLogin = () => {
     return () => (isMounted = false);
   }, []);
 
-  return (  
+  return (
     <>
-    {!persist ? <Outlet/> : isLoading ? <LoadingCircular baseHeight={"100vh"}/> : <Outlet />}</>
+      {!persist ? (
+        <Outlet />
+      ) : isLoading ? (
+        <LoadingCircular baseHeight={"100vh"} />
+      ) : (
+        <Outlet />
+      )}
+    </>
   );
 };
 

@@ -481,7 +481,7 @@ async def over_employer_type(db: Session = Depends(get_db), user: UserResponse =
       
   return  course_employment_rate
 
-@router.get("/course_response_rate/recent_batch")
+@router.get("/course_response_rate/recent_batch/")
 async def over_employer_type(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
   
   # Fetch all users ordered by batch year
@@ -517,7 +517,7 @@ async def over_employer_type(db: Session = Depends(get_db), user: UserResponse =
       
   return  course_response_rate
 
-@router.get("/classification_employment_rate")
+@router.get("/classification_employment_rate/")
 async def classification_employment_rate(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
     employments = db.query(models.Employment).all()
     classifications = db.query(models.Classification).all()
@@ -557,7 +557,7 @@ async def classification_employment_rate(db: Session = Depends(get_db), user: Us
     ]
     return {'classification': final_classification_list, 'keys': {f"batch {batch_year}" for batch_year in batch_years}}
 
-@router.get("/employment_count_over_time")
+@router.get("/employment_count_over_time/")
 async def employment_count_over_time(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
   dates = set()
   users = db.query(models.User).filter(
@@ -609,7 +609,7 @@ async def employment_count_over_time(db: Session = Depends(get_db), user: UserRe
 
   return data
 
-@router.get("/work_alignment_over_time")
+@router.get("/work_alignment_over_time/")
 async def work_alignment_over_time(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
   dates = set()
   users = db.query(models.User).filter(

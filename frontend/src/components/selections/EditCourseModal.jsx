@@ -2,7 +2,7 @@ import { useMutation, useQueryClient, useQuery } from "react-query";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import useAuth from "../../hooks/useAuth";
+import useAuth from "../../hooks/utilities/useAuth";
 import useGetCourseSpecific from "../../hooks/selections/useGetCourseSpecific";
 import {
   Alert,

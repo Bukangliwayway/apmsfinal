@@ -1,4 +1,4 @@
-import useLogout from "../../hooks/useLogout";
+import useLogout from "../../hooks/utilities/useLogout";
 import dayjs from "dayjs";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -229,7 +229,7 @@ export const CareerProfile = ({ isLoading, data }) => {
             alignItems: "center",
             padding: "0 1rem",
             fontWeight: "bold", // Make the text bold
-            textTransform: "capitalize"
+            textTransform: "capitalize",
           }}
         >
           {data?.data?.course ? data?.data?.course : "No Background in PUPQC"}
@@ -248,7 +248,7 @@ export const CareerProfile = ({ isLoading, data }) => {
       <Grid
         item
         xs={12}
-        sx={{ display: "flex", flexDirection: "column", gap: 3}}
+        sx={{ display: "flex", flexDirection: "column", gap: 3 }}
       >
         {data?.data?.post_grad_act && (
           <Divider>
@@ -276,7 +276,7 @@ export const CareerProfile = ({ isLoading, data }) => {
             ))}
         </Box>
       </Grid>
-      
+
       {data?.data?.education?.length != 0 && (
         <Grid
           item

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import useGetDemographicProfile from "../../hooks/useGetDemographicProfile";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { useNavigate, useLocation } from "react-router-dom";
-import useAuth from "../../hooks/useAuth";
+import useAuth from "../../hooks/utilities/useAuth";
 import {
   Box,
   Breadcrumbs,

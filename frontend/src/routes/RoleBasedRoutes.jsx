@@ -1,5 +1,5 @@
 import { useLocation, Routes, Route } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
+import useAuth from "../hooks/utilities/useAuth";
 import Feed from "../components/Feed";
 import Explore from "../components/Explore";
 import UpdateProfile from "../components/profile_edit/UpdateProfile";

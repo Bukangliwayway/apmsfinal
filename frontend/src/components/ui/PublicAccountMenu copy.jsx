@@ -10,7 +10,7 @@ import Tooltip from "@mui/material/Tooltip";
 import { Settings, Edit, History } from "@mui/icons-material/";
 import Logout from "@mui/icons-material/Logout";
 import { useNavigate } from "react-router-dom";
-import useLogout from "../../hooks/useLogout";
+import useLogout from "../../hooks/utilities/useLogout";
 
 export default function AccountMenu({ link }) {
   const [anchorEl, setAnchorEl] = React.useState(null);

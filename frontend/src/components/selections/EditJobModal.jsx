@@ -29,7 +29,7 @@ import {
 } from "@mui/material";
 import useClassifications from "../../hooks/useClassifications";
 import useGetJobSpecific from "../../hooks/selections/useGetJobSpecific";
-import useAuth from "../../hooks/useAuth";
+import useAuth from "../../hooks/utilities/useAuth";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;

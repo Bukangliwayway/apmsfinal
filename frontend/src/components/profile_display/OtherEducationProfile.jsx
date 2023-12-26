@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useQuery } from "react-query";
 import { useNavigate, useLocation } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import useAuth from "../../hooks/useAuth";
+import useAuth from "../../hooks/utilities/useAuth";
 import useGetEducationProfiles from "../../hooks/useGetEducationProfiles";
 import {
   Avatar,
@@ -73,7 +73,7 @@ const ExpandMore = styled((props) => {
   }),
 }));
 
-export const OtherEducationProfile = ({data, isLoading}) => {
+export const OtherEducationProfile = ({ data, isLoading }) => {
   const [expanded, setExpanded] = React.useState({});
 
   const handleExpandClick = (educationId) => {
@@ -96,7 +96,6 @@ export const OtherEducationProfile = ({data, isLoading}) => {
       <Chip icon={icon} label={label} />
     </Tooltip>
   );
-
 
   return (
     data?.data?.education && (

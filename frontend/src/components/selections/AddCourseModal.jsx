@@ -28,7 +28,7 @@ import {
   Switch,
 } from "@mui/material";
 import useClassifications from "../../hooks/useClassifications";
-import useAuth from "../../hooks/useAuth";
+import useAuth from "../../hooks/utilities/useAuth";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -126,7 +126,6 @@ const AddCourse = ({ open, onClose }) => {
       setOpenSnackbar(true);
       return; // Prevent form submission
     }
-
 
     const data = {
       name: courseProfile?.name,
