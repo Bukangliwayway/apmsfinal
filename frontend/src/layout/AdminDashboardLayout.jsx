@@ -33,12 +33,10 @@ function AdminDashboardLayout({ children, mode, setMode, activeIndex }) {
           pt="0.5rem"
         >
            <IconButton
-            color="inherit"
-            aria-label="open drawer"
             onClick={handleDrawerToggle}  
-            sx={{width: "3rem",...(open ? {marginX: 'auto'} : { marginLeft: 'auto' }) }}
+            sx={{width: "3rem",...(open ? {marginX: 'auto'} : { marginLeft: 'auto' }), mb: "1rem"}}
           >
-            <MenuIcon sx={{ fontSize: 30 }} />
+            <MenuIcon sx={{ fontSize: "2rem" }} />
           </IconButton>
             <AdminSidebar mode={open}/>
         </Grid>

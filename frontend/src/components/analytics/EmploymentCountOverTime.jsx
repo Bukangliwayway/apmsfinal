@@ -3,9 +3,7 @@ import { ResponsiveLine } from "@nivo/line";
 import useEmploymentCountOverTime from "../../hooks/analytics/useEmploymentCountOverTime";
 import { Box, Skeleton } from "@mui/material";
 
-
 const EmploymentCountOverTime = () => {
-
   const {
     data: employmentCountOverTime,
     isLoading: isLoadingEmploymentCountOverTIme,
@@ -28,7 +26,7 @@ const EmploymentCountOverTime = () => {
         type: "linear",
         min: "auto",
         max: "auto",
-        stacked: true,
+        stacked: false,
         reverse: false,
       }}
       yFormat=" >-.2f"

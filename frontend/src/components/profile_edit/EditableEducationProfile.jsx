@@ -201,15 +201,17 @@ export const EditableEducationProfile = () => {
             <Add />
           </Fab>
         </Tooltip>
-        <Tooltip title="Edit PUP Background">
-          <Fab
-            size="small"
-            color="primary"
-            onClick={() => handleModalOpen("career", 1)}
-          >
-            <Edit />
-          </Fab>
-        </Tooltip>
+        {auth?.role == "public" && (
+          <Tooltip title="Edit PUP Background">
+            <Fab
+              size="small"
+              color="primary"
+              onClick={() => handleModalOpen("career", 1)}
+            >
+              <Edit />
+            </Fab>
+          </Tooltip>
+        )}
       </Box>
       <Grid
         container

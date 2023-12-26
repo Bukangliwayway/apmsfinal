@@ -34,6 +34,7 @@ const Login = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const from = location.state?.from?.pathname || "/home";
+  console.log(from);
   const refreshMessage =
     location.state?.message || "Ready to relive Memories? Just Login!";
   const snackbarMessage = location.state?.snackbar || "";

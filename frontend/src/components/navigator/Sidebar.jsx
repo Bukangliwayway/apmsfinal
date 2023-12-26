@@ -20,7 +20,6 @@ function Sidebar() {
   const [selectedIndex, setSelectedIndex] = useState(1);
   const { auth } = useAuth();
   
-
   const handleListItemClick = (event, index) => {
     setSelectedIndex(index);
   };
@@ -121,7 +120,7 @@ function Sidebar() {
         {auth?.role == "admin" ? (
           <List sx={{ display: "flex", gap: 0.5, flexDirection: "column" }}>
             <RouterLink
-              to="/dashboard"
+              to="/home"
               style={{ textDecoration: "none", color: "inherit" }}
             >
               <ListItem

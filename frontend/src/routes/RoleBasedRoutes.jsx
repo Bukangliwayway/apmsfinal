@@ -1,6 +1,5 @@
 import { useLocation, Routes, Route } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
-
 import Feed from "../components/Feed";
 import Explore from "../components/Explore";
 import UpdateProfile from "../components/profile_edit/UpdateProfile";
@@ -16,6 +15,17 @@ import { UploadProfiles } from "../components/users_upload/UploadUserAccounts";
 import DisplayProfile from "../components/profile_display/DisplayProfile";
 import MainDashboard from "../components/analytics/MainDashboard";
 import AdminDashboardLayout from "../layout/AdminDashboardLayout";
+import { ManageCourses } from "../components/selections/ManageCourses";
+import { ManageClassifications } from "../components/selections/ManageClassifications";
+import { ManageJobs } from "../components/selections/ManageJobs";
+import { ManageAllProfiles } from "../components/users_upload/ManageAllProfiles";
+import { ManageApproveUsers } from "../components/users_upload/ManageApproveUsers";
+import { ManageUserAccounts } from "../components/users_upload/ManageUserAccounts";
+import { ManageEducations } from "../components/users_upload/ManageEducations";
+import { ManageEmployments } from "../components/users_upload/ManageEmployments";
+import { ManageAchievements } from "../components/users_upload/ManageAchievements";
+import { ManageTwoWayLink } from "../components/users_upload/ManageTwoWayLink";
+import { ManageUploadHistory } from "../components/users_upload/ManageHistory";
 const RoleBasedRoutes = ({ mode, setMode }) => {
   const { auth } = useAuth();
   const location = useLocation();
@@ -23,7 +33,7 @@ const RoleBasedRoutes = ({ mode, setMode }) => {
   const commonRoutes = (
     <>
       <Route
-        path="home"
+        path="feed"
         element={
           <MainLayout mode={mode} setMode={setMode}>
             <Feed />
@@ -144,10 +154,42 @@ const RoleBasedRoutes = ({ mode, setMode }) => {
       <Routes>
         {commonRoutes}
         <Route
+          path="home"
+          element={
+            <AdminDashboardLayout mode={mode} setMode={setMode}>
+              <MainDashboard />
+            </AdminDashboardLayout>
+          }
+        />
+        <Route
           path="selections"
           element={
             <AdminDashboardLayout mode={mode} setMode={setMode}>
               <ManageSelections />
+            </AdminDashboardLayout>
+          }
+        />
+        <Route
+          path="selections/classifications"
+          element={
+            <AdminDashboardLayout mode={mode} setMode={setMode}>
+              <ManageClassifications />
+            </AdminDashboardLayout>
+          }
+        />
+        <Route
+          path="selections/courses"
+          element={
+            <AdminDashboardLayout mode={mode} setMode={setMode}>
+              <ManageCourses />
+            </AdminDashboardLayout>
+          }
+        />
+        <Route
+          path="selections/jobs"
+          element={
+            <AdminDashboardLayout mode={mode} setMode={setMode}>
+              <ManageJobs />
             </AdminDashboardLayout>
           }
         />
@@ -160,10 +202,66 @@ const RoleBasedRoutes = ({ mode, setMode }) => {
           }
         />
         <Route
-          path="dashboard"
+          path="accounts/all-accounts"
           element={
             <AdminDashboardLayout mode={mode} setMode={setMode}>
-              <MainDashboard />
+              <ManageAllProfiles />
+            </AdminDashboardLayout>
+          }
+        />
+        <Route
+          path="accounts/approve-users"
+          element={
+            <AdminDashboardLayout mode={mode} setMode={setMode}>
+              <ManageApproveUsers />
+            </AdminDashboardLayout>
+          }
+        />
+        <Route
+          path="accounts/users-accounts"
+          element={
+            <AdminDashboardLayout mode={mode} setMode={setMode}>
+              <ManageUserAccounts />
+            </AdminDashboardLayout>
+          }
+        />
+        <Route
+          path="accounts/upload-educations"
+          element={
+            <AdminDashboardLayout mode={mode} setMode={setMode}>
+              <ManageEducations />
+            </AdminDashboardLayout>
+          }
+        />
+        <Route
+          path="accounts/upload-employment"
+          element={
+            <AdminDashboardLayout mode={mode} setMode={setMode}>
+              <ManageEmployments />
+            </AdminDashboardLayout>
+          }
+        />
+        <Route
+          path="accounts/upload-achievements"
+          element={
+            <AdminDashboardLayout mode={mode} setMode={setMode}>
+              <ManageAchievements />
+            </AdminDashboardLayout>
+          }
+        />
+        <Route
+          path="accounts/upload-twowaylink"
+          element={
+            <AdminDashboardLayout mode={mode} setMode={setMode}>
+              <ManageTwoWayLink />
+            </AdminDashboardLayout>
+          }
+        />
+        <Route
+          path="accounts/upload-history"
+          element={
+            <AdminDashboardLayout mode={mode} setMode={setMode}>
+              <ManageUploadHistory />
             </AdminDashboardLayout>
           }
         />
