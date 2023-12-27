@@ -270,6 +270,8 @@ def refresh_token(response: Response, request: Request, db: Session = Depends(ge
     try:
         if not request : raise HTTPException(status_code=401, detail='Could not refresh access token')
         refresh_token = request.cookies.get("refresh_token")
+        if not refresh_token: raise HTTPException(status_code=401, detail='Refresh token is missing')
+
         payload = jwt.decode(refresh_token, settings.SECRET_KEY, algorithms=settings.ALGORITHM)
 
         username = json.loads(payload['sub'])['username']
