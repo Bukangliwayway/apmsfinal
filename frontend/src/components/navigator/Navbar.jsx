@@ -1,18 +1,12 @@
 import {
   AppBar,
-  Badge,
   Box,
-  Button,
-  ListItemIcon,
   Toolbar,
   Typography,
-  styled,
 } from "@mui/material";
-import React from "react";
 import AccountMenu from "../ui/AccountMenu";
 import {
   School,
-  Notifications,
   ModeNight,
   LightMode,
 } from "@mui/icons-material/";
@@ -22,12 +16,13 @@ const Navbar = () => {
   const { mode, setMode } = useMode();
 
   return (
-    <AppBar p={2} position="sticky">
+
+    <AppBar p={2} position="sticky" sx={{bgcolor: "#182433"}}>
       <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
         <School sx={{ display: { xs: "block", sm: "none" } }} />
         <Typography
-          variant="h4"
-          sx={{ display: { xs: "none", sm: "block" }, fontWeight: 900 }}
+          variant="h5"
+          sx={{ display: { xs: "none", sm: "block" }, fontWeight: 700 }}
         >
           PUPQC APMS
         </Typography>

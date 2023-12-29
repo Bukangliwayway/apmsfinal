@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import { Box, createTheme, ThemeProvider } from "@mui/material";
+import { Box, createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import PrivateRoutes from "./routes/privateRoutes";
@@ -11,12 +11,10 @@ import LinkedInRedirect from "./components/auth/LinkedInRedirect";
 import { ReactQueryDevtools } from "react-query/devtools";
 import RoleBasedRoutes from "./routes/RoleBasedRoutes";
 import ResetPassword from "./components/auth/ResetPassword";
-import useMediaQuery from "@mui/material/useMediaQuery";
-import { useState } from "react";
 import useMode from "./hooks/utilities/useMode";
 
 const App = () => {
-  const { mode, setMode } = useMode();
+  const { mode } = useMode();
 
   // const theme = createTheme({
   //   palette: {
@@ -56,6 +54,9 @@ const App = () => {
       primary: {
         main: "#0054a6",
       },
+      text: {
+        primary: "#182433",
+      },
     },
     typography: {
       fontFamily: "Inter, Arial, sans-serif", // Font family
@@ -82,11 +83,11 @@ const App = () => {
         paper: "#151f2c",
       },
       primary: {
-        main: "#182433",
+        main: "#0054a6",
       },
-      action:{
-        active: "#fff"
-      }
+      text: {
+        primary: "#DCE1E7",
+      },
     },
     components: {
       MuiAppBar: {
@@ -113,7 +114,8 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={mode == "light" ? lightTheme : darkTheme}>
-        <Box bgcolor={"background.default"} color={"text.primary"}>
+        <CssBaseline/> {/* to change the background of the application */}
+        <Box>
           <Routes>
             <Route path="/" element={<PublicRoutes />}>
               <Route path="register" element={<Register />} />
