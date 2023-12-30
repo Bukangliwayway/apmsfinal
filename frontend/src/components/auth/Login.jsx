@@ -97,9 +97,9 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if(loginLimit <= 0){
+    if (loginLimit <= 0) {
       console.log("implement some countdown here");
-      loginLimit = 5
+      loginLimit = 5;
     }
     if (!username || !password) {
       setMessage("Username and Password are Required.");
@@ -130,94 +130,135 @@ const Login = () => {
           alignItems: "center",
         }}
       >
-        <Card
-          style={{
-            maxWidth: 500,
-            padding: "24px",
-          }}
-        >
-          <CardContent>
-            <Typography variant="h6">Alumni Login</Typography>
-            <Typography color="textSecondary" variant="body2" my={1}>
-              {refreshMessage}
-            </Typography>
-            <Grid container spacing={1.5}>
-              <Grid xs={12} item>
-                <TextField
-                  label="Username"
-                  inputRef={userRef}
-                  placeholder="input username"
-                  variant="outlined"
-                  fullWidth
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                />
-              </Grid>
-
-              <Grid
-                item
-                xs={12}
-                display={"flex"}
-                flexDirection={"column"}
-                gap={1}
-              >
-                <TextField
-                  label="Password"
-                  placeholder="Input password"
-                  variant="outlined"
-                  fullWidth
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="input"
-                  required
-                />
-                <Typography
-                  sx={{ cursor: "pointer" }}
-                  onClick={() => setForgotPass(true)}
-                  variant="body2"
-                >
-                  Forgot Password?
-                </Typography>
-              </Grid>
-              <Box p={2} sx={{ width: "100%", m: "0 auto" }}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  sx={{ mt: 2 }}
-                  fullWidth
-                  onClick={handleSubmit}
-                  disabled={isLoginLoading}
-                >
-                  Login
-                </Button>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={persist || false}
-                      onChange={(event) => setPersist(event.target.checked)}
-                      inputProps={{ "aria-label": "controlled" }}
+        <Container maxWidth="sm" sx={{ py: 4 }}>
+          <Box textAlign={"center"} mb={4}>
+            <Typography> (logo) PUPQC APMS </Typography>
+          </Box>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" textAlign={"center"} mb={4}>
+                Login to your account
+              </Typography>
+              <Container component="main" maxWidth="xs">
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <Typography marginBottom={1} fontSize={15} fontWeight={600}>
+                      Username
+                    </Typography>
+                    <TextField
+                      InputLabelProps={{
+                        shrink: false,
+                        disableAnimation: true,
+                      }}
+                      inputRef={userRef}
+                      placeholder="Your username"
+                      variant="outlined"
+                      fullWidth
+                      value={username}
                     />
-                  }
-                  label="Remember me on this device"
-                />
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Typography marginBottom={1} fontSize={15} fontWeight={600}>
+                      Password
+                    </Typography>
+                    <TextField
+                      InputLabelProps={{
+                        shrink: false,
+                        disableAnimation: true,
+                      }}
+                      type="password"
+                      variant="outlined"
+                      placeholder="Your password"
+                      fullWidth
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="input"
+                      required
+                    />
+
+                    <Typography
+                      sx={{ cursor: "pointer" }}
+                      onClick={() => setForgotPass(true)}
+                    >
+                      Forgot Password?
+                    </Typography>
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          color="primary"
+                          checked={persist || false}
+                          onChange={(event) => setPersist(event.target.checked)}
+                          inputProps={{ "aria-label": "controlled" }}
+                        />
+                      }
+                      label={
+                        <Typography>Remember me on this device</Typography>
+                      }
+                    />
+                    <Box mt={2}>
+                      <Button
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        fullWidth
+                        onClick={handleSubmit}
+                      >
+                        login
+                      </Button>
+                      <Typography
+                        color="textSecondary"
+                        variant="body2"
+                        marginTop={1}
+                      >
+                        {refreshMessage}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                </Grid>
+              </Container>
+            </CardContent>
+
+            <CardContent>
+              <Box textAlign="center" my={1} position="relative">
+                <Divider>or</Divider>
+                {/* <Divider />
+                <Typography
+                  variant="body2"
+                  sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    bg: 'background.paper',
+                    px: 1,
+                  }}
+                >
+                  OR
+                </Typography> */}
               </Box>
-            </Grid>
-            <LinkedInLogin />
-            <Link
-              to="/register"
-              style={{
-                display: "block",
-                textAlign: "center",
-                marginTop: 8,
-              }}
+            </CardContent>
+            <Box
+              sx={{ display: "flex", justifyContent: "center", gap: "2rem" }}
+              pb={4}
             >
-              Sign Up Instead
-            </Link>
-          </CardContent>
-        </Card>
+              <Button variant="outlined" sx={{ textTransform: "none" }}>
+                {/* <SvgIcon component="svg" viewBox="0 0 24 24" className="text-google" width="24" height="24">
+                        </SvgIcon> */}
+                Login with Google
+              </Button>
+              <LinkedInLogin />
+            </Box>
+          </Card>
+          <Box mt={2} textAlign="center">
+            <Typography variant="body2">
+              Don&#39;t have an account yet? <Link to="/register">Sign up</Link>
+            </Typography>
+          </Box>
+        </Container>
       </Box>
 
       <ForgotPass forgotPass={forgotPass} setForgotPass={setForgotPass} />
