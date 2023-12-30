@@ -1,12 +1,12 @@
 import { Typography, Box, CircularProgress } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import useAuth from "../../hooks/utilities/useAuth";
+import useAll from "../../hooks/utilities/useAll";
 import React, { useEffect, useState } from "react";
 import axios from "axios"; // Import Axios
 
 const LinkedInRedirect = () => {
   const navigate = useNavigate();
-  const { auth, setPersist, setAuth, persist } = useAuth();
+  const { auth, setPersist, setAuth, persist } = useAll();
   const params = new URLSearchParams(window.location.search);
   const [loading, setLoading] = useState(true);
 

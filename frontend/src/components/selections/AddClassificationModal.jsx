@@ -1,34 +1,26 @@
-import { useMutation, useQueryClient, useQuery } from "react-query";
-import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useMutation, useQueryClient } from "react-query";
+import { useState } from "react";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import {
-  Alert,
-  Box,
   Button,
   Dialog,
-  Avatar,
-  Typography,
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
   TextField,
   Grid,
-  Snackbar,
-  LinearProgress,
-  Tooltip,
-  FormControlLabel,
-  Switch,
-  Skeleton,
 } from "@mui/material";
+import useAll from "../../hooks/utilities/useAll";
 
 const AddClassification = ({ open, onClose }) => {
   const queryClient = useQueryClient();
-  const [classificationProfile, setClassificationProfile] = useState({name: "", code: ""});
+  const [classificationProfile, setClassificationProfile] = useState({
+    name: "",
+    code: "",
+  });
+  const { setMessage, setSeverity, setOpenSnackbar, setLinearLoading } =
+    useAll();
+  const axiosPrivate = useAxiosPrivate();
 
   const mutation = useMutation(
     async (newProfile) => {
@@ -47,27 +39,23 @@ const AddClassification = ({ open, onClose }) => {
       onError: (error) => {
         setMessage(error.response ? error.response.data.detail : error.message);
         setSeverity("error");
-        setOpenSnackbar(true);
       },
       onSuccess: (data, variables, context) => {
         queryClient.invalidateQueries("classifications-all");
         queryClient.invalidateQueries("classifications-specific");
         queryClient.invalidateQueries("profile-me");
-        
+
         setMessage("Classification Added Successfully");
         setSeverity("success");
+      },
+      onSettled: () => {
+        setLinearLoading(false);
         setOpenSnackbar(true);
       },
     }
   );
 
-  const { isLoading, isError, error, isSuccess } = mutation;
-
-  const axiosPrivate = useAxiosPrivate();
-  const [message, setMessage] = useState("");
-  const [severity, setSeverity] = useState("error");
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-
+  const { isLoading } = mutation;
   const handleChange = (event) => {
     const { name, value } = event.target;
     setClassificationProfile((prevProfile) => ({
@@ -79,64 +67,36 @@ const AddClassification = ({ open, onClose }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (classificationProfile?.name == "" || classificationProfile?.code == "") {
+    if (
+      classificationProfile?.name == "" ||
+      classificationProfile?.code == ""
+    ) {
       setMessage("please fill out all of the fields.");
       setSeverity("error");
       setOpenSnackbar(true);
       return; // Prevent form submission
     }
 
-    
-    const data = [{
-      name: classificationProfile?.name,
-      code: classificationProfile?.code,
-    }];
-    
+    const data = [
+      {
+        name: classificationProfile?.name,
+        code: classificationProfile?.code,
+      },
+    ];
+
     // Convert the object to a JSON string
     const payload = JSON.stringify(data);
-    
-    try {
-      await mutation.mutateAsync(payload);
-    } catch (error) {
-      if (error.response) {
-        setMessage(error.response.data.detail);
-        setSeverity("error");
-      } else if (error.request) {
-        setMessage("No response received from the server");
-        setSeverity("error");
-      } else {
-        setMessage("Error: " + error.message);
-        setSeverity("error");
-      }
-    }
-    setOpenSnackbar(true);
+
+    setLinearLoading(true);
+    await mutation.mutateAsync(payload);
   };
 
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
 
-    setOpenSnackbar(false);
-  };
 
   return (
-    <Dialog open={open} onClose={onClose}>
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={severity}>
-          {message}
-        </Alert>
-      </Snackbar>
-      <Box sx={{ width: "100%", position: "relative", top: 0 }}>
-        {isLoading && <LinearProgress />}
-        {!isLoading && <Box sx={{ height: 4 }} />}
-      </Box>
+    <Dialog open={open} onClose={onClose} fullWidth>
       <DialogTitle>Add Classification</DialogTitle>
-      <DialogContent sx={{ width: "40vw" }}>
+      <DialogContent>
         <Grid container spacing={2} p={2}>
           <Grid item xs={12}>
             <TextField
@@ -159,7 +119,9 @@ const AddClassification = ({ open, onClose }) => {
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose} color="inherit">
+          Cancel
+        </Button>
         <Button
           onClick={handleSubmit}
           variant="contained"

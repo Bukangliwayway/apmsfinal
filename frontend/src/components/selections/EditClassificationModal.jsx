@@ -1,31 +1,19 @@
 import { useMutation, useQueryClient, useQuery } from "react-query";
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import {
-  Alert,
   Box,
   Button,
   Dialog,
-  Avatar,
-  Typography,
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
   TextField,
   Grid,
-  Snackbar,
-  LinearProgress,
-  Tooltip,
-  FormControlLabel,
-  Switch,
   Skeleton,
   DialogContentText,
 } from "@mui/material";
+import useAll from "../../hooks/utilities/useAll";
 
 const EditClassificationModal = ({ open, onClose, classificationID }) => {
   const queryClient = useQueryClient();
@@ -42,10 +30,15 @@ const EditClassificationModal = ({ open, onClose, classificationID }) => {
   );
   const [classificationProfile, setClassificationProfile] = useState(null);
   const axiosPrivate = useAxiosPrivate();
-  const [message, setMessage] = useState("");
-  const [severity, setSeverity] = useState("error");
-  const [openSnackbar, setOpenSnackbar] = useState(false);
+
   const [deletePrompt, setDeletePrompt] = useState(false);
+  const {
+    setMessage,
+    setSeverity,
+    setOpenSnackbar,
+    setLinearLoading,
+    linearLoading,
+  } = useAll();
   const [isLoadingDelete, setIsLoadingDelete] = useState(false);
 
   useEffect(() => {
@@ -64,7 +57,7 @@ const EditClassificationModal = ({ open, onClose, classificationID }) => {
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosPrivate.put(
+      await axiosPrivate.put(
         `/selections/classifications/${classificationID}`,
         newProfile,
         axiosConfig
@@ -74,7 +67,6 @@ const EditClassificationModal = ({ open, onClose, classificationID }) => {
       onError: (error) => {
         setMessage(error.response ? error.response.data.detail : error.message);
         setSeverity("error");
-        setOpenSnackbar(true);
       },
       onSuccess: (data, variables, context) => {
         queryClient.invalidateQueries("classifications-all");
@@ -83,19 +75,22 @@ const EditClassificationModal = ({ open, onClose, classificationID }) => {
 
         setMessage("Classification Update Successfully");
         setSeverity("success");
+      },
+      onSettled: () => {
+        setLinearLoading(false);
         setOpenSnackbar(true);
       },
     }
   );
 
   const mutationDelete = useMutation(
-    async (newProfile) => {
+    async () => {
       const axiosConfig = {
         headers: {
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosPrivate.delete(
+      await axiosPrivate.delete(
         `/selections/classifications/${classificationID}`,
         axiosConfig
       );
@@ -104,8 +99,6 @@ const EditClassificationModal = ({ open, onClose, classificationID }) => {
       onError: (error) => {
         setMessage(error.response ? error.response.data.detail : error.message);
         setSeverity("error");
-        setOpenSnackbar(true);
-        setIsLoadingDelete(false);
       },
       onSuccess: (data, variables, context) => {
         queryClient.invalidateQueries("classifications-all");
@@ -114,9 +107,11 @@ const EditClassificationModal = ({ open, onClose, classificationID }) => {
 
         setMessage("classification deleted successfully");
         setSeverity("success");
-        setOpenSnackbar(true);
-        setIsLoadingDelete(false);
         onClose();
+      },
+      onSettled: () => {
+        setLinearLoading(false);
+        setOpenSnackbar(true);
       },
     }
   );
@@ -137,6 +132,8 @@ const EditClassificationModal = ({ open, onClose, classificationID }) => {
     if (classificationProfile.name == "" || classificationProfile.code == "") {
       setMessage("please fill out all of the fields.");
       setSeverity("error");
+      setOpenSnackbar(true);
+
       return; // Prevent form submission
     }
 
@@ -148,31 +145,13 @@ const EditClassificationModal = ({ open, onClose, classificationID }) => {
     // Convert the object to a JSON string
     const payload = JSON.stringify(data);
 
-    try {
-      await mutation.mutateAsync(payload);
-    } catch (error) {
-      if (error.response) {
-        setMessage(error.response.data.detail);
-        setSeverity("error");
-      } else if (error.request) {
-        setMessage("No response received from the server");
-        setSeverity("error");
-      } else {
-        setMessage("Error: " + error.message);
-        setSeverity("error");
-      }
-    }
+    setLinearLoading(true);
+    await mutation.mutateAsync(payload);
   };
 
   const handleDelete = async () => {
-    try {
-      setIsLoadingDelete(true);
-      await mutationDelete.mutateAsync();
-    } catch (error) {
-      setMessage(error.response ? error.response.data.detail : error.message);
-      setSeverity("error");
-      setOpenSnackbar(true);
-    }
+    setLinearLoading(true);
+    await mutationDelete.mutateAsync();
   };
 
   const handleCloseSnackbar = (event, reason) => {
@@ -185,11 +164,11 @@ const EditClassificationModal = ({ open, onClose, classificationID }) => {
 
   if (isLoadingClassification) {
     return (
-      <Dialog open={true}>
+      <Dialog open={true} fullWidth>
         <DialogTitle>
           <Skeleton variant="text" />
         </DialogTitle>
-        <DialogContent sx={{ width: "40vw" }}>
+        <DialogContent>
           <Box>
             <Skeleton variant="rectangular" width="100%" height={50} />
           </Box>
@@ -202,24 +181,11 @@ const EditClassificationModal = ({ open, onClose, classificationID }) => {
   }
 
   return (
-    <Dialog open={open} onClose={onClose}>
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={severity}>
-          {message}
-        </Alert>
-      </Snackbar>
-      <Box sx={{ width: "100%", position: "relative", top: 0 }}>
-        {(isLoading || isLoadingDelete) && <LinearProgress />}
-        {!(isLoading && isLoadingDelete) && <Box sx={{ height: 4 }} />}
-      </Box>
+    <Dialog open={open} onClose={onClose} fullWidth>
       {!deletePrompt ? (
         <Box>
           <DialogTitle>Modify Classification</DialogTitle>
-          <DialogContent sx={{ width: "40vw" }}>
+          <DialogContent>
             <Grid container spacing={2} p={2}>
               <Grid item xs={12}>
                 <TextField
@@ -242,7 +208,9 @@ const EditClassificationModal = ({ open, onClose, classificationID }) => {
             </Grid>
           </DialogContent>
           <DialogActions sx={{ padding: 3 }}>
-            <Button onClick={onClose}>Cancel</Button>
+            <Button onClick={onClose} color="inherit">
+              Cancel
+            </Button>
             <Box sx={{ display: "flex", ml: "auto" }}>
               <Button
                 onClick={handleSubmit}
@@ -273,7 +241,9 @@ const EditClassificationModal = ({ open, onClose, classificationID }) => {
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setDeletePrompt(false)}>Cancel</Button>
+            <Button onClick={() => setDeletePrompt(false)} color="inherit">
+              Cancel
+            </Button>
             <Button
               onClick={handleDelete}
               variant="contained"

@@ -1,11 +1,10 @@
 import { useLocation, Routes, Route } from "react-router-dom";
-import useAuth from "../hooks/utilities/useAuth";
+import useAll from "../hooks/utilities/useAll";
 import Feed from "../components/Feed";
 import Explore from "../components/Explore";
 import UpdateProfile from "../components/profile_edit/UpdateProfile";
 import Fundraise from "../components/Fundraise";
 import Missing from "../components/status_display/UserNotFound";
-import PublicLayout from "../layout/PublicLayout";
 import MainLayout from "../layout/MainLayout";
 import { ManageSelections } from "../components/selections/ManageSelections";
 import EditableEmploymentProfile from "../components/profile_edit/EditableEmploymentProfile";
@@ -14,7 +13,6 @@ import EditableEducationProfile from "../components/profile_edit/EditableEducati
 import { UploadProfiles } from "../components/users_upload/UploadUserAccounts";
 import DisplayProfile from "../components/profile_display/DisplayProfile";
 import MainDashboard from "../components/analytics/MainDashboard";
-import AdminDashboardLayout from "../layout/AdminDashboardLayout";
 import { ManageCourses } from "../components/selections/ManageCourses";
 import { ManageClassifications } from "../components/selections/ManageClassifications";
 import { ManageJobs } from "../components/selections/ManageJobs";
@@ -26,16 +24,14 @@ import { ManageEmployments } from "../components/users_upload/ManageEmployments"
 import { ManageAchievements } from "../components/users_upload/ManageAchievements";
 import { ManageTwoWayLink } from "../components/users_upload/ManageTwoWayLink";
 import { ManageUploadHistory } from "../components/users_upload/ManageHistory";
-const RoleBasedRoutes = ({ mode, setMode }) => {
-  const { auth } = useAuth();
-  const location = useLocation();
-
+const RoleBasedRoutes = () => {
+  const { auth } = useAll();
   const commonRoutes = (
     <>
       <Route
         path="feed"
         element={
-          <MainLayout mode={mode} setMode={setMode}>
+          <MainLayout mode="profile">
             <Feed />
           </MainLayout>
         }
@@ -43,7 +39,7 @@ const RoleBasedRoutes = ({ mode, setMode }) => {
       <Route
         path="explore"
         element={
-          <MainLayout mode={mode} setMode={setMode}>
+          <MainLayout mode="profile">
             <Explore />
           </MainLayout>
         }
@@ -51,7 +47,7 @@ const RoleBasedRoutes = ({ mode, setMode }) => {
       <Route
         path="explore/alumni/:username"
         element={
-          <MainLayout mode={mode} setMode={setMode}>
+          <MainLayout mode="profile">
             <DisplayProfile />
           </MainLayout>
         }
@@ -59,7 +55,7 @@ const RoleBasedRoutes = ({ mode, setMode }) => {
       <Route
         path="alumni-nexus"
         element={
-          <MainLayout mode={mode} setMode={setMode}>
+          <MainLayout mode="profile">
             <Feed />
           </MainLayout>
         }
@@ -67,7 +63,7 @@ const RoleBasedRoutes = ({ mode, setMode }) => {
       <Route
         path="profile/me"
         element={
-          <MainLayout mode={mode} setMode={setMode}>
+          <MainLayout mode="profile">
             <UpdateProfile />
           </MainLayout>
         }
@@ -75,7 +71,7 @@ const RoleBasedRoutes = ({ mode, setMode }) => {
       <Route
         path="profile/me/employment-details"
         element={
-          <MainLayout mode={mode} setMode={setMode}>
+          <MainLayout mode="profile">
             <EditableEmploymentProfile />
           </MainLayout>
         }
@@ -83,7 +79,7 @@ const RoleBasedRoutes = ({ mode, setMode }) => {
       <Route
         path="profile/me/educational-details"
         element={
-          <MainLayout mode={mode} setMode={setMode}>
+          <MainLayout mode="profile">
             <EditableEducationProfile />
           </MainLayout>
         }
@@ -91,7 +87,7 @@ const RoleBasedRoutes = ({ mode, setMode }) => {
       <Route
         path="profile/me/achievements-details"
         element={
-          <MainLayout mode={mode} setMode={setMode}>
+          <MainLayout mode="profile">
             <EditableAchievementModal />
           </MainLayout>
         }
@@ -99,7 +95,7 @@ const RoleBasedRoutes = ({ mode, setMode }) => {
       <Route
         path="fundraise"
         element={
-          <MainLayout mode={mode} setMode={setMode}>
+          <MainLayout mode="public">
             <Fundraise />
           </MainLayout>
         }
@@ -113,34 +109,34 @@ const RoleBasedRoutes = ({ mode, setMode }) => {
         <Route
           path="home"
           element={
-            <PublicLayout>
+            <MainLayout mode="public">
               <UpdateProfile />
-            </PublicLayout>
+            </MainLayout>
           }
         />
         <Route path="*" element={<Missing />} />
         <Route
           path="profile/me/employment-details"
           element={
-            <PublicLayout>
+            <MainLayout mode="public">
               <EditableEmploymentProfile />
-            </PublicLayout>
+            </MainLayout>
           }
         />
         <Route
           path="profile/me/educational-details"
           element={
-            <PublicLayout>
+            <MainLayout mode="public">
               <EditableEducationProfile />
-            </PublicLayout>
+            </MainLayout>
           }
         />
         <Route
           path="profile/me/achievements-details"
           element={
-            <PublicLayout>
+            <MainLayout mode="public">
               <EditableAchievementModal />
-            </PublicLayout>
+            </MainLayout>
           }
         />
       </Routes>
@@ -156,121 +152,121 @@ const RoleBasedRoutes = ({ mode, setMode }) => {
         <Route
           path="home"
           element={
-            <AdminDashboardLayout mode={mode} setMode={setMode}>
+            <MainLayout mode="admin">
               <MainDashboard />
-            </AdminDashboardLayout>
+            </MainLayout>
           }
         />
         <Route
           path="selections"
           element={
-            <AdminDashboardLayout mode={mode} setMode={setMode}>
+            <MainLayout mode="admin">
               <ManageSelections />
-            </AdminDashboardLayout>
+            </MainLayout>
           }
         />
         <Route
           path="selections/classifications"
           element={
-            <AdminDashboardLayout mode={mode} setMode={setMode}>
+            <MainLayout mode="admin">
               <ManageClassifications />
-            </AdminDashboardLayout>
+            </MainLayout>
           }
         />
         <Route
           path="selections/courses"
           element={
-            <AdminDashboardLayout mode={mode} setMode={setMode}>
+            <MainLayout mode="admin">
               <ManageCourses />
-            </AdminDashboardLayout>
+            </MainLayout>
           }
         />
         <Route
           path="selections/jobs"
           element={
-            <AdminDashboardLayout mode={mode} setMode={setMode}>
+            <MainLayout mode="admin">
               <ManageJobs />
-            </AdminDashboardLayout>
+            </MainLayout>
           }
         />
         <Route
           path="accounts"
           element={
-            <AdminDashboardLayout mode={mode} setMode={setMode}>
+            <MainLayout mode="admin">
               <UploadProfiles />
-            </AdminDashboardLayout>
+            </MainLayout>
           }
         />
         <Route
           path="accounts/all-accounts"
           element={
-            <AdminDashboardLayout mode={mode} setMode={setMode}>
+            <MainLayout mode="admin">
               <ManageAllProfiles />
-            </AdminDashboardLayout>
+            </MainLayout>
           }
         />
         <Route
           path="accounts/approve-users"
           element={
-            <AdminDashboardLayout mode={mode} setMode={setMode}>
+            <MainLayout mode="admin">
               <ManageApproveUsers />
-            </AdminDashboardLayout>
+            </MainLayout>
           }
         />
         <Route
           path="accounts/users-accounts"
           element={
-            <AdminDashboardLayout mode={mode} setMode={setMode}>
+            <MainLayout mode="admin">
               <ManageUserAccounts />
-            </AdminDashboardLayout>
+            </MainLayout>
           }
         />
         <Route
           path="accounts/upload-educations"
           element={
-            <AdminDashboardLayout mode={mode} setMode={setMode}>
+            <MainLayout mode="admin">
               <ManageEducations />
-            </AdminDashboardLayout>
+            </MainLayout>
           }
         />
         <Route
           path="accounts/upload-employment"
           element={
-            <AdminDashboardLayout mode={mode} setMode={setMode}>
+            <MainLayout mode="admin">
               <ManageEmployments />
-            </AdminDashboardLayout>
+            </MainLayout>
           }
         />
         <Route
           path="accounts/upload-achievements"
           element={
-            <AdminDashboardLayout mode={mode} setMode={setMode}>
+            <MainLayout mode="admin">
               <ManageAchievements />
-            </AdminDashboardLayout>
+            </MainLayout>
           }
         />
         <Route
           path="accounts/upload-twowaylink"
           element={
-            <AdminDashboardLayout mode={mode} setMode={setMode}>
+            <MainLayout mode="admin">
               <ManageTwoWayLink />
-            </AdminDashboardLayout>
+            </MainLayout>
           }
         />
         <Route
           path="accounts/upload-history"
           element={
-            <AdminDashboardLayout mode={mode} setMode={setMode}>
+            <MainLayout mode="admin">
               <ManageUploadHistory />
-            </AdminDashboardLayout>
+            </MainLayout>
           }
         />
         <Route
           path="*"
           element={
-            <AdminDashboardLayout mode={mode} setMode={setMode}>
+            <MainLayout mode="admin">
               <Missing />
-            </AdminDashboardLayout>
+            </MainLayout>
           }
         />
         ;

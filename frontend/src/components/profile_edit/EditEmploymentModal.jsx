@@ -1,13 +1,10 @@
-import { useMutation, useQueryClient, useQuery } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import {
-  Alert,
   Box,
   Button,
   Dialog,
-  Avatar,
   Typography,
   DialogActions,
   DialogContent,
@@ -18,40 +15,14 @@ import {
   Select,
   TextField,
   Grid,
-  Snackbar,
-  LinearProgress,
   Tooltip,
   FormControlLabel,
   Switch,
   Skeleton,
   OutlinedInput,
 } from "@mui/material";
-import { stringify } from "flatted";
 
 import {
-  BusinessCenter,
-  Work,
-  LocalGroceryStore,
-  LocalHospital,
-  School,
-  Build,
-  AccountBalance,
-  Store,
-  MonetizationOn,
-  Computer,
-  Palette,
-  LocalShipping,
-  GroupWork,
-  BuildCircle,
-  Gavel,
-  Security,
-  HeadsetMic,
-  Forest,
-  SupervisorAccount,
-  LocalOffer,
-  SpeakerNotes,
-  Landscape,
-  Biotech,
   Add,
 } from "@mui/icons-material";
 
@@ -67,12 +38,17 @@ import useRegions from "../../hooks/useRegion";
 import useCitiesMunicipalities from "../../hooks/useCitiesMunicipalities";
 import useCountries from "../../hooks/useCountries";
 import AddJob from "../selections/AddJobModal";
+import useAll from "../../hooks/utilities/useAll";
 
 const EditEmploymentModal = ({ open, onClose, employmentID }) => {
   const queryClient = useQueryClient();
   const [employmentProfile, setEmploymentProfile] = useState(null);
 
   const [openModal, setOpenModal] = useState(false);
+  const axiosPrivate = useAxiosPrivate();
+  const { setMessage, setSeverity, setOpenSnackbar, setLinearLoading } =
+    useAll();
+
   const { data: jobs, isLoading: isLoadingJobs } = useJobs();
   const { data: regions, isLoading: isLoadingRegions } = useRegions();
   const { data: countries, isLoading: isLoadingCountries } = useCountries();
@@ -127,7 +103,6 @@ const EditEmploymentModal = ({ open, onClose, employmentID }) => {
       onError: (error) => {
         setMessage(error.response ? error.response.data.detail : error.message);
         setSeverity("error");
-        setOpenSnackbar(true);
       },
       onSuccess: (data, variables, context) => {
         queryClient.invalidateQueries("employment-profile");
@@ -140,15 +115,14 @@ const EditEmploymentModal = ({ open, onClose, employmentID }) => {
         setMessage("Employment Profile updated successfully");
         setSeverity("success");
       },
+      onSettled: () => {
+        setLinearLoading(false);
+        setOpenSnackbar(true);
+      },
     }
   );
 
-  const { isLoading, isError, error, isSuccess } = mutation;
-
-  const axiosPrivate = useAxiosPrivate();
-  const [message, setMessage] = useState("");
-  const [severity, setSeverity] = useState("error");
-  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const { isLoading } = mutation;
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -235,31 +209,8 @@ const EditEmploymentModal = ({ open, onClose, employmentID }) => {
 
     // Convert the object to a JSON string
     const payload = JSON.stringify(data);
-
-    console.log(payload);
-    try {
-      await mutation.mutateAsync(payload);
-    } catch (error) {
-      if (error.response) {
-        setMessage(error.response.data.detail);
-        setSeverity("error");
-      } else if (error.request) {
-        setMessage("No response received from the server");
-        setSeverity("error");
-      } else {
-        setMessage("Error: " + error.message);
-        setSeverity("error");
-      }
-    }
-    setOpenSnackbar(true);
-  };
-
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setOpenSnackbar(false);
+    setLinearLoading(true);
+    await mutation.mutateAsync(payload);
   };
 
   const monthlyGrossIncome = [
@@ -408,11 +359,11 @@ const EditEmploymentModal = ({ open, onClose, employmentID }) => {
     isLoadingCountries
   ) {
     return (
-      <Dialog open={true}>
+      <Dialog open={true} fullWidth>
         <DialogTitle>
           <Skeleton variant="text" />
         </DialogTitle>
-        <DialogContent sx={{ width: "40vw" }}>
+        <DialogContent>
           <Box>
             <Skeleton variant="rectangular" width="100%" height={50} />
           </Box>
@@ -446,20 +397,7 @@ const EditEmploymentModal = ({ open, onClose, employmentID }) => {
 
   return (
     <>
-      <Dialog open={open} onClose={onClose}>
-        <Snackbar
-          open={openSnackbar}
-          autoHideDuration={3000}
-          onClose={handleCloseSnackbar}
-        >
-          <Alert onClose={handleCloseSnackbar} severity={severity}>
-            {message}
-          </Alert>
-        </Snackbar>
-        <Box sx={{ width: "100%", position: "relative", top: 0 }}>
-          {isLoading && <LinearProgress />}
-          {!isLoading && <Box sx={{ height: 4 }} />}
-        </Box>
+      <Dialog open={open} onClose={onClose} fullWidth>
         <DialogTitle>Edit Employment History</DialogTitle>
         <DialogContent>
           <Grid container spacing={5}>
@@ -832,7 +770,9 @@ const EditEmploymentModal = ({ open, onClose, employmentID }) => {
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={onClose} color="inherit">
+            Cancel
+          </Button>
           <Button
             onClick={handleSubmit}
             variant="contained"

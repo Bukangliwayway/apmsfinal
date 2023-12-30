@@ -1,17 +1,12 @@
-import { useMutation, useQueryClient, useQuery } from "react-query";
-import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useMutation, useQueryClient } from "react-query";
+import { useState } from "react";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import { useTheme } from "@mui/material/styles";
 import useClassifications from "../../hooks/useClassifications";
 
 import {
-  Alert,
   Box,
   Button,
   Dialog,
-  Avatar,
-  Typography,
   DialogActions,
   DialogContent,
   DialogTitle,
@@ -21,16 +16,11 @@ import {
   Select,
   TextField,
   Grid,
-  Snackbar,
-  LinearProgress,
-  Tooltip,
-  FormControlLabel,
-  Switch,
   Skeleton,
   OutlinedInput,
   Chip,
 } from "@mui/material";
-import useAuth from "../../hooks/utilities/useAuth";
+import useAll from "../../hooks/utilities/useAll";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -44,7 +34,8 @@ const MenuProps = {
 };
 
 const AddJob = ({ open, onClose }) => {
-  const { auth, setAuth } = useAuth();
+  const { setMessage, setSeverity, setOpenSnackbar, setLinearLoading } =
+    useAll();
 
   const queryClient = useQueryClient();
   const { data: cachedData, isLoading: isLoadingClassification } =
@@ -86,19 +77,14 @@ const AddJob = ({ open, onClose }) => {
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosPrivate.post(
-        `/selections/jobs/`,
-        newProfile,
-        axiosConfig
-      );
+      await axiosPrivate.post(`/selections/jobs/`, newProfile, axiosConfig);
     },
     {
       onError: (error) => {
         setMessage(error.response ? error.response.data.detail : error.message);
         setSeverity("error");
-        setOpenSnackbar(true);
       },
-      onSuccess: (data, variables, context) => {
+      onSuccess: () => {
         queryClient.invalidateQueries("jobs-all");
         queryClient.invalidateQueries("jobs-specific");
         queryClient.invalidateQueries("profile-me");
@@ -106,15 +92,17 @@ const AddJob = ({ open, onClose }) => {
         setMessage("Job Added Successfully");
         setSeverity("success");
       },
+      onSettled: () => {
+        setLinearLoading(false);
+        setOpenSnackbar(true);
+        onClose();
+      },
     }
   );
 
-  const { isLoading, isError, error, isSuccess } = mutation;
+  const { isLoading } = mutation;
 
   const axiosPrivate = useAxiosPrivate();
-  const [message, setMessage] = useState("");
-  const [severity, setSeverity] = useState("error");
-  const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -140,38 +128,17 @@ const AddJob = ({ open, onClose }) => {
     // Convert the object to a JSON string
     const payload = JSON.stringify(data);
 
-    try {
-      await mutation.mutateAsync(payload);
-    } catch (error) {
-      if (error.response) {
-        setMessage(error.response.data.detail);
-        setSeverity("error");
-      } else if (error.request) {
-        setMessage("No response received from the server");
-        setSeverity("error");
-      } else {
-        setMessage("Error: " + error.message);
-        setSeverity("error");
-      }
-    }
-    setOpenSnackbar(true);
-  };
-
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setOpenSnackbar(false);
+    setLinearLoading(true);
+    await mutation.mutateAsync(payload);
   };
 
   if (isLoadingClassification) {
     return (
-      <Dialog open={true}>
+      <Dialog open={true} fullWidth>
         <DialogTitle>
           <Skeleton variant="text" />
         </DialogTitle>
-        <DialogContent sx={{ width: "40vw" }}>
+        <DialogContent>
           <Box>
             <Skeleton variant="rectangular" width="100%" height={50} />
           </Box>
@@ -186,22 +153,9 @@ const AddJob = ({ open, onClose }) => {
   const classifications = cachedData?.data;
 
   return (
-    <Dialog open={open} onClose={onClose}>
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={severity}>
-          {message}
-        </Alert>
-      </Snackbar>
-      <Box sx={{ width: "100%", position: "relative", top: 0 }}>
-        {isLoading && <LinearProgress />}
-        {!isLoading && <Box sx={{ height: 4 }} />}
-      </Box>
+    <Dialog open={open} onClose={onClose} fullWidth>
       <DialogTitle>Add Job</DialogTitle>
-      <DialogContent sx={{ width: "40vw" }}>
+      <DialogContent>
         <Grid container spacing={2} p={2}>
           <Grid item xs={12}>
             <TextField
@@ -247,7 +201,9 @@ const AddJob = ({ open, onClose }) => {
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose} color="inherit">
+          Cancel
+        </Button>
         <Button
           onClick={handleSubmit}
           variant="contained"

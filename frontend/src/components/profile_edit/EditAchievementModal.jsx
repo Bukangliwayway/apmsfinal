@@ -1,13 +1,10 @@
-import { useMutation, useQueryClient, useQuery } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import {
-  Alert,
   Box,
   Button,
   Dialog,
-  Avatar,
   Typography,
   DialogActions,
   DialogContent,
@@ -18,40 +15,11 @@ import {
   Select,
   TextField,
   Grid,
-  Snackbar,
-  LinearProgress,
-  Tooltip,
-  FormControlLabel,
-  Switch,
   Skeleton,
   OutlinedInput,
 } from "@mui/material";
-import { stringify } from "flatted";
 
 import {
-  BusinessCenter,
-  Work,
-  LocalGroceryStore,
-  LocalHospital,
-  School,
-  Build,
-  AccountBalance,
-  Store,
-  MonetizationOn,
-  Computer,
-  Palette,
-  LocalShipping,
-  GroupWork,
-  BuildCircle,
-  Gavel,
-  Security,
-  HeadsetMic,
-  Forest,
-  SupervisorAccount,
-  LocalOffer,
-  SpeakerNotes,
-  Landscape,
-  Biotech,
   Add,
 } from "@mui/icons-material";
 
@@ -63,9 +31,13 @@ import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import useGetAchievementSpecific from "../../hooks/useGetAchievementsSpecific";
 import useNationalCertificates from "../../hooks/useNationalCertificates";
+import useAll from "../../hooks/utilities/useAll";
 
 const EditAchievementModal = ({ open, onClose, achievementID }) => {
   const queryClient = useQueryClient();
+  const axiosPrivate = useAxiosPrivate();
+  const { setMessage, setSeverity, setOpenSnackbar, setLinearLoading } =
+    useAll();
 
   const { data: cachedData, isLoading: isLoadingProfile } =
     useGetAchievementSpecific(achievementID);
@@ -121,7 +93,7 @@ const EditAchievementModal = ({ open, onClose, achievementID }) => {
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosPrivate.put(
+      await axiosPrivate.put(
         `/profiles/achievement/${achievementID}`,
         newProfile,
         axiosConfig
@@ -131,9 +103,8 @@ const EditAchievementModal = ({ open, onClose, achievementID }) => {
       onError: (error) => {
         setMessage(error.response ? error.response.data.detail : error.message);
         setSeverity("error");
-        setOpenSnackbar(true);
       },
-      onSuccess: (data, variables, context) => {
+      onSuccess: () => {
         queryClient.invalidateQueries("achievements-profile");
         queryClient.invalidateQueries("profile-me");
         queryClient.invalidateQueries([
@@ -142,18 +113,21 @@ const EditAchievementModal = ({ open, onClose, achievementID }) => {
         ]);
         queryClient.invalidateQueries("profile-me");
 
-        setMessage("achievement updated successfully");
+        setMessage("Achievement Updated Successfully");
         setSeverity("success");
+      },
+      onSettled: () => {
+        setLinearLoading(false);
+        setOpenSnackbar(true);
+        onClose();
       },
     }
   );
 
-  const { isLoading, isError, error, isSuccess } = mutation;
-
-  const axiosPrivate = useAxiosPrivate();
-  const [message, setMessage] = useState("");
-  const [severity, setSeverity] = useState("error");
-  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const { isLoading } = mutation;
+  useEffect(() => {
+    setLinearLoading(isLoading);
+  }, [isLoading]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -197,17 +171,8 @@ const EditAchievementModal = ({ open, onClose, achievementID }) => {
     // Convert the object to a JSON string
     const payload = JSON.stringify(data);
 
+    setLinearLoading(true);
     await mutation.mutateAsync(payload);
-
-    setOpenSnackbar(true);
-  };
-
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setOpenSnackbar(false);
   };
 
   if (isLoadingProfile || isLoadingDisplay) {
@@ -216,7 +181,7 @@ const EditAchievementModal = ({ open, onClose, achievementID }) => {
         <DialogTitle>
           <Skeleton variant="text" />
         </DialogTitle>
-        <DialogContent sx={{ width: "40vw" }}>
+        <DialogContent>
           <Box>
             <Skeleton variant="rectangular" width="100%" height={50} />
           </Box>
@@ -279,20 +244,7 @@ const EditAchievementModal = ({ open, onClose, achievementID }) => {
 
   return (
     <>
-      <Dialog open={open} onClose={onClose}>
-        <Snackbar
-          open={openSnackbar}
-          autoHideDuration={3000}
-          onClose={handleCloseSnackbar}
-        >
-          <Alert onClose={handleCloseSnackbar} severity={severity}>
-            {message}
-          </Alert>
-        </Snackbar>
-        <Box sx={{ width: "100%", position: "relative", top: 0 }}>
-          {isLoading && <LinearProgress />}
-          {!isLoading && <Box sx={{ height: 4 }} />}
-        </Box>
+      <Dialog open={open} onClose={onClose} fullWidth>
         <DialogTitle>Add Achievement</DialogTitle>
         <DialogContent>
           <Grid container spacing={5}>
@@ -448,7 +400,9 @@ const EditAchievementModal = ({ open, onClose, achievementID }) => {
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={onClose} color="inherit">
+            Cancel
+          </Button>
           <Button
             onClick={handleSubmit}
             variant="contained"

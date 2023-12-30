@@ -4,42 +4,16 @@ import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import PrivateRoutes from "./routes/privateRoutes";
 import PublicRoutes from "./routes/publicRoutes";
-import { QueryClientProvider, QueryClient } from "react-query";
 import Missing from "./components/status_display/UserNotFound";
 import PersistLogin from "./routes/persistLogin";
 import LinkedInRedirect from "./components/auth/LinkedInRedirect";
-import { ReactQueryDevtools } from "react-query/devtools";
 import RoleBasedRoutes from "./routes/RoleBasedRoutes";
 import ResetPassword from "./components/auth/ResetPassword";
-import useMode from "./hooks/utilities/useMode";
+import MainLayout from "./layout/MainLayout";
+import useAll from "./hooks/utilities/useAll";
 
 const App = () => {
-  const { mode } = useMode();
-
-  // const theme = createTheme({
-  //   palette: {
-  //     mode: mode,
-  //     primary: {
-  //       main: "#206BC4",
-  //     },
-  //     secondary: {
-  //       main: "#6C7A91",
-  //     },
-  //   },
-
-  //   typography: {
-  //     fontFamily: "Inter, Arial, sans-serif", // Font family
-  //     fontWeightThin: 100,
-  //     fontWeightExtraLight: 200,
-  //     fontWeightLight: 300,
-  //     fontWeightRegular: 400,
-  //     fontWeightMedium: 500,
-  //     fontWeightSemiBold: 600,
-  //     fontWeightBold: 700,
-  //     fontWeightExtraBold: 800,
-  //     fontWeightBlack: 900,
-  //   },
-  // });
+  const { mode } = useAll();
 
   const lightTheme = createTheme({
     palette: {
@@ -128,37 +102,62 @@ const App = () => {
     },
   });
 
-  const queryClient = new QueryClient();
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={mode == "light" ? lightTheme : darkTheme}>
-        <CssBaseline/> {/* to change the background of the application */}
-        <Box>
-          <Routes>
-            <Route path="/" element={<PublicRoutes />}>
-              <Route path="register" element={<Register />} />
-              <Route path="login" element={<Login />} />
-              <Route
-                path="resetpassword/:email/:code"
-                element={<ResetPassword />}
-              />
-              <Route
-                path="oauth/redirect/linkedin"
-                element={<LinkedInRedirect />}
-              />
-              <Route path="" element={<Login />} />
+    <ThemeProvider theme={mode == "light" ? lightTheme : darkTheme}>
+      <CssBaseline /> {/* to change the background of the application */}
+      <Box>
+        <Routes>
+          <Route path="/" element={<PublicRoutes />}>
+            <Route
+              path="register"
+              element={
+                <MainLayout>
+                  <Register />
+                </MainLayout>
+              }
+            />
+            <Route
+              path="login"
+              element={
+                <MainLayout>
+                  <Login />
+                </MainLayout>
+              }
+            />
+            <Route
+              path="resetpassword/:email/:code"
+              element={
+                <MainLayout>
+                  <ResetPassword />
+                </MainLayout>
+              }
+            />
+            <Route
+              path="oauth/redirect/linkedin"
+              element={
+                <MainLayout>
+                  <LinkedInRedirect />
+                </MainLayout>
+              }
+            />
+            <Route
+              path=""
+              element={
+                <MainLayout>
+                  <Login />
+                </MainLayout>
+              }
+            />
+          </Route>
+          <Route element={<PersistLogin />}>
+            <Route path="/" element={<PrivateRoutes />}>
+              <Route path="*" element={<RoleBasedRoutes />} />
             </Route>
-            <Route element={<PersistLogin />}>
-              <Route path="/" element={<PrivateRoutes />}>
-                <Route path="*" element={<RoleBasedRoutes />} />
-              </Route>
-            </Route>
-            <Route path="*" element={<Missing />} />
-          </Routes>
-          <ReactQueryDevtools position="bottom-right" initialIsOpen={false} />
-        </Box>
-      </ThemeProvider>
-    </QueryClientProvider>
+          </Route>
+          <Route path="*" element={<Missing />} />
+        </Routes>
+      </Box>
+    </ThemeProvider>
   );
 };
 export default App;

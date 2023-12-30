@@ -14,7 +14,8 @@ from typing import Annotated, Dict, List, Optional, Union
 from starlette import status
 from backend.schemas import UserResponse
 from backend import models
-from sqlalchemy import not_, and_, func, desc
+from sqlalchemy import not_, and_, func, desc, case
+
 
 router = APIRouter()
 
@@ -22,186 +23,154 @@ user_dependency = Annotated[dict, Depends(get_current_user)]
 
 @router.get("/overall/response_rate/")
 async def over_response_rate(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
-    unclaimed = db.query(models.User).filter(func.lower(models.User.role) == 'unclaimed').all()
-    incomplete = db.query(models.User).filter(and_(
-        func.lower(models.User.role) == 'alumni',
-        not_(models.User.is_completed)
-    )).all()
-    complete = db.query(models.User).filter(and_(
-        func.lower(models.User.role) == 'alumni',
-        models.User.is_completed
-    )).all()
-    pending = db.query(models.User).filter(func.lower(models.User.role) == 'public').all()
+  unclaimed_query = func.count(case([(func.lower(models.User.role) == 'unclaimed', 1)]))
+  incomplete_query = func.count(case([(and_(func.lower(models.User.role) == 'alumni', not_(models.User.is_completed)), 1)]))
+  complete_query = func.count(case([(and_(func.lower(models.User.role) == 'alumni', models.User.is_completed), 1)]))
+  pending_query = func.count(case([(func.lower(models.User.role) == 'public', 1)]))
 
-    response_data = {
-        'responses': [
-            {
+  query = db.query(
+      unclaimed_query.label('Unclaimed'),
+      incomplete_query.label('Incomplete'),
+      complete_query.label('Complete'),
+      pending_query.label('Waiting for Approval')
+  )
+
+  results = query.one()
+
+  response_data = {
+      'responses': [
+          {
               'id': "Unanswered",
               'label': "Unanswered",
-              'value': len(unclaimed),
-            },
-            {
+              'value': results.Unclaimed,
+          },
+          {
               'id': "Incomplete",
               'label': "Incomplete",
-              'value': len(incomplete),
-            },
-            {
+              'value': results.Incomplete,
+          },
+          {
               'id': "Complete",
               'label': "Complete",
-              'value': len(complete),
-            },
-            {
+              'value': results.Complete,
+          },
+          {
               'id': "Waiting for Approval",
               'label': "Waiting for Approval",
-              'value': len(pending),
-            },
-        ]
-    }
-    # Filter out items with len(object) equal to zero
-    response_data['responses'] = [item for item in response_data['responses'] if item['value'] > 0]
+              'value': results["Waiting for Approval"],
+          },
+      ]
+  }
 
-    return response_data
+  # Filter out items with len(object) equal to zero
+  response_data['responses'] = [item for item in response_data['responses'] if item['value'] > 0]
+
+  return response_data
 
 @router.get("/overall/monthly_income/")
 async def over_monthly_income(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
-    Minimal = db.query(models.Employment).\
-            join(models.Employment.user).\
-            filter(and_(
-                func.lower(models.Employment.gross_monthly_income) == 'less than ₱9,100',
-                models.User.is_completed
-            )).all()
+  minimal_query = func.count(case([(and_(func.lower(models.Employment.gross_monthly_income) == 'less than ₱9,100', models.User.is_completed, models.User.id == models.Employment.user_id), 1)]))
+  low_query = func.count(case([(and_(func.lower(models.Employment.gross_monthly_income) == '₱9,100 to ₱18,200', models.User.is_completed, models.User.id == models.Employment.user_id), 1)]))
+  moderate_query = func.count(case([(and_(func.lower(models.Employment.gross_monthly_income) == '₱18,200 to ₱36,400', models.User.is_completed, models.User.id == models.Employment.user_id), 1)]))
+  intermediate_query = func.count(case([(and_(func.lower(models.Employment.gross_monthly_income) == '₱36,400 to ₱63,700', models.User.is_completed, models.User.id == models.Employment.user_id), 1)]))
+  above_average_query = func.count(case([(and_(func.lower(models.Employment.gross_monthly_income) == '₱63,700 to ₱109,200', models.User.is_completed, models.User.id == models.Employment.user_id), 1)]))
+  high_query = func.count(case([(and_(func.lower(models.Employment.gross_monthly_income) == '₱109,200 to ₱182,000', models.User.is_completed, models.User.id == models.Employment.user_id), 1)]))
+  exceptional_query = func.count(case([(and_(func.lower(models.Employment.gross_monthly_income) == 'above ₱182,000', models.User.is_completed, models.User.id == models.Employment.user_id), 1)]))
 
-    Low = db.query(models.Employment).\
-            join(models.Employment.user).\
-            filter(and_(
-                func.lower(models.Employment.gross_monthly_income) == '₱9,100 to ₱18,200',
-                models.User.is_completed
-                
-            )).all()
+  query = db.query(
+      minimal_query.label('Less than ₱9,100'),
+      low_query.label('₱9,100 to ₱18,200'),
+      moderate_query.label('₱18,200 to ₱36,400'),
+      intermediate_query.label('₱36,400 to ₱63,700'),
+      above_average_query.label('₱63,700 to ₱109,200'),
+      high_query.label('₱109,200 to ₱182,000'),
+      exceptional_query.label('Above ₱182,000')
+  )
 
-    Moderate = db.query(models.Employment).\
-            join(models.Employment.user).\
-            filter(and_(
-                func.lower(models.Employment.gross_monthly_income) == '₱18,200 to ₱36,400',
-                models.User.is_completed
-                
-            )).all()
+  results = query.one()
 
-    Intermediate = db.query(models.Employment).\
-            join(models.Employment.user).\
-            filter(and_(
-                func.lower(models.Employment.gross_monthly_income) == '₱36,400 to ₱63,700',
-                models.User.is_completed
-                
-            )).all()
+  response_data = {
+    'responses': [
+        {
+            'id': "Less than ₱9,100",
+            'label': "Less than ₱9,100",
+            'value': results["Less than ₱9,100"],
+        },
+        {
+            'id': "₱9,100 to ₱18,200",
+            'label': "₱9,100 to ₱18,200",
+            'value': results["₱9,100 to ₱18,200"],
+        },
+        {
+            'id': "₱18,200 to ₱36,400",
+            'label': "₱18,200 to ₱36,400",
+            'value': results["₱18,200 to ₱36,400"],
+        },
+        {
+            'id': "₱36,400 to ₱63,700",
+            'label': "₱36,400 to ₱63,700",
+            'value': results["₱36,400 to ₱63,700"],
+        },
+        {
+            'id': "₱63,700 to ₱109,200",
+            'label': "₱63,700 to ₱109,200",
+            'value': results["₱63,700 to ₱109,200"],
+        },
+        {
+            'id': "₱109,200 to ₱182,000",
+            'label': "₱109,200 to ₱182,000",
+            'value': results["₱109,200 to ₱182,000"],
+        },
+        {
+            'id': "Above ₱182,000",
+            'label': "Above ₱182,000",
+            'value': results["Above ₱182,000"],
+        },
+    ]
+  }
+  # Filter out items with len(object) equal to zero
+  response_data['responses'] = [item for item in response_data['responses'] if item['value'] > 0]
 
-    AboveAverage = db.query(models.Employment).\
-            join(models.Employment.user).\
-            filter(and_(
-                func.lower(models.Employment.gross_monthly_income) == '₱63,700 to ₱109,200',
-                models.User.is_completed
-                
-            )).all()
-
-    High = db.query(models.Employment).\
-            join(models.Employment.user).\
-            filter(and_(
-                func.lower(models.Employment.gross_monthly_income) == '₱109,200 to ₱182,000',
-                models.User.is_completed
-                
-            )).all()
-
-    Exceptional = db.query(models.Employment).\
-            join(models.Employment.user).\
-            filter(and_(
-                func.lower(models.Employment.gross_monthly_income) == 'above ₱182,000',
-                models.User.is_completed
-                
-            )).all()
-      
-    response_data = {
-        'responses': [
-            {
-              'id': "Less than ₱9,100",
-              'label': "Less than ₱9,100",
-              'value': len(Minimal),
-            },
-            {
-              'id': "₱9,100 to ₱18,200",
-              'label': "₱9,100 to ₱18,200",
-              'value': len(Low),
-            },
-            {
-              'id': "₱18,200 to ₱36,400",
-              'label': "₱18,200 to ₱36,400",
-              'value': len(Moderate),
-            },
-            {
-              'id': "₱36,400 to ₱63,700",
-              'label': "₱36,400 to ₱63,700",
-              'value': len(Intermediate),
-            },
-            {
-              'id': "₱63,700 to ₱109,200",
-              'label': "₱63,700 to ₱109,200",
-              'value': len(AboveAverage),
-            },
-            {
-              'id': "₱109,200 to ₱182,000",
-              'label': "₱109,200 to ₱182,000",
-              'value': len(High),
-            },
-            {
-              'id': "Above ₱182,000",
-              'label': "Above ₱182,000",
-              'value': len(Exceptional),
-            },
-        ]
-    }
-
-    # Filter out items with len(object) equal to zero
-    response_data['responses'] = [item for item in response_data['responses'] if item['value'] > 0]
-
-    return response_data
+  return response_data
 
 
 @router.get("/overall/gender/")
 async def overall_gender(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
-    lgbt = db.query(models.User).filter(and_(
-        func.lower(models.User.gender) == 'lgbtqia+',
-        func.lower(models.User.role) == 'alumni',
-        models.User.is_completed
-    )).all()
+    lgbtqia_query = func.count(case([(and_(func.lower(models.User.gender) == 'lgbtqia+', 
+                                       func.lower(models.User.role) == 'alumni', 
+                                       models.User.is_completed), 1)]))
+    male_query = func.count(case([(and_(func.lower(models.User.gender) == 'male', 
+                                        func.lower(models.User.role) == 'alumni', 
+                                        models.User.is_completed), 1)]))
+    female_query = func.count(case([(and_(func.lower(models.User.gender) == 'female', 
+                                          func.lower(models.User.role) == 'alumni', 
+                                          models.User.is_completed), 1)]))
 
-    male = db.query(models.User).filter(and_(
-        func.lower(models.User.gender) == 'male',
-        func.lower(models.User.role) == 'alumni',
-        models.User.is_completed
-    )).all()
+    query = db.query(
+        lgbtqia_query.label('LGBTQIA+'),
+        male_query.label('Male'),
+        female_query.label('Female')
+    )
 
-    female = db.query(models.User).filter(and_(
-        func.lower(models.User.gender) == 'female',
-        func.lower(models.User.role) == 'alumni',
-        models.User.is_completed
-    )).all()
+    results = query.one()
 
     response_data = {
         'responses': [
             {
-              'id': "LGBTQIA+",
-              'label': "LGBTQIA+",
-              'value': len(lgbt),
+                'id': "LGBTQIA+",
+                'label': "LGBTQIA+",
+                'value': results["LGBTQIA+"],
             },
             {
-              'id': "Male",
-              'label': "Male",
-              'value': len(male),
+                'id': "Male",
+                'label': "Male",
+                'value': results["Male"],
             },
             {
-              'id': "Female",
-              'label': "Female",
-              'value': len(female),
-            },
+                'id': "Female",
+                'label': "Female",
+                'value': results["Female"],
+            }
         ]
     }
 
@@ -213,32 +182,49 @@ async def overall_gender(db: Session = Depends(get_db), user: UserResponse = Dep
 
 @router.get("/overall/civil_status/")
 async def overall_civil_status(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
-    single = db.query(models.User).filter(and_(func.lower(models.User.role) == 'alumni', func.lower(models.User.civil_status) == 'single', models.User.is_completed)).all()
-    married = db.query(models.User).filter(and_(func.lower(models.User.role) == 'alumni', func.lower(models.User.civil_status) == 'married', models.User.is_completed)).all()
-    divorced = db.query(models.User).filter(and_(func.lower(models.User.role) == 'alumni', func.lower(models.User.civil_status) == 'divorced', models.User.is_completed)).all()
-    widowed = db.query(models.User).filter(and_(func.lower(models.User.role) == 'alumni', func.lower(models.User.civil_status) == 'widowed', models.User.is_completed)).all()
+    single_query = func.count(case([(and_(func.lower(models.User.role) == 'alumni', 
+                                          func.lower(models.User.civil_status) == 'single', 
+                                          models.User.is_completed), 1)]))
+    married_query = func.count(case([(and_(func.lower(models.User.role) == 'alumni', 
+                                          func.lower(models.User.civil_status) == 'married', 
+                                          models.User.is_completed), 1)]))
+    divorced_query = func.count(case([(and_(func.lower(models.User.role) == 'alumni', 
+                                            func.lower(models.User.civil_status) == 'divorced', 
+                                            models.User.is_completed), 1)]))
+    widowed_query = func.count(case([(and_(func.lower(models.User.role) == 'alumni', 
+                                          func.lower(models.User.civil_status) == 'widowed', 
+                                          models.User.is_completed), 1)]))
+
+    query = db.query(
+        single_query.label('Single'),
+        married_query.label('Married'),
+        divorced_query.label('Divorced'),
+        widowed_query.label('Widowed')
+    )
+
+    results = query.one()
 
     response_data = {
         'responses': [
             {
-              'id': "Single",
-              'label': "Single",
-              'value': len(single),
+                'id': "Single",
+                'label': "Single",
+                'value': results.Single,
             },
             {
-              'id': "Married",
-              'label': "Married",
-              'value': len(married),
+                'id': "Married",
+                'label': "Married",
+                'value': results.Married,
             },
             {
-              'id': "Divorced",
-              'label': "Divorced",
-              'value': len(divorced),
+                'id': "Divorced",
+                'label': "Divorced",
+                'value': results.Divorced,
             },
             {
-              'id': "Widowed",
-              'label': "Widowed",
-              'value': len(widowed),
+                'id': "Widowed",
+                'label': "Widowed",
+                'value': results.Widowed,
             },
         ]
     }
@@ -251,62 +237,58 @@ async def overall_civil_status(db: Session = Depends(get_db), user: UserResponse
 
 @router.get("/overall/employment_status/")
 async def overall_employment_status(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
-    employed = db.query(models.User).filter(and_(
-        func.lower(models.User.present_employment_status) == 'employed',
-        func.lower(models.User.role) == 'alumni',
-        models.User.is_completed
-    )).all()
+    employed_query = func.count(case([(and_(func.lower(models.User.present_employment_status) == 'employed', 
+                                            func.lower(models.User.role) == 'alumni', 
+                                            models.User.is_completed), 1)]))
+    selfemployed_query = func.count(case([(and_(func.lower(models.User.present_employment_status) == 'self-employed', 
+                                                func.lower(models.User.role) == 'alumni', 
+                                                models.User.is_completed), 1)]))
+    never_been_employed_query = func.count(case([(and_(func.lower(models.User.present_employment_status) == 'never been employed', 
+                                                      func.lower(models.User.role) == 'alumni', 
+                                                      models.User.is_completed), 1)]))
+    unable_to_work_query = func.count(case([(and_(func.lower(models.User.present_employment_status) == 'unable to work', 
+                                                  func.lower(models.User.role) == 'alumni', 
+                                                  models.User.is_completed), 1)]))
+    unemployed_query = func.count(case([(and_(func.lower(models.User.present_employment_status) == 'unemployed', 
+                                              func.lower(models.User.role) == 'alumni', 
+                                              models.User.is_completed), 1)]))
 
-    selfemployed = db.query(models.User).filter(and_(
-        func.lower(models.User.present_employment_status) == 'self-employed',
-        func.lower(models.User.role) == 'alumni',
-        models.User.is_completed
-    )).all()
+    query = db.query(
+        employed_query.label('Employed'),
+        selfemployed_query.label('Self-Employed'),
+        never_been_employed_query.label('Never been Employed'),
+        unable_to_work_query.label('Unable to Work'),
+        unemployed_query.label('Unemployed')
+    )
 
-    neverbeenemployed = db.query(models.User).filter(and_(
-        func.lower(models.User.present_employment_status) == 'never been employed',
-        func.lower(models.User.role) == 'alumni',
-        models.User.is_completed
-    )).all()
-
-    unabletowork = db.query(models.User).filter(and_(
-        func.lower(models.User.present_employment_status) == 'unable to work',
-        func.lower(models.User.role) == 'alumni',
-        models.User.is_completed
-    )).all()
-
-    unemployed = db.query(models.User).filter(and_(
-        func.lower(models.User.present_employment_status) == 'unemployed',
-        func.lower(models.User.role) == 'alumni',
-        models.User.is_completed
-    )).all()
+    results = query.one()
 
     response_data = {
         'responses': [
             {
-              'id': "Employed",
-              'label': "Employed",
-              'value': len(employed),
+                'id': "Employed",
+                'label': "Employed",
+                'value': results.Employed,
             },
             {
-              'id': "Self-Employed",
-              'label': "Self-Employed",
-              'value': len(selfemployed),
+                'id': "Self-Employed",
+                'label': "Self-Employed",
+                'value': results["Self-Employed"],
             },
             {
-              'id': "Never been Employed",
-              'label': "Never been Employed",
-              'value': len(neverbeenemployed),
+                'id': "Never been Employed",
+                'label': "Never been Employed",
+                'value': results["Never been Employed"],
             },
             {
-              'id': "Unable to Work",
-              'label': "Unable to Work",
-              'value': len(unabletowork),
+                'id': "Unable to Work",
+                'label': "Unable to Work",
+                'value': results["Unable to Work"],
             },
             {
-              'id': "Unemployed",
-              'label': "Unemployed",
-              'value': len(unemployed),
+                'id': "Unemployed",
+                'label': "Unemployed",
+                'value': results.Unemployed,
             },
         ]
     }
@@ -319,81 +301,57 @@ async def overall_employment_status(db: Session = Depends(get_db), user: UserRes
 
 @router.get("/overall/employment_contract/")
 async def over_employment_contract(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
-    
-    Regular = db.query(models.Employment).\
-            join(models.Employment.user).\
-            filter(and_(
-                func.lower(models.Employment.employment_contract) == 'regular',
-                models.User.is_completed
-            )).all()
+    regular_query = func.count(case([(and_(func.lower(models.Employment.employment_contract) == 'regular', models.User.is_completed, models.User.id == models.Employment.user_id), 1)]))
+    casual_query = func.count(case([(and_(func.lower(models.Employment.employment_contract) == 'casual', models.User.is_completed, models.User.id == models.Employment.user_id), 1)]))
+    project_query = func.count(case([(and_(func.lower(models.Employment.employment_contract) == 'project', models.User.is_completed, models.User.id == models.Employment.user_id), 1)]))
+    seasonal_query = func.count(case([(and_(func.lower(models.Employment.employment_contract) == 'seasonal', models.User.is_completed, models.User.id == models.Employment.user_id), 1)]))
+    fixed_term_query = func.count(case([(and_(func.lower(models.Employment.employment_contract) == 'fixed-term', models.User.is_completed, models.User.id == models.Employment.user_id), 1)]))
+    probationary_query = func.count(case([(and_(func.lower(models.Employment.employment_contract) == 'probationary', models.User.is_completed), 1)]))
 
-    Casual = db.query(models.Employment).\
-            join(models.Employment.user).\
-            filter(and_(
-                func.lower(models.Employment.employment_contract) == 'casual',
-                models.User.is_completed
-            )).all()
+    query = db.query(
+        regular_query.label('Regular'),
+        casual_query.label('Casual'),
+        project_query.label('Project'),
+        seasonal_query.label('Seasonal'),
+        fixed_term_query.label('Fixed-term'),
+        probationary_query.label('Probationary')
+    )
 
-    Project = db.query(models.Employment).\
-            join(models.Employment.user).\
-            filter(and_(
-                func.lower(models.Employment.employment_contract) == 'project',
-                models.User.is_completed
-            )).all()
+    results = query.one()
 
-    Seasonal = db.query(models.Employment).\
-            join(models.Employment.user).\
-            filter(and_(
-                func.lower(models.Employment.employment_contract) == 'seasonal',
-                models.User.is_completed
-            )).all()
-
-    FixedTerm = db.query(models.Employment).\
-            join(models.Employment.user).\
-            filter(and_(
-                func.lower(models.Employment.employment_contract) == 'fixed-term',
-                models.User.is_completed
-            )).all()
-
-    Probationary = db.query(models.Employment).\
-            join(models.Employment.user).\
-            filter(and_(
-                func.lower(models.Employment.employment_contract) == 'probationary',
-                models.User.is_completed
-            )).all()
     response_data = {
         'responses': [
             {
-              'id': "Regular",
-              'label': "Regular",
-              'value': len(Regular),
+                'id': "Regular",
+                'label': "Regular",
+                'value': results.Regular,
             },
             {
-              'id': "Casual",
-              'label': "Casual",
-              'value': len(Casual),
+                'id': "Casual",
+                'label': "Casual",
+                'value': results.Casual,
             },
             {
-              'id': "Project",
-              'label': "Project",
-              'value': len(Project),
+                'id': "Project",
+                'label': "Project",
+                'value': results.Project,
             },
             {
-              'id': "Seasonal",
-              'label': "Seasonal",
-              'value': len(Seasonal),
+                'id': "Seasonal",
+                'label': "Seasonal",
+                'value': results.Seasonal,
             },
             {
-              'id': "Fixed-term",
-              'label': "Fixed-term",
-              'value': len(FixedTerm),
+                'id': "Fixed-term",
+                'label': "Fixed-term",
+                'value': results["Fixed-term"],
             },
             {
-              'id': "Probationary",
-              'label': "Probationary",
-              'value': len(Probationary),
+                'id': "Probationary",
+                'label': "Probationary",
+                'value': results.Probationary,
             },
-          ]
+        ]
     }
 
     # Filter out items with len(object) equal to zero
@@ -404,55 +362,40 @@ async def over_employment_contract(db: Session = Depends(get_db), user: UserResp
 
 @router.get("/overall/employer_type/")
 async def over_employer_type(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
-    Public = db.query(models.Employment).\
-            join(models.Employment.user).\
-            filter(and_(
-                func.lower(models.Employment.employer_type) == 'public / government',
-                models.User.is_completed
-            )).all()
+    public_query = func.count(case([(and_(func.lower(models.Employment.employer_type) == 'public / government', models.User.is_completed, models.User.id == models.Employment.user_id), 1)]))
+    private_query = func.count(case([(and_(func.lower(models.Employment.employer_type) == 'private sector', models.User.is_completed, models.User.id == models.Employment.user_id), 1)]))
+    nonprofit_query = func.count(case([(and_(func.lower(models.Employment.employer_type) == 'non-profit / third sector', models.User.is_completed, models.User.id == models.Employment.user_id), 1)]))
+    selfemployed_query = func.count(case([(and_(func.lower(models.Employment.employer_type) == 'self-employed / independent', models.User.is_completed, models.User.id == models.Employment.user_id), 1)]))
 
-    Private = db.query(models.Employment).\
-            join(models.Employment.user).\
-            filter(and_(
-                func.lower(models.Employment.employer_type) == 'private sector',
-                models.User.is_completed
-            )).all()
+    query = db.query(
+        public_query.label('Public / Government'),
+        private_query.label('Private Sector'),
+        nonprofit_query.label('Non-profit / Third sector'),
+        selfemployed_query.label('Self-Employed / Independent')
+    )
 
-    Nonprofit = db.query(models.Employment).\
-            join(models.Employment.user).\
-            filter(and_(
-                func.lower(models.Employment.employer_type) == 'non-profit / third sector',
-                models.User.is_completed
-            )).all()
-
-    Selfemployed = db.query(models.Employment).\
-            join(models.Employment.user).\
-            filter(and_(
-                func.lower(models.Employment.employer_type) == 'self-employed / independent',
-                models.User.is_completed
-            )).all()
-     
+    results = query.one()
     response_data =  {
         'responses': [
             {
               'id': "Public / Government",
               'label': "Public / Government",
-              'value': len(Public),
+              'value': results["Public / Government"],
             },
             {
               'id': "Private Sector",
               'label': "Private Sector",
-              'value': len(Private),
+              'value': results["Private Sector"],
             },
             {
               'id': "Non-profit / Third sector",
               'label': "Non-profit / Third sector",
-              'value': len(Nonprofit),
+              'value': results["Non-profit / Third sector"],
             },
             {
               'id': "Self-Employed / Independent",
               'label': "Self-Employed / Independent",
-              'value': len(Selfemployed),
+              'value': results["Self-Employed / Independent"],
             },
         ]
     }
@@ -534,6 +477,7 @@ async def classification_employment_rate(db: Session = Depends(get_db), user: Us
     classification_list = [
       {
           "classification_name": classification.name,
+          "classification_code": classification.code,
           **{f"batch {batch_year}": 0 for batch_year in batch_years}
       } 
       for classification in classifications

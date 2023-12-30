@@ -3,10 +3,12 @@ import mockdatapie from "../mockdata/mockdatapie";
 import React from "react";
 import useOverallCivilStatus from "../../hooks/analytics/useOverallCivilStatus";
 import { Box, Skeleton } from "@mui/material";
+import useAll from "../../hooks/utilities/useAll";
 
 const OverallCivilStatus = () => {
   const { data: overallCivilStatus, isLoading: isLoadingCivilStatus } =
     useOverallCivilStatus();
+  const { mode } = useAll();
 
   if (isLoadingCivilStatus) {
     return (
@@ -41,7 +43,7 @@ const OverallCivilStatus = () => {
       padAngle={2}
       cornerRadius={5}
       activeOuterRadiusOffset={8}
-      colors={{ scheme: "blues" }}
+      colors={{ scheme: "paired" }}
       borderWidth={1}
       borderColor={{
         from: "color",
@@ -59,6 +61,14 @@ const OverallCivilStatus = () => {
         from: "color",
         modifiers: [["darker", "2.9"]],
       }}
+      theme={{
+        tooltip: {
+          container: {
+            background: mode == "light" ? "#fff" : "#333", // Change the text color of tooltip here
+            color: mode == "light" ? "#333" : "#fff", // Change the text color of tooltip here
+          },
+        },
+      }}
       layers={[
         "arcs",
         "arcLabels",
@@ -73,7 +83,7 @@ const OverallCivilStatus = () => {
               style={{
                 fontSize: "1.5rem",
                 fontWeight: "bold",
-                fill: "#333333",
+                fill: mode == "light" ? "#333333" : "#fff",
               }}
             >
               {percentageDict.percentage}%
@@ -85,7 +95,7 @@ const OverallCivilStatus = () => {
               dominantBaseline="middle"
               style={{
                 fontSize: "0.5rem",
-                fill: "#333333",
+                fill: mode == "light" ? "#333333" : "#fff",
               }}
             >
               Majority are
@@ -97,7 +107,7 @@ const OverallCivilStatus = () => {
               dominantBaseline="middle"
               style={{
                 fontSize: "0.5rem",
-                fill: "#333333",
+                fill: mode == "light" ? "#333333" : "#fff",
               }}
             >
               {percentageDict.label}

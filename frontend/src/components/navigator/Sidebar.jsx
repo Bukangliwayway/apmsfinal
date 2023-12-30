@@ -10,12 +10,12 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
-import useAuth from "../../hooks/utilities/useAuth";
+import useAll from "../../hooks/utilities/useAll";
 import ProfileCard from "./ProfileCard";
 
 function Sidebar() {
-  const [setSelectedIndex] = useState(1);
-  const { auth } = useAuth();
+  const [selectedIndex, setSelectedIndex] = useState(1);
+  const { auth } = useAll();
 
   const centerFlex = {
     display: "flex",

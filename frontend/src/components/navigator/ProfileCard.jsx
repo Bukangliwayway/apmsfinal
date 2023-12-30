@@ -3,7 +3,7 @@ import { useQuery } from "react-query";
 import { Link as RouterLink } from "react-router-dom";
 import { useNavigate, useLocation } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import useAuth from "../../hooks/utilities/useAuth";
+import useAll from "../../hooks/utilities/useAll";
 import useLogout from "../../hooks/utilities/useLogout";
 import {
   Avatar,
@@ -20,7 +20,7 @@ export const ProfileCard = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const logout = useLogout();
-  const { auth, setAuth } = useAuth();
+  const { auth, setAuth } = useAll();
 
   const getProfile = async () => {
     return await axiosPrivate.get("/users/me");
@@ -30,7 +30,7 @@ export const ProfileCard = () => {
     "profile-me",
     getProfile,
     {
-      staleTime: 300000,
+      staleTime: Infinity,
     }
   );
 
@@ -54,8 +54,6 @@ export const ProfileCard = () => {
       <CardContent>
         <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
           <Skeleton variant="rectangular" width={40} height={20} />
-          <Skeleton variant="rectangular" width={40} height={20} />
-          <Skeleton variant="rectangular" width={40} height={20} />
         </Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <Skeleton variant="circular" width={60} height={60} />
@@ -74,11 +72,11 @@ export const ProfileCard = () => {
   }
 
   return (
-    <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+    <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb:1 }}>
       <Avatar
         alt="Profile"
         src={data?.data?.profile_picture}
-        sx={{ width: "60px", height: "60px" }}
+        sx={{ width: "40px", height: "40px" }}
       />
       <Box>
         <Typography
@@ -88,18 +86,15 @@ export const ProfileCard = () => {
         >
           {data?.data?.first_name + " " + data?.data?.last_name}
         </Typography>
-        {data?.data?.year_graduated ? (
+        {data?.data?.batch_year ? (
           <Typography
             variant="caption"
             display="block"
             style={{ lineHeight: 1 }}
           >
-            batch {data?.data?.year_graduated}
+            batch {data?.data?.batch_year}
           </Typography>
         ) : null}
-        <Typography variant="caption" display="block" style={{ lineHeight: 1 }}>
-          {auth?.role}
-        </Typography>
       </Box>
     </Box>
   );

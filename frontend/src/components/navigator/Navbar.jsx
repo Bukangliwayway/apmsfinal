@@ -10,10 +10,10 @@ import {
   ModeNight,
   LightMode,
 } from "@mui/icons-material/";
-import useMode from "../../hooks/utilities/useMode";
+import useAll from "../../hooks/utilities/useAll";
 
 const Navbar = () => {
-  const { mode, setMode } = useMode();
+  const { mode, setMode } = useAll();
 
   return (
 

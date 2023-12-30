@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useQuery } from "react-query";
 import { useNavigate, useLocation } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import useAuth from "../../hooks/utilities/useAuth";
+import useAll from "../../hooks/utilities/useAll";
 import useGetEducationProfiles from "../../hooks/useGetEducationProfiles";
 import {
   Avatar,
@@ -86,7 +86,7 @@ export const OtherEducationProfile = ({ data, isLoading }) => {
   const axiosPrivate = useAxiosPrivate();
   const navigate = useNavigate();
   const location = useLocation();
-  const { auth, setAuth } = useAuth();
+  const { auth, setAuth } = useAll();
 
   const Chiptip = ({ icon, label, additional = "", actual = "" }) => (
     <Tooltip

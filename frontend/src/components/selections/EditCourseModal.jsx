@@ -1,16 +1,12 @@
-import { useMutation, useQueryClient, useQuery } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import useAuth from "../../hooks/utilities/useAuth";
+import useAll from "../../hooks/utilities/useAll";
 import useGetCourseSpecific from "../../hooks/selections/useGetCourseSpecific";
 import {
-  Alert,
   Box,
   Button,
   Dialog,
-  Avatar,
-  Typography,
   DialogActions,
   DialogContent,
   DialogTitle,
@@ -20,8 +16,6 @@ import {
   Select,
   TextField,
   Grid,
-  Snackbar,
-  LinearProgress,
   Skeleton,
   OutlinedInput,
   Chip,
@@ -44,7 +38,6 @@ const MenuProps = {
 
 const EditCourseModal = ({ open, onClose, courseID }) => {
   const queryClient = useQueryClient();
-  const { auth, setAuth } = useAuth();
   const { data: classificationsData, isLoading: isLoadingClassification } =
     useClassifications();
 
@@ -52,20 +45,21 @@ const EditCourseModal = ({ open, onClose, courseID }) => {
     name: "",
     classification_ids: [],
   });
-  const [message, setMessage] = useState("");
   const [classificationIds, setClassificationIds] = useState([]);
-  const [severity, setSeverity] = useState("error");
-  const [openSnackbar, setOpenSnackbar] = useState(false);
   const [deletePrompt, setDeletePrompt] = useState(false);
-  const [isLoadingDelete, setIsLoadingDelete] = useState(false);
+  const {
+    auth,
+    setMessage,
+    setSeverity,
+    setOpenSnackbar,
+    setLinearLoading,
+    linearLoading,
+  } = useAll();
 
   const axiosPrivate = useAxiosPrivate();
 
-  const {
-    data: cachedData,
-    isLoading: isLoadingCourse,
-    isFetching: isFetchingCourse,
-  } = useGetCourseSpecific(courseID);
+  const { data: cachedData, isLoading: isLoadingCourse } =
+    useGetCourseSpecific(courseID);
 
   useEffect(() => {
     const classifications =
@@ -121,7 +115,7 @@ const EditCourseModal = ({ open, onClose, courseID }) => {
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosPrivate.put(
+      await axiosPrivate.put(
         `/selections/courses/${courseID}`,
         newProfile,
         axiosConfig
@@ -131,9 +125,8 @@ const EditCourseModal = ({ open, onClose, courseID }) => {
       onError: (error) => {
         setMessage(error.response ? error.response.data.detail : error.message);
         setSeverity("error");
-        setOpenSnackbar(true);
       },
-      onSuccess: (data, variables, context) => {
+      onSuccess: () => {
         queryClient.invalidateQueries("courses-all");
         queryClient.invalidateQueries(["course-specific", courseID]);
         queryClient.invalidateQueries("profile-me");
@@ -143,27 +136,26 @@ const EditCourseModal = ({ open, onClose, courseID }) => {
         setMessage("course updated successfully");
         setSeverity("success");
       },
+      onSettled: () => {
+        setLinearLoading(false);
+        setOpenSnackbar(true);
+      },
     }
   );
 
   const mutationDelete = useMutation(
-    async (newProfile) => {
+    async () => {
       const axiosConfig = {
         headers: {
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosPrivate.delete(
-        `/selections/courses/${courseID}`,
-        axiosConfig
-      );
+      await axiosPrivate.delete(`/selections/courses/${courseID}`, axiosConfig);
     },
     {
       onError: (error) => {
         setMessage(error.response ? error.response.data.detail : error.message);
         setSeverity("error");
-        setOpenSnackbar(true);
-        setIsLoadingDelete(false);
       },
       onSuccess: (data, variables, context) => {
         queryClient.invalidateQueries("courses-all");
@@ -172,11 +164,13 @@ const EditCourseModal = ({ open, onClose, courseID }) => {
         queryClient.invalidateQueries("career-profile");
         queryClient.invalidateQueries("employment-profile");
 
-        setMessage("course deleted successfully");
+        setMessage("Course Deleted Successfully");
         setSeverity("success");
-        setOpenSnackbar(true);
-        setIsLoadingDelete(false);
         onClose();
+      },
+      onSettled: () => {
+        setLinearLoading(false);
+        setOpenSnackbar(true);
       },
     }
   );
@@ -207,49 +201,22 @@ const EditCourseModal = ({ open, onClose, courseID }) => {
     // Convert the object to a JSON string
     const payload = JSON.stringify(data);
 
-    try {
-      await mutation.mutateAsync(payload);
-    } catch (error) {
-      if (error.response) {
-        setMessage(error.response.data.detail);
-        setSeverity("error");
-      } else if (error.request) {
-        setMessage("No response received from the server");
-        setSeverity("error");
-      } else {
-        setMessage("Error: " + error.message);
-        setSeverity("error");
-      }
-    }
-    setOpenSnackbar(true);
+    setLinearLoading(true);
+    await mutation.mutateAsync(payload);
   };
 
   const handleDelete = async () => {
-    try {
-      setIsLoadingDelete(true);
-      await mutationDelete.mutateAsync();
-    } catch (error) {
-      setMessage(error.response ? error.response.data.detail : error.message);
-      setSeverity("error");
-      setOpenSnackbar(true);
-    }
-  };
-
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setOpenSnackbar(false);
+    setLinearLoading(true);
+    await mutationDelete.mutateAsync();
   };
 
   if (isLoadingCourse || isLoadingClassification) {
     return (
-      <Dialog open={true}>
+      <Dialog open={true} fullWidth>
         <DialogTitle>
           <Skeleton variant="text" />
         </DialogTitle>
-        <DialogContent sx={{ width: "40vw" }}>
+        <DialogContent>
           <Box>
             <Skeleton variant="rectangular" width="100%" height={50} />
           </Box>
@@ -264,24 +231,11 @@ const EditCourseModal = ({ open, onClose, courseID }) => {
   const classifications = classificationsData?.data;
 
   return (
-    <Dialog open={open} onClose={onClose}>
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={severity}>
-          {message}
-        </Alert>
-      </Snackbar>
-      <Box sx={{ width: "100%", position: "relative", top: 0 }}>
-        {(isLoading || isLoadingDelete) && <LinearProgress />}
-        {!(isLoading && isLoadingDelete) && <Box sx={{ height: 4 }} />}
-      </Box>
+    <Dialog open={open} onClose={onClose} fullWidth>
       {!deletePrompt ? (
         <Box>
           <DialogTitle>Edit Course</DialogTitle>
-          <DialogContent sx={{ width: "40vw" }}>
+          <DialogContent>
             <Grid container spacing={2} p={2}>
               {auth?.role == "admin" && (
                 <Grid item xs={12}>
@@ -361,7 +315,9 @@ const EditCourseModal = ({ open, onClose, courseID }) => {
             </Grid>
           </DialogContent>
           <DialogActions sx={{ padding: 3 }}>
-            <Button onClick={onClose}>Cancel</Button>
+            <Button onClick={onClose} color="inherit">
+              Cancel
+            </Button>
             <Box sx={{ display: "flex", ml: "auto" }}>
               <Button
                 onClick={handleSubmit}
@@ -392,12 +348,14 @@ const EditCourseModal = ({ open, onClose, courseID }) => {
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setDeletePrompt(false)}>Cancel</Button>
+            <Button onClick={() => setDeletePrompt(false)} color="inherit">
+              Cancel
+            </Button>
             <Button
               onClick={handleDelete}
               variant="contained"
               color="error"
-              disabled={isLoadingDelete}
+              disabled={linearLoading}
             >
               Delete
             </Button>

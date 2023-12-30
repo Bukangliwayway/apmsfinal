@@ -1,13 +1,10 @@
-import { useMutation, useQueryClient, useQuery } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import {
-  Alert,
   Box,
   Button,
   Dialog,
-  Avatar,
   Typography,
   DialogActions,
   DialogContent,
@@ -18,63 +15,34 @@ import {
   Select,
   TextField,
   Grid,
-  Snackbar,
-  LinearProgress,
-  Tooltip,
   FormControlLabel,
   Switch,
   Skeleton,
   OutlinedInput,
 } from "@mui/material";
-import { stringify } from "flatted";
 
-import {
-  BusinessCenter,
-  Work,
-  LocalGroceryStore,
-  LocalHospital,
-  School,
-  Build,
-  AccountBalance,
-  Store,
-  MonetizationOn,
-  Computer,
-  Palette,
-  LocalShipping,
-  GroupWork,
-  BuildCircle,
-  Gavel,
-  Security,
-  HeadsetMic,
-  Forest,
-  SupervisorAccount,
-  LocalOffer,
-  SpeakerNotes,
-  Landscape,
-  Biotech,
-  Add,
-} from "@mui/icons-material";
+import { Add } from "@mui/icons-material";
 
 import Autocomplete from "@mui/material/Autocomplete";
 import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers";
-import dayjs from "dayjs";
 import useCourses from "../../hooks/useCourses";
 import useRegions from "../../hooks/useRegion";
 import useCountries from "../../hooks/useCountries";
 import useCitiesMunicipalities from "../../hooks/useCitiesMunicipalities";
 import AddCourse from "../selections/AddCourseModal";
+import useAll from "../../hooks/utilities/useAll";
 
 const AddEducationModal = ({ open, onClose }) => {
   const queryClient = useQueryClient();
 
   const axiosPrivate = useAxiosPrivate();
-  const [message, setMessage] = useState("");
   const [openModal, setOpenModal] = useState(false);
-  const [severity, setSeverity] = useState("error");
-  const [openSnackbar, setOpenSnackbar] = useState(false);
+
+  const { setMessage, setSeverity, setOpenSnackbar, setLinearLoading } =
+    useAll();
 
   const [educationProfile, setEducationProfile] = useState(null);
   const { data: courses, isLoading: isLoadingCourses } = useCourses();
@@ -92,29 +60,29 @@ const AddEducationModal = ({ open, onClose }) => {
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosPrivate.post(
-        `/profiles/education/`,
-        newProfile,
-        axiosConfig
-      );
+      await axiosPrivate.post(`/profiles/education/`, newProfile, axiosConfig);
     },
     {
       onError: (error) => {
         setMessage(error.response ? error.response.data.detail : error.message);
         setSeverity("error");
-        setOpenSnackbar(true);
       },
       onSuccess: (data, variables, context) => {
         queryClient.invalidateQueries("education-me");
         queryClient.invalidateQueries("profile-me");
 
-        setMessage("achievement updated successfully");
+        setMessage("Education Updated Successfully");
         setSeverity("success");
+      },
+      onSettled: () => {
+        setLinearLoading(false);
+        setOpenSnackbar(true);
+        onClose();
       },
     }
   );
 
-  const { isLoading, isError, error, isSuccess } = mutation;
+  const { isLoading } = mutation;
 
   const handleDateStarted = (date) => {
     setEducationProfile((prevProfile) => ({
@@ -190,31 +158,8 @@ const AddEducationModal = ({ open, onClose }) => {
 
     // Convert the object to a JSON string
     const payload = JSON.stringify(data);
-    console.log(payload);
-
-    try {
-      await mutation.mutateAsync(payload);
-    } catch (error) {
-      if (error.response) {
-        setMessage(error.response.data.detail);
-        setSeverity("error");
-      } else if (error.request) {
-        setMessage("No response received from the server");
-        setSeverity("error");
-      } else {
-        setMessage("Error: " + error.message);
-        setSeverity("error");
-      }
-    }
-    setOpenSnackbar(true);
-  };
-
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setOpenSnackbar(false);
+    setLinearLoading(true);
+    await mutation.mutateAsync(payload);
   };
 
   const levelOptions = [
@@ -249,11 +194,11 @@ const AddEducationModal = ({ open, onClose }) => {
 
   if (isLoadingCourses || isLoadingRegions || isLoadingCountries) {
     return (
-      <Dialog open={true}>
+      <Dialog open={true} fullWidth>
         <DialogTitle>
           <Skeleton variant="text" />
         </DialogTitle>
-        <DialogContent sx={{ width: "40vw" }}>
+        <DialogContent>
           <Box>
             <Skeleton variant="rectangular" width="100%" height={50} />
           </Box>
@@ -287,20 +232,7 @@ const AddEducationModal = ({ open, onClose }) => {
 
   return (
     <>
-      <Dialog open={open} onClose={onClose}>
-        <Snackbar
-          open={openSnackbar}
-          autoHideDuration={3000}
-          onClose={handleCloseSnackbar}
-        >
-          <Alert onClose={handleCloseSnackbar} severity={severity}>
-            {message}
-          </Alert>
-        </Snackbar>
-        <Box sx={{ width: "100%", position: "relative", top: 0 }}>
-          {isLoading && <LinearProgress />}
-          {!isLoading && <Box sx={{ height: 4 }} />}
-        </Box>
+      <Dialog open={open} onClose={onClose} fullWidth>
         <DialogTitle>School Information</DialogTitle>
         <DialogContent>
           <Grid container spacing={5}>
@@ -615,7 +547,9 @@ const AddEducationModal = ({ open, onClose }) => {
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={onClose} color="inherit">
+            Cancel
+          </Button>
           <Button
             onClick={handleSubmit}
             variant="contained"

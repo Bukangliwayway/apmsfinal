@@ -2,30 +2,35 @@ import { ResponsiveBar } from "@nivo/bar";
 import mockdatabar from "../mockdata/mockdatabar";
 import useClassificationEmploymentRate from "../../hooks/analytics/useClassificationEmploymentRate";
 import { Box, Skeleton } from "@mui/material";
+import useAll from "../../hooks/utilities/useAll";
 
 const ClassificationEmploymentRate = () => {
-   const { data: classificationResponseRate, isLoading: isLoadingClassificationResponseRate } =
-     useClassificationEmploymentRate();
+  const {
+    data: classificationResponseRate,
+    isLoading: isLoadingClassificationResponseRate,
+  } = useClassificationEmploymentRate();
 
-   if (isLoadingClassificationResponseRate) {
-     return (
-       <Box>
-         <Skeleton variant="rectangular" width={"100%"} height={"100%"} />
-       </Box>
-     );
-   }
+  if (isLoadingClassificationResponseRate) {
+    return (
+      <Box>
+        <Skeleton variant="rectangular" width={"100%"} height={"100%"} />
+      </Box>
+    );
+  }
+  const { mode } = useAll();
+
   return (
     <div style={{ height: "25vh" }}>
       <ResponsiveBar
         data={classificationResponseRate?.data?.classification}
         keys={classificationResponseRate?.data?.keys}
-        indexBy="classification_name"
+        indexBy="classification_code"
         margin={{ top: 25, right: 100, bottom: 50, left: 50 }}
         padding={0.2}
         groupMode="grouped"
         valueScale={{ type: "linear" }}
         indexScale={{ type: "band", round: true }}
-        colors={{ scheme: "blues" }}
+        colors={{ scheme: "paired" }}
         defs={[
           {
             id: "dots",
@@ -46,6 +51,27 @@ const ClassificationEmploymentRate = () => {
             spacing: 10,
           },
         ]}
+        
+        theme={{
+          axis: {
+            ticks: {
+              text: {
+                fill: mode == "light" ? "#333" : "#DCE1E7",
+              },
+            },
+            legend: {
+              text: {
+                fill: mode == "light" ? "#333" : "#DCE1E7",
+              },
+            },
+          },
+          tooltip: {
+            container: {
+              background: mode == "light" ? "#fff" : "#333", // Change the text color of tooltip here
+              color: mode == "light" ? "#333" : "#DCE1E7", // Change the text color of tooltip here
+            },
+          },
+        }}
         borderColor={{
           from: "color",
           modifiers: [["darker", "0.9"]],
@@ -101,10 +127,6 @@ const ClassificationEmploymentRate = () => {
           precision: 0.01,
           velocity: 0,
         }}
-        role="application"
-        barAriaLabel={(e) =>
-          e.id + ": " + e.formattedValue + " in country: " + e.indexValue
-        }
       />
     </div>
   );
