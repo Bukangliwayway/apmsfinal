@@ -14,6 +14,10 @@ import {
   TextField,
   Typography,
   FormControlLabel,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   Container,
   Divider,
 } from "@mui/material";
@@ -118,41 +122,38 @@ const Login = () => {
 
   return (
     <>
-      <Box sx={{ display: "flex", flexDirection: "column"}} >
-        <Box sx={{display: "flex", alignItems: "Center", justifyContent:"center", height:"100vh"}}>
-          <Container maxWidth="sm" sx={{py: 4}}>
-            <Box textAlign={"center"} mb={4}>
-            {/* <Link href="." className="navbar-brand navbar-brand-autodark"> 
-            <img src="./static/logo.svg" height="36" alt="" />
-            </Link> */}
-              <Typography> (logo) PUPQC APMS  </Typography>
-            </Box>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" textAlign={"center"} mb={4}>
-                  Login to your account
-                </Typography>
-                <Container component="main" maxWidth="xs">
-                        <Grid container spacing={2}>
-                          <Grid item xs={12}>
-
-                            <Typography marginBottom={1} fontSize={15} fontWeight={600}>
-                              Username
-                            </Typography>
-                            <TextField
-                               InputLabelProps={{
-                                shrink: false,
-                                disableAnimation: true,
-                              }}
-                              inputRef={userRef}
-                              placeholder="Your username"
-                              variant="outlined"
-                              fullWidth
-                              value={username}
-                              onChange={(e) => setUsername(e.target.value)}
-                              required
-                            />
-                          </Grid>
+      <Box
+        sx={{
+          height: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Card
+          style={{
+            maxWidth: 500,
+            padding: "24px",
+          }}
+        >
+          <CardContent>
+            <Typography variant="h6">Alumni Login</Typography>
+            <Typography color="textSecondary" variant="body2" my={1}>
+              {refreshMessage}
+            </Typography>
+            <Grid container spacing={1.5}>
+              <Grid xs={12} item>
+                <TextField
+                  label="Username"
+                  inputRef={userRef}
+                  placeholder="input username"
+                  variant="outlined"
+                  fullWidth
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                />
+              </Grid>
 
               <Grid
                 item
@@ -188,18 +189,19 @@ const Login = () => {
                   sx={{ mt: 2 }}
                   fullWidth
                   onClick={handleSubmit}
+                  disabled={isLoginLoading}
                 >
-                  login
+                  Login
                 </Button>
                 <FormControlLabel
                   control={
                     <Checkbox
                       checked={persist || false}
-                      onChange={handleChange}
+                      onChange={(event) => setPersist(event.target.checked)}
                       inputProps={{ "aria-label": "controlled" }}
                     />
                   }
-                  label="remember me on this device"
+                  label="Remember me on this device"
                 />
               </Box>
             </Grid>
@@ -212,7 +214,7 @@ const Login = () => {
                 marginTop: 8,
               }}
             >
-              sign up instead
+              Sign Up Instead
             </Link>
           </CardContent>
         </Card>
