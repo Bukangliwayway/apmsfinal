@@ -23,27 +23,10 @@ const LinkedInLogin = () => {
   };
 
   return (
-    <Button
-      onClick={handleLinkedInAuth}
-      sx={{
-        backgroundColor: "transparent",
-        "&:hover": {
-          backgroundColor: "rgba(0, 0, 0, 0.1)",
-        },
-      }}
-    >
-      <img
-        src="linkedIn.png"
-        alt="Sign in with LinkedIn"
-        style={{
-          padding: 1,
-          transition: "filter 0.3s ease",
-          filter: "brightness(1)",
-          "&:hover": {
-            filter: "brightness(0.5)",
-          },
-        }}
-      />
+    <Button variant="outlined" onClick={handleLinkedInAuth} sx={{textTransform:"none"}}>
+      {/* <SvgIcon component="svg" viewBox="0 0 24 24" className="text-linkedIn" width="24" height="24">
+      </SvgIcon> */}
+       Login with LinkedIn
     </Button>
   );
 };

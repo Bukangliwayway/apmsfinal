@@ -1,7 +1,6 @@
 import { Dashboard, Explore, Home, Hub } from "@mui/icons-material";
 import {
   Box,
-  Card,
   List,
   ListItem,
   ListItemButton,
@@ -15,7 +14,7 @@ import useAuth from "../../hooks/utilities/useAuth";
 import ProfileCard from "./ProfileCard";
 
 function Sidebar() {
-  const [selectedIndex, setSelectedIndex] = useState(1);
+  const [setSelectedIndex] = useState(1);
   const { auth } = useAuth();
 
   const centerFlex = {

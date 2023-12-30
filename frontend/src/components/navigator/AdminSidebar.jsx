@@ -3,11 +3,7 @@ import {
   Business,
   CheckCircle,
   CloudUpload,
-  Dashboard,
-  ExpandLess,
-  ExpandMore,
   GroupAdd,
-  Home,
   HowToReg,
   Label,
   MenuBook,
@@ -80,7 +76,7 @@ function AdminSidebar({ mode }) {
               <ListItemIcon sx={centerFlex}>
                 <SpaceDashboard
                   sx={{
-                    fontSize: mode && "2.5rem",
+                    fontSize: mode && "2rem",
                     textAlign: "center",
                   }}
                 />
@@ -176,7 +172,7 @@ function AdminSidebar({ mode }) {
             <ListItemIcon sx={centerFlex}>
               <Settings
                 sx={{
-                  fontSize: mode && "2.5rem",
+                  fontSize: mode && "2rem",
                   textAlign: "center",
                 }}
               />
@@ -269,7 +265,7 @@ function AdminSidebar({ mode }) {
             <ListItemIcon sx={centerFlex}>
               <People
                 sx={{
-                  fontSize: mode && "2.5rem",
+                  fontSize: mode && "2rem",
                   textAlign: "center",
                 }}
               />
@@ -456,7 +452,7 @@ function AdminSidebar({ mode }) {
               <ListItemIcon sx={centerFlex}>
                 <AccountCircle
                   sx={{
-                    fontSize: mode && "2.5rem",
+                    fontSize: mode && "2rem",
                     textAlign: "center",
                   }}
                 />

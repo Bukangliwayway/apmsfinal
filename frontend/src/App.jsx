@@ -58,8 +58,18 @@ const App = () => {
         primary: "#182433",
       },
     },
+    components: {
+      MuiCard: {
+        styleOverrides: {
+          root: {
+            backgroundColor: '#fff', // Set your desired background color for all cards
+          },
+        },
+      },
+    },
     typography: {
       fontFamily: "Inter, Arial, sans-serif", // Font family
+      fontSize: 14,
       fontWeightThin: 100,
       fontWeightExtraLight: 200,
       fontWeightLight: 300,
@@ -95,9 +105,17 @@ const App = () => {
           enableColorOnDark: true,
         },
       },
+      MuiCard: {
+        styleOverrides: {
+          root: {
+            backgroundColor: '#182433', // Set your desired background color for all cards
+          },
+        },
+      },
     },
     typography: {
       fontFamily: "Inter, Arial, sans-serif", // Font family
+      fontSize: 14,
       fontWeightThin: 100,
       fontWeightExtraLight: 200,
       fontWeightLight: 300,
