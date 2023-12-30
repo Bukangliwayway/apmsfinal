@@ -1,8 +1,8 @@
 import { useLocation, Navigate, Outlet } from "react-router-dom";
-import useAuth from "../hooks/utilities/useAuth";
+import useAll from "../hooks/utilities/useAll";
 
 const PrivateRoutes = () => {
-  const { auth } = useAuth();
+  const { auth } = useAll();
   const location = useLocation();
   const roles = ["public", "officer", "alumni", "admin"];
   return roles.includes(auth?.role) ? (
@@ -14,8 +14,6 @@ const PrivateRoutes = () => {
       to="/login"
       state={{
         from: location,
-        message:
-          "You have been logout automatically for security purposes, please login again",
       }}
       replace
     />

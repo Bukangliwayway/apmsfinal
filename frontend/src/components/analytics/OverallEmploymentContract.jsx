@@ -1,13 +1,16 @@
 import { ResponsivePie } from "@nivo/pie";
-import mockdatapie from "../mockdata/mockdatapie";
 import React from "react";
 import { Box, Skeleton } from "@mui/material";
-
 import useOverallEmploymentContract from "../../hooks/analytics/useOverallEmploymenContract";
+import useAll from "../../hooks/utilities/useAll";
 
 const OverallEmploymentContract = () => {
-  const { data: overallEmploymentContract, isLoading: isLoadingEmploymentContract } =
-    useOverallEmploymentContract();
+  const {
+    data: overallEmploymentContract,
+    isLoading: isLoadingEmploymentContract,
+  } = useOverallEmploymentContract();
+
+  const { mode } = useAll();
 
   if (isLoadingEmploymentContract) {
     return (
@@ -42,7 +45,7 @@ const OverallEmploymentContract = () => {
       padAngle={2}
       cornerRadius={5}
       activeOuterRadiusOffset={8}
-      colors={{ scheme: "blues" }}
+      colors={{ scheme: "paired" }}
       borderWidth={1}
       borderColor={{
         from: "color",
@@ -60,6 +63,14 @@ const OverallEmploymentContract = () => {
         from: "color",
         modifiers: [["darker", "2.9"]],
       }}
+      theme={{
+        tooltip: {
+          container: {
+            background: mode == "light" ? "#fff" : "#333", // Change the text color of tooltip here
+            color: mode == "light" ? "#333" : "#fff", // Change the text color of tooltip here
+          },
+        },
+      }}
       layers={[
         "arcs",
         "arcLabels",
@@ -74,7 +85,7 @@ const OverallEmploymentContract = () => {
               style={{
                 fontSize: "1.5rem",
                 fontWeight: "bold",
-                fill: "#333333",
+                fill: mode == "light" ? "#333333" : "#fff",
               }}
             >
               {percentageDict.percentage}%
@@ -86,7 +97,7 @@ const OverallEmploymentContract = () => {
               dominantBaseline="middle"
               style={{
                 fontSize: "0.5rem",
-                fill: "#333333",
+                fill: mode == "light" ? "#333333" : "#fff",
               }}
             >
               Majority are
@@ -98,7 +109,7 @@ const OverallEmploymentContract = () => {
               dominantBaseline="middle"
               style={{
                 fontSize: "0.5rem",
-                fill: "#333333",
+                fill: mode == "light" ? "#333333" : "#fff",
               }}
             >
               {percentageDict.label}

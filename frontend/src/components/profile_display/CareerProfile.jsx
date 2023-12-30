@@ -31,10 +31,6 @@ import EditableAchievementModal from "../profile_edit/EditableAchievementModal";
 import OtherEducationProfile from "./OtherEducationProfile";
 
 export const CareerProfile = ({ isLoading, data }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const logout = useLogout();
-
   const Chiptip = ({ icon, label, additional = "", actual = "" }) => (
     <Tooltip
       title={actual !== "" ? actual : additional + label}

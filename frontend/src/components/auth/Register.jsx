@@ -1,42 +1,31 @@
-import { useState, useRef, forwardRef } from "react";
-import dayjs from "dayjs";
+import { useState, useRef, forwardRef, useEffect } from "react";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { useMutation, useQueryClient, useQuery } from "react-query";
+import { useMutation } from "react-query";
 import { IMaskInput } from "react-imask";
-import Snackbar from "@mui/material/Snackbar";
+import useAll from "../../hooks/utilities/useAll";
 import Box from "@mui/material/Box";
-import LinearProgress from "@mui/material/LinearProgress";
 import axios from "../../api/axios";
 import { useNavigate, Link } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
 
 import {
-  Alert,
   Avatar,
   Button,
-  Card,
   CardActionArea,
-  CardContent,
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
-  CircularProgress,
-  Backdrop,
   DialogTitle,
-  FormControl,
   Grid,
-  InputLabel,
-  MenuItem,
-  Select,
   TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
 
 import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
+import dayjs from "dayjs";
 const StudentNumberMask = forwardRef(function StudentNumberMask(props, ref) {
   const { onChange, ...other } = props;
   return (
@@ -57,10 +46,10 @@ const StudentNumberMask = forwardRef(function StudentNumberMask(props, ref) {
 const Register = () => {
   const navigate = useNavigate();
   const recaptcha = useRef();
-  const [message, setMessage] = useState("");
-  const [severity, setSeverity] = useState("error");
-  const [openSnackbar, setOpenSnackbar] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+
+  const { setMessage, setSeverity, setOpenSnackbar, setBackdropLoading } =
+    useAll();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -72,17 +61,6 @@ const Register = () => {
     profile_picture_name: "Upload profile picture",
     profile_picture_url: "/default-profile-image.jpeg",
   });
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-  };
-
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setOpenSnackbar(false);
-  };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -140,7 +118,7 @@ const Register = () => {
       },
 
       onSuccess: (data, variables, context) => {
-        setMessage("successfully registered!");
+        setMessage("Successfully Registered!");
         setSeverity("success");
 
         setFormData({
@@ -185,7 +163,7 @@ const Register = () => {
       },
 
       onSuccess: (data, variables, context) => {
-        setMessage("successfully registered!");
+        setMessage("Successfully Registered!");
         setSeverity("success");
 
         setFormData({
@@ -200,23 +178,14 @@ const Register = () => {
         navigate("/login", {
           state: {
             message:
-              "successfully registered as public user! now please check your email for credentials",
-            snackbar: "successfully registered!",
+              "Successfully Registered as Public User! Now Please Check your Email for Credentials",
+            snackbar: "Successfully Registered!",
           },
           replace: true,
         });
       },
     }
   );
-
-  const { isLoading, isError, error, isSuccess } = mutation;
-
-  const {
-    isPublicUserLoading,
-    isPublicUserError,
-    publicUsererror,
-    isPublicUserSuccess,
-  } = publicUserMutation;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -225,9 +194,27 @@ const Register = () => {
         fieldName === "profile_picture" ||
         (fieldValue !== "" && fieldValue !== null)
     );
-    
-    if (!allFieldsFilled) {
+
+    if (!allFieldsFilled || !dayjs(formData?.birthdate).isValid()) {
       setMessage("Please fill all fields");
+      setSeverity("error");
+      setOpenSnackbar(true);
+      return;
+    }
+
+    const studentNumberRegex = /^\d{4}-\d{5}-[A-Z]{2}-\d$/;
+
+    if (!studentNumberRegex.test(formData?.student_number)) {
+      setMessage("Please enter a valid student number like 2017-00001-CM-0");
+      setSeverity("error");
+      setOpenSnackbar(true);
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(formData?.email)) {
+      setMessage("Please enter a valid email address");
       setSeverity("error");
       setOpenSnackbar(true);
       return;
@@ -242,12 +229,12 @@ const Register = () => {
     }
 
     const payload = new FormData();
-    payload.append("birthdate", formData.birthdate.format("YYYY-MM-DD"));
-    payload.append("first_name", formData.first_name);
-    payload.append("last_name", formData.last_name);
-    payload.append("student_number", formData.student_number);
-    payload.append("email", formData.email);
-    payload.append("profile_picture", formData.profile_picture);
+    payload.append("birthdate", formData?.birthdate.format("YYYY-MM-DD"));
+    payload.append("first_name", formData?.first_name);
+    payload.append("last_name", formData?.last_name);
+    payload.append("student_number", formData?.student_number);
+    payload.append("email", formData?.email);
+    payload.append("profile_picture", formData?.profile_picture);
     payload.append("recaptcha", captchaValue);
 
     await mutation.mutateAsync(payload);
@@ -257,25 +244,27 @@ const Register = () => {
     event.preventDefault();
 
     const payload = new FormData();
-    payload.append("birthdate", formData.birthdate.format("YYYY-MM-DD"));
-    payload.append("first_name", formData.first_name);
-    payload.append("last_name", formData.last_name);
-    payload.append("student_number", formData.student_number);
-    payload.append("email", formData.email);
-    payload.append("profile_picture", formData.profile_picture);
+    payload.append("birthdate", formData?.birthdate.format("YYYY-MM-DD"));
+    payload.append("first_name", formData?.first_name);
+    payload.append("last_name", formData?.last_name);
+    payload.append("student_number", formData?.student_number);
+    payload.append("email", formData?.email);
+    payload.append("profile_picture", formData?.profile_picture);
 
     await publicUserMutation.mutateAsync(payload);
   };
 
+  const { isLoading } = mutation;
+
+  const { isPublicUserLoading } = publicUserMutation;
+
+  useEffect(() => {
+    setBackdropLoading(isPublicUserLoading || isLoading);
+  }, [isLoading, isPublicUserLoading]);
+
   return (
     <Grid container>
-      <Backdrop
-        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={isPublicUserLoading || isLoading}
-      >
-        <CircularProgress color="inherit" />
-      </Backdrop>
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth>
         <DialogTitle>Register Instead as a Public User</DialogTitle>
         <DialogContent
           sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}
@@ -299,7 +288,9 @@ const Register = () => {
           </Typography>
         </DialogContent>
         <DialogActions sx={{ padding: 3 }}>
-          <Button onClick={handleCloseDialog}>Cancel</Button>
+          <Button onClick={() => setOpenDialog(false)} color="inherit">
+            Cancel
+          </Button>
           <Button
             onClick={handleSubmitPublicUser}
             variant="contained"
@@ -309,19 +300,6 @@ const Register = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={severity}>
-          {message}
-        </Alert>
-      </Snackbar>
-      <Box sx={{ width: "100%", position: "relative", top: 0 }}>
-        {isLoading && <LinearProgress />}
-        {!isLoading && <Box sx={{ height: 4 }} />}
-      </Box>
       <Grid
         item
         container
@@ -415,7 +393,7 @@ const Register = () => {
                 <DemoItem>
                   <DatePicker
                     name="birthdate"
-                    label="Birthdate"
+                    label="Birthdate *"
                     value={formData?.birthdate}
                     onChange={handleDateChange}
                     renderInput={(params) => <TextField {...params} />}

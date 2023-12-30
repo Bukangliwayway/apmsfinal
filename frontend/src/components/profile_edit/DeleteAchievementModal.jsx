@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient, useQuery } from "react-query";
-import React, { useState } from "react";
+import React from "react";
 import {
   Button,
   Dialog,
@@ -7,30 +7,30 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Snackbar,
-  Box,
-  LinearProgress,
-  Alert,
 } from "@mui/material";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import useAll from "../../hooks/utilities/useAll";
 
 const DeleteAchievementModal = ({ open, onClose, achievementID }) => {
   const axiosPrivate = useAxiosPrivate();
-  const [message, setMessage] = useState("");
-  const [severity, setSeverity] = useState("error");
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const {
+    setMessage,
+    setSeverity,
+    setOpenSnackbar,
+    setLinearLoading,
+    linearLoading,
+  } = useAll();
 
   const queryClient = useQueryClient();
 
   const mutation = useMutation(
-    async (newProfile) => {
+    async () => {
       const axiosConfig = {
         headers: {
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosPrivate.delete(
+      await axiosPrivate.delete(
         `/profiles/achievement/${achievementID}`,
         axiosConfig
       );
@@ -39,58 +39,29 @@ const DeleteAchievementModal = ({ open, onClose, achievementID }) => {
       onError: (error) => {
         setMessage(error.response ? error.response.data.detail : error.message);
         setSeverity("error");
-        setOpenSnackbar(true);
       },
       onSuccess: (data, variables, context) => {
         queryClient.invalidateQueries("achievements-profile");
         queryClient.invalidateQueries("profile-me");
 
-        setMessage("achievement profile deleted successfully");
+        setMessage("Achievement Deleted Successfully");
         setSeverity("success");
+      },
+      onSettled: () => {
+        setLinearLoading(false);
+        setOpenSnackbar(true);
+        onClose();
       },
     }
   );
 
   const handleDelete = async () => {
-    setIsLoading(true);
-    try {
-      await mutation.mutateAsync();
-      setIsLoading(false);
-      setMessage("achievement deleted successfully");
-      setSeverity("success");
-      setOpenSnackbar(true);
-      onClose();
-    } catch (error) {
-      setIsLoading(false);
-      setMessage(error.response ? error.response.data.detail : error.message);
-      setSeverity("error");
-      setOpenSnackbar(true);
-    }
-  };
-
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setOpenSnackbar(false);
+    setLinearLoading(true);
+    await mutation.mutateAsync();
   };
 
   return (
-    <Dialog open={open} onClose={onClose}>
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={severity}>
-          {message}
-        </Alert>
-      </Snackbar>
-      <Box sx={{ width: "100%", position: "relative", top: 0 }}>
-        {isLoading && <LinearProgress />}
-        {!isLoading && <Box sx={{ height: 4 }} />}
-      </Box>
+    <Dialog open={open} onClose={onClose} fullWidth>
       <DialogTitle>Delete Achievement</DialogTitle>
       <DialogContent>
         <DialogContentText>
@@ -98,12 +69,14 @@ const DeleteAchievementModal = ({ open, onClose, achievementID }) => {
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button color="inherit" onClick={onClose}>
+          Cancel
+        </Button>
         <Button
           onClick={handleDelete}
           variant="contained"
           color="error"
-          disabled={isLoading}
+          disabled={linearLoading}
         >
           Delete
         </Button>

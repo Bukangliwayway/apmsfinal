@@ -1,8 +1,8 @@
 import { Outlet, Navigate } from "react-router-dom";
-import useAuth from "../hooks/utilities/useAuth";
+import useAll from "../hooks/utilities/useAll";
 
 const PublicRoutes = () => {
-  const { auth } = useAuth();
+  const { auth } = useAll();
   return !auth?.access_token ? <Outlet /> : <Navigate to="/home" />;
 };
 

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Import the useNavigate hook
-import { useMutation, useQueryClient, useQuery } from "react-query";
+import { useQueryClient } from "react-query";
 import Box from "@mui/material/Box";
 import {
   DataGrid,
@@ -9,12 +9,9 @@ import {
   selectedGridRowsSelector,
 } from "@mui/x-data-grid";
 import {
-  Alert,
   Button,
   Grid,
-  LinearProgress,
   Skeleton,
-  Snackbar,
 } from "@mui/material";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import useGetHistoryAll from "../../hooks/all_profiles/useGetHistory";

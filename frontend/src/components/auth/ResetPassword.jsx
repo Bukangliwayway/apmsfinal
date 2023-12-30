@@ -1,20 +1,18 @@
 import axios from "../../api/axios";
 import { useNavigate, useParams } from "react-router-dom";
-import { useMutation, useQueryClient, useQuery } from "react-query";
+import { useMutation } from "react-query";
 import {
-  Alert,
   Box,
   Button,
   Card,
   CardActions,
   CardContent,
   CardHeader,
-  LinearProgress,
-  Snackbar,
   TextField,
   Typography,
 } from "@mui/material";
 import React, { useState } from "react";
+import useAll from "../../hooks/utilities/useAll";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -22,19 +20,8 @@ const ResetPassword = () => {
   const { code } = useParams();
   const { email } = useParams();
   const [password, setPassword] = useState("");
-  const [openSnackBar, setOpenSnackbar] = useState(false);
-  const [message, setMessage] = useState("");
-
-  const [severity, setSeverity] = useState("error");
-
-  const handleClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setOpenSnackbar(false);
-  };
-
+  const { setMessage, setSeverity, setOpenSnackbar, setLinearLoading } =
+    useAll();
 
   const ResetMutation = useMutation(
     async (details) => {
@@ -57,7 +44,7 @@ const ResetPassword = () => {
         navigate("/login", {
           state: {
             message:
-              "Successfully reset your password now please input your updated credentials",
+              "Successfully Reset your Password now Please Input your Updated Credentials",
             snackbar: "Successfully Updated!",
           },
           replace: true,
@@ -66,10 +53,15 @@ const ResetPassword = () => {
     }
   );
 
-  const { isLoading: isResetLoading } = ResetMutation;
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!email || !password || !code) {
+      setMessage("Input All Fields");
+      setSeverity("error");
+      setOpenSnackbar(true);
+      return;
+    }
 
     const data = {
       password: password,
@@ -84,22 +76,14 @@ const ResetPassword = () => {
     setOpenSnackbar(true);
   };
 
+  const { isLoading: isResetLoading } = ResetMutation;
+
+  useEffect(() => {
+    setLinearLoading(isResetLoading);
+  }, [isResetLoading]);
+
   return (
     <>
-      {isResetLoading && (
-        <Box sx={{ width: "100%", position: "fixed", top: 0 }}>
-          <LinearProgress />
-        </Box>
-      )}
-      <Snackbar
-        open={openSnackBar}
-        autoHideDuration={3000}
-        onClose={handleClose}
-      >
-        <Alert onClose={handleClose} severity={severity} sx={{ width: "100%" }}>
-          {message}
-        </Alert>
-      </Snackbar>
       <Box
         sx={{
           display: "flex",

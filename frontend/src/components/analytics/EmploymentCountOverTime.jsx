@@ -2,6 +2,7 @@ import React from "react";
 import { ResponsiveLine } from "@nivo/line";
 import useEmploymentCountOverTime from "../../hooks/analytics/useEmploymentCountOverTime";
 import { Box, Skeleton } from "@mui/material";
+import useAll from "../../hooks/utilities/useAll";
 
 const EmploymentCountOverTime = () => {
   const {
@@ -16,6 +17,8 @@ const EmploymentCountOverTime = () => {
       </Box>
     );
   }
+
+  const { mode } = useAll();
 
   return (
     <ResponsiveLine
@@ -40,6 +43,27 @@ const EmploymentCountOverTime = () => {
         legendOffset: 36,
         legendPosition: "middle",
       }}
+      curve="natural"
+      theme={{
+        axis: {
+          ticks: {
+            text: {
+              fill: mode == "light" ? "#333" : "#DCE1E7",
+            },
+          },
+          legend: {
+            text: {
+              fill: mode == "light" ? "#333" : "#DCE1E7",
+            },
+          },
+        },
+        tooltip: {
+          container: {
+            background: mode == "light" ? "#fff" : "#333", // Change the text color of tooltip here
+            color: mode == "light" ? "#333" : "#DCE1E7", // Change the text color of tooltip here
+          },
+        },
+      }}
       axisLeft={{
         tickSize: 5,
         tickPadding: 5,
@@ -50,7 +74,7 @@ const EmploymentCountOverTime = () => {
       }}
       enableGridX={false}
       enableGridY={false}
-      colors={{ scheme: "blues" }}
+      colors={{ scheme: "paired" }}
       lineWidth={1}
       enablePoints={false}
       pointSize={10}

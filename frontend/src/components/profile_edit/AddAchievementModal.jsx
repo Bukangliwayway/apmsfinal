@@ -1,13 +1,10 @@
-import { useMutation, useQueryClient, useQuery } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import {
-  Alert,
   Box,
   Button,
   Dialog,
-  Avatar,
   Typography,
   DialogActions,
   DialogContent,
@@ -18,11 +15,6 @@ import {
   Select,
   TextField,
   Grid,
-  Snackbar,
-  LinearProgress,
-  Tooltip,
-  FormControlLabel,
-  Switch,
   Skeleton,
   OutlinedInput,
 } from "@mui/material";
@@ -36,6 +28,7 @@ import dayjs from "dayjs";
 import { Add } from "@mui/icons-material";
 import AddNationalAchievement from "../selections/AddNationalAchievementModal";
 import useNationalCertificates from "../../hooks/useNationalCertificates";
+import useAll from "../../hooks/utilities/useAll";
 
 const AddAchievementModal = ({ open, onClose }) => {
   const queryClient = useQueryClient();
@@ -45,6 +38,11 @@ const AddAchievementModal = ({ open, onClose }) => {
 
   const { data: certificates, isLoading: isLoadingDisplay } =
     useNationalCertificates();
+
+  const axiosPrivate = useAxiosPrivate();
+
+  const { setMessage, setSeverity, setOpenSnackbar, setLinearLoading } =
+    useAll();
 
   const handleDateChange = (date) => {
     setAchievementProfile((prevProfile) => ({
@@ -83,24 +81,25 @@ const AddAchievementModal = ({ open, onClose }) => {
       onError: (error) => {
         setMessage(error.response ? error.response.data.detail : error.message);
         setSeverity("error");
-        setOpenSnackbar(true);
       },
       onSuccess: (data, variables, context) => {
         queryClient.invalidateQueries("achievements-profile");
         queryClient.invalidateQueries("profile-me");
-
-        setMessage("achievement added successfully");
+        setMessage("Achievement Added Successfully");
         setSeverity("success");
+      },
+      onSettled: (data, error, variables, context) => {
+        setLinearLoading(false);
+        setOpenSnackbar(true);
+        onClose();
       },
     }
   );
 
-  const { isLoading, isError, error, isSuccess } = mutation;
-
-  const axiosPrivate = useAxiosPrivate();
-  const [message, setMessage] = useState("");
-  const [severity, setSeverity] = useState("error");
-  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const { isLoading } = mutation;
+  useEffect(() => {
+    setLinearLoading(isLoading);
+  }, [isLoading]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -113,13 +112,13 @@ const AddAchievementModal = ({ open, onClose }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (
-      achievementProfile.type_of_achievement == "" ||
-      achievementProfile.description == "" ||
-      achievementProfile.date_of_attainment == 0 ||
-      (achievementProfile.type_of_achievement == "national certifications" &&
+      !achievementProfile?.type_of_achievement ||
+      !achievementProfile?.description ||
+      !achievementProfile?.date_of_attainment ||
+      (achievementProfile?.type_of_achievement == "national certifications" &&
         !achievementProfile?.national_certification_id)
     ) {
-      setMessage("please fill out all of the fields.");
+      setMessage("Please Fill Up all of the ields.");
       setSeverity("error");
       setOpenSnackbar(true);
       return; // Prevent form submission
@@ -144,17 +143,8 @@ const AddAchievementModal = ({ open, onClose }) => {
     // Convert the object to a JSON string
     const payload = JSON.stringify(data);
 
+    setLinearLoading(true);
     await mutation.mutateAsync(payload);
-
-    setOpenSnackbar(true);
-  };
-
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setOpenSnackbar(false);
   };
 
   const achievement_type = [
@@ -188,11 +178,11 @@ const AddAchievementModal = ({ open, onClose }) => {
 
   if (isLoadingDisplay) {
     return (
-      <Dialog open={true}>
+      <Dialog open={true} fullWidth>
         <DialogTitle>
           <Skeleton variant="text" />
         </DialogTitle>
-        <DialogContent sx={{ width: "40vw" }}>
+        <DialogContent>
           <Box>
             <Skeleton variant="rectangular" width="100%" height={50} />
           </Box>
@@ -226,20 +216,7 @@ const AddAchievementModal = ({ open, onClose }) => {
 
   return (
     <>
-      <Dialog open={open} onClose={onClose}>
-        <Snackbar
-          open={openSnackbar}
-          autoHideDuration={3000}
-          onClose={handleCloseSnackbar}
-        >
-          <Alert onClose={handleCloseSnackbar} severity={severity}>
-            {message}
-          </Alert>
-        </Snackbar>
-        <Box sx={{ width: "100%", position: "relative", top: 0 }}>
-          {isLoading && <LinearProgress />}
-          {!isLoading && <Box sx={{ height: 4 }} />}
-        </Box>
+      <Dialog open={open} onClose={onClose} fullWidth>
         <DialogTitle>Add Achievement</DialogTitle>
         <DialogContent>
           <Grid container spacing={5}>
@@ -395,7 +372,9 @@ const AddAchievementModal = ({ open, onClose }) => {
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={onClose} color="inherit">
+            Cancel
+          </Button>
           <Button
             onClick={handleSubmit}
             variant="contained"

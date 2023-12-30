@@ -1,14 +1,11 @@
-import { useMutation, useQueryClient, useQuery } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { useState, useEffect } from "react";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
 import {
-  Alert,
   Box,
   Button,
   Dialog,
-  Avatar,
-  Typography,
   DialogActions,
   DialogContent,
   DialogTitle,
@@ -16,17 +13,10 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  TextField,
   Grid,
-  Snackbar,
-  LinearProgress,
   Tooltip,
   Skeleton,
-  FormControlLabel,
-  Switch,
   OutlinedInput,
-  Backdrop,
-  CircularProgress,
 } from "@mui/material";
 
 import {
@@ -42,9 +32,14 @@ import {
 import Chip from "@mui/material/Chip";
 import useGetEmploymentStatus from "../../hooks/useGetEmploymentStatus";
 import useGetEmploymentProfile from "../../hooks/useGetEmploymentProfile";
+import useAll from "../../hooks/utilities/useAll";
 
 const EditInitialStatusModal = ({ open, onClose, prior }) => {
   const queryClient = useQueryClient();
+  const axiosPrivate = useAxiosPrivate();
+  const [done, setDone] = useState(prior);
+  const { setMessage, setSeverity, setOpenSnackbar, setLinearLoading } =
+    useAll();
 
   const { data: cachedData, isLoading: isLoadingDisplay } =
     useGetEmploymentStatus();
@@ -82,7 +77,6 @@ const EditInitialStatusModal = ({ open, onClose, prior }) => {
       onError: (error) => {
         setMessage(error.response ? error.response.data.detail : error.message);
         setSeverity("error");
-        setOpenSnackbar(true);
       },
       onSuccess: (data, variables, context) => {
         queryClient.invalidateQueries("employment-profile");
@@ -92,16 +86,14 @@ const EditInitialStatusModal = ({ open, onClose, prior }) => {
         setMessage("Employment Status modified successfully");
         setSeverity("success");
       },
+      onSettled: () => {
+        setLinearLoading(false);
+        setOpenSnackbar(true);
+      },
     }
   );
 
-  const { isLoading, isError, error, isSuccess } = mutation;
-
-  const axiosPrivate = useAxiosPrivate();
-  const [message, setMessage] = useState("");
-  const [done, setDone] = useState(prior);
-  const [severity, setSeverity] = useState("error");
-  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const { isLoading } = mutation;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -168,20 +160,9 @@ const EditInitialStatusModal = ({ open, onClose, prior }) => {
 
     // Convert the object to a JSON string
     const payload = JSON.stringify(data);
-
+    setLinearLoading(true);
     await mutation.mutateAsync(payload);
-
-    setOpenSnackbar(true);
-
     setDone(true);
-  };
-
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setOpenSnackbar(false);
   };
 
   const unemploymentOptions = [
@@ -274,11 +255,11 @@ const EditInitialStatusModal = ({ open, onClose, prior }) => {
 
   if (isLoadingDisplay || isLoadingEmployment) {
     return (
-      <Dialog open={true}>
+      <Dialog open={true} fullWidth>
         <DialogTitle>
           <Skeleton variant="text" />
         </DialogTitle>
-        <DialogContent sx={{ width: "40vw" }}>
+        <DialogContent>
           <Box>
             <Skeleton variant="rectangular" width="100%" height={50} />
             <Skeleton variant="text" width="80%" />
@@ -304,21 +285,8 @@ const EditInitialStatusModal = ({ open, onClose, prior }) => {
   }
 
   return (
-    <Dialog open={open} width={"70vw"}>
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={severity}>
-          {message}
-        </Alert>
-      </Snackbar>
-      <Box sx={{ position: "relative", top: 0 }}>
-        {isLoading && <LinearProgress />}
-        {!isLoading && <Box sx={{ height: 4 }} />}
-      </Box>
-      <DialogTitle width={"40vw"}>
+    <Dialog open={open} fullWidth>
+      <DialogTitle >
         {!done && "Initially"} Set Employment Status
       </DialogTitle>
       <DialogContent>

@@ -979,10 +979,12 @@ async def post_achievement(
         raise HTTPException(status_code=404, detail="User not found")
         
     national_certification_instance = None #set it initially to null
-    national_certification_instance = db.query(models.NationalCertification).filter_by(id=national_certification_id).first()
-    if not national_certification_instance:
-        raise HTTPException(status_code=404, detail="National Certification not found")
-    
+
+    if type_of_achievement.lower() == 'national certifications':
+        national_certification_instance = db.query(models.NationalCertification).filter_by(id=national_certification_id).first()
+        if not national_certification_instance:
+            raise HTTPException(status_code=404, detail="National Certification not found")
+        
     try:
       achievement = models.Achievement(
           type_of_achievement=type_of_achievement,
@@ -992,12 +994,12 @@ async def post_achievement(
           story=story,
           link_reference=link_reference,
           user=user_instance,
-          national_certification=national_certification_instance,
+          national_certification=national_certification_instance 
       )
 
       db.add(achievement)
       db.commit()
-      return {"message": "Profile updated successfully"}
+      return {"message": "Achievement Profile Updated Successfully"}
     except Exception as e:
         db.rollback() 
         print("Error:", e)  # Add this line for debugging
@@ -1096,13 +1098,13 @@ async def delete_achievement(
 
         # Check if the achievement exists and belongs to the user
         if not achievement:
-            raise HTTPException(status_code=404, detail="achievement not found")
+            raise HTTPException(status_code=404, detail="Achievement not Found")
 
         # Delete the achievement record
         db.delete(achievement)
         db.commit()
 
-        return {"message": "achievement record deleted successfully"}
+        return {"message": "Achievement Record Deleted Successfully"}
     except Exception as e:
         db.rollback()
         print("Error:", e)  # Add this line for debugging

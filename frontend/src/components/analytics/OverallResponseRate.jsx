@@ -3,10 +3,12 @@ import mockdatapie from "../mockdata/mockdatapie";
 import React from "react";
 import useOverallResponseRate from "../../hooks/analytics/useOverallResponseRate";
 import { Box, Skeleton, Typography } from "@mui/material";
+import useAll from "../../hooks/utilities/useAll";
 
 const AlumniResponseRate = () => {
   const { data: overallResponseData, isLoading: isLoadingResponseData } =
     useOverallResponseRate();
+  const { mode } = useAll();
 
   if (isLoadingResponseData) {
     return (
@@ -33,7 +35,6 @@ const AlumniResponseRate = () => {
     percentage: Math.round((maxItem.value / sumOfValues) * 100),
   };
 
-
   return (
     <ResponsivePie
       data={overallResponseData?.data?.responses}
@@ -42,7 +43,7 @@ const AlumniResponseRate = () => {
       padAngle={2}
       cornerRadius={5}
       activeOuterRadiusOffset={8}
-      colors={{ scheme: "blues" }}
+      colors={{ scheme: "paired" }}
       borderWidth={1}
       borderColor={{
         from: "color",
@@ -60,6 +61,14 @@ const AlumniResponseRate = () => {
         from: "color",
         modifiers: [["darker", "2.9"]],
       }}
+      theme={{
+        tooltip: {
+          container: {
+            background: mode == "light" ? "#fff" : "#333", // Change the text color of tooltip here
+            color: mode == "light" ? "#333" : "#fff", // Change the text color of tooltip here
+          },
+        },
+      }}
       layers={[
         "arcs",
         "arcLabels",
@@ -74,7 +83,7 @@ const AlumniResponseRate = () => {
               style={{
                 fontSize: "1.5rem",
                 fontWeight: "bold",
-                fill: "#333333",
+                fill: mode == "light" ? "#333333" : "#fff",
               }}
             >
               {percentageDict.percentage}%
@@ -86,7 +95,7 @@ const AlumniResponseRate = () => {
               dominantBaseline="middle"
               style={{
                 fontSize: "0.5rem",
-                fill: "#333333",
+                fill: mode == "light" ? "#333333" : "#fff",
               }}
             >
               Majority are
@@ -98,7 +107,7 @@ const AlumniResponseRate = () => {
               dominantBaseline="middle"
               style={{
                 fontSize: "0.5rem",
-                fill: "#333333",
+                fill: mode == "light" ? "#333333" : "#fff",
               }}
             >
               {percentageDict.label}

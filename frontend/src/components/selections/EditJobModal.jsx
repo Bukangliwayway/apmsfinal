@@ -1,14 +1,10 @@
-import { useMutation, useQueryClient, useQuery } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import {
-  Alert,
   Box,
   Button,
   Dialog,
-  Avatar,
-  Typography,
   DialogActions,
   DialogContent,
   DialogTitle,
@@ -18,18 +14,14 @@ import {
   Select,
   TextField,
   Grid,
-  Snackbar,
-  LinearProgress,
   Skeleton,
   OutlinedInput,
   Chip,
   DialogContentText,
-  FormControlLabel,
-  Switch,
 } from "@mui/material";
 import useClassifications from "../../hooks/useClassifications";
 import useGetJobSpecific from "../../hooks/selections/useGetJobSpecific";
-import useAuth from "../../hooks/utilities/useAuth";
+import useAll from "../../hooks/utilities/useAll";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -44,20 +36,22 @@ const MenuProps = {
 
 const EditJobModal = ({ open, onClose, jobID }) => {
   const queryClient = useQueryClient();
-  const { auth, setAuth } = useAuth();
-
   const { data: classificationsData, isLoading: isLoadingClassification } =
     useClassifications();
+
   const [jobProfile, setJobProfile] = useState({
     name: "",
     classification_ids: [],
   });
-  const [message, setMessage] = useState("");
   const [classificationIds, setClassificationIds] = useState([]);
-  const [severity, setSeverity] = useState("error");
-  const [openSnackbar, setOpenSnackbar] = useState(false);
   const [deletePrompt, setDeletePrompt] = useState(false);
-  const [isLoadingDelete, setIsLoadingDelete] = useState(false);
+  const {
+    setMessage,
+    setSeverity,
+    setOpenSnackbar,
+    setLinearLoading,
+    linearLoading,
+  } = useAll();
 
   const axiosPrivate = useAxiosPrivate();
 
@@ -119,7 +113,7 @@ const EditJobModal = ({ open, onClose, jobID }) => {
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosPrivate.put(
+      await axiosPrivate.put(
         `/selections/jobs/${jobID}`,
         newProfile,
         axiosConfig
@@ -129,9 +123,8 @@ const EditJobModal = ({ open, onClose, jobID }) => {
       onError: (error) => {
         setMessage(error.response ? error.response.data.detail : error.message);
         setSeverity("error");
-        setOpenSnackbar(true);
       },
-      onSuccess: (data, variables, context) => {
+      onSuccess: () => {
         queryClient.invalidateQueries("jobs-all");
         queryClient.invalidateQueries("jobs-specific");
         queryClient.invalidateQueries("profile-me");
@@ -140,31 +133,29 @@ const EditJobModal = ({ open, onClose, jobID }) => {
 
         setMessage("Job Updated Successfully");
         setSeverity("success");
+      },
+      onSettled: () => {
+        setLinearLoading(false);
         setOpenSnackbar(true);
       },
     }
   );
 
   const mutationDelete = useMutation(
-    async (newProfile) => {
+    async () => {
       const axiosConfig = {
         headers: {
           "Content-Type": "application/json",
         },
       };
-      const response = await axiosPrivate.delete(
-        `/selections/jobs/${jobID}`,
-        axiosConfig
-      );
+      await axiosPrivate.delete(`/selections/jobs/${jobID}`, axiosConfig);
     },
     {
       onError: (error) => {
         setMessage(error.response ? error.response.data.detail : error.message);
         setSeverity("error");
-        setOpenSnackbar(true);
-        setIsLoadingDelete(false);
       },
-      onSuccess: (data, variables, context) => {
+      onSuccess: () => {
         queryClient.invalidateQueries("jobs-all");
         queryClient.invalidateQueries("jobs-specific");
         queryClient.invalidateQueries("profile-me");
@@ -173,9 +164,11 @@ const EditJobModal = ({ open, onClose, jobID }) => {
 
         setMessage("Job Deleted Successfully");
         setSeverity("success");
-        setOpenSnackbar(true);
-        setIsLoadingDelete(false);
         onClose();
+      },
+      onSettled: () => {
+        setLinearLoading(false);
+        setOpenSnackbar(true);
       },
     }
   );
@@ -203,174 +196,135 @@ const EditJobModal = ({ open, onClose, jobID }) => {
     // Convert the object to a JSON string
     const payload = JSON.stringify(data);
 
-    try {
-      await mutation.mutateAsync(payload);
-    } catch (error) {
-      if (error.response) {
-        setMessage(error.response.data.detail);
-        setSeverity("error");
-      } else if (error.request) {
-        setMessage("No response received from the server");
-        setSeverity("error");
-      } else {
-        setMessage("Error: " + error.message);
-        setSeverity("error");
-      }
-    }
-    setOpenSnackbar(true);
+    setLinearLoading(true);
+    await mutation.mutateAsync(payload);
   };
 
   const handleDelete = async () => {
-    try {
-      setIsLoadingDelete(true);
-      await mutationDelete.mutateAsync();
-    } catch (error) {
-      setMessage(error.response ? error.response.data.detail : error.message);
-      setSeverity("error");
-      setOpenSnackbar(true);
-    }
+    setLinearLoading(true);
+    await mutationDelete.mutateAsync();
   };
 
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setOpenSnackbar(false);
-  };
-
-  if (isLoadingJob || isFetchingJob) {
-    return (
-      <Dialog open={true}>
-        <DialogTitle>
-          <Skeleton variant="text" />
-        </DialogTitle>
-        <DialogContent sx={{ width: "40vw" }}>
-          <Box>
-            <Skeleton variant="rectangular" width="100%" height={50} />
-          </Box>
-          <Box>
-            <Skeleton variant="rectangular" width="100%" height={50} />
-          </Box>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  const classifications = classificationsData?.data;
-
+if (isLoadingJob || isFetchingJob || isLoadingClassification) {
   return (
-    <Dialog open={open} onClose={onClose}>
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={severity}>
-          {message}
-        </Alert>
-      </Snackbar>
-      <Box sx={{ width: "100%", position: "relative", top: 0 }}>
-        {(isLoading || isLoadingDelete) && <LinearProgress />}
-        {!(isLoading && isLoadingDelete) && <Box sx={{ height: 4 }} />}
-      </Box>
-      {!deletePrompt ? (
+    <Dialog open={true} fullWidth>
+      <DialogTitle>
+        <Skeleton variant="text" />
+      </DialogTitle>
+      <DialogContent>
         <Box>
-          <DialogTitle>Edit Job</DialogTitle>
-          <DialogContent sx={{ width: "40vw" }}>
-            <Grid container spacing={2} p={2}>
-              <Grid item xs={12}>
-                <TextField
-                  name="name"
-                  label="name"
-                  value={jobProfile?.name}
-                  onChange={handleChange}
-                  sx={{ width: "100%" }}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <FormControl sx={{ width: "100%" }}>
-                  <InputLabel>Related Classifications</InputLabel>
-                  <Select
-                    multiple
-                    value={classificationIds}
-                    onChange={handleChangeSelect}
-                    input={<OutlinedInput label="Related Classifications" />}
-                    renderValue={(selected) => (
-                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                        {selected.map((value) => (
-                          <Chip
-                            key={value}
-                            label={
-                              classifications.find(
-                                (classification) => classification.id === value
-                              ).name
-                            }
-                          />
-                        ))}
-                      </Box>
-                    )}
-                    MenuProps={MenuProps}
-                  >
-                    {classifications.map((classification) => (
-                      <MenuItem
-                        key={classification.id}
-                        value={classification.id}
-                      >
-                        {classification.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-            </Grid>
-          </DialogContent>
-          <DialogActions sx={{ padding: 3 }}>
-            <Button onClick={onClose}>Cancel</Button>
-            <Box sx={{ display: "flex", ml: "auto" }}>
-              <Button
-                onClick={handleSubmit}
-                variant="contained"
-                color="primary"
-                disabled={isLoading}
-                sx={{ mr: 1 }}
-              >
-                Save
-              </Button>
-              <Button
-                onClick={() => setDeletePrompt(true)}
-                variant="contained"
-                color="error"
-                disabled={isLoading}
-              >
-                Delete
-              </Button>
-            </Box>
-          </DialogActions>
+          <Skeleton variant="rectangular" width="100%" height={50} />
         </Box>
-      ) : (
         <Box>
-          <DialogTitle>Delete Achievement</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Are you sure you want to delete this achievement?
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setDeletePrompt(false)}>Cancel</Button>
+          <Skeleton variant="rectangular" width="100%" height={50} />
+        </Box>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+const classifications = classificationsData?.data;
+
+return (
+  <Dialog open={open} onClose={onClose} fullWidth>
+    {!deletePrompt ? (
+      <Box>
+        <DialogTitle>Edit Job</DialogTitle>
+        <DialogContent>
+          <Grid container spacing={2} p={2}>
+            <Grid item xs={12}>
+              <TextField
+                name="name"
+                label="name"
+                value={jobProfile?.name}
+                onChange={handleChange}
+                sx={{ width: "100%" }}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <FormControl sx={{ width: "100%" }}>
+                <InputLabel>Related Classifications</InputLabel>
+                <Select
+                  multiple
+                  value={classificationIds}
+                  onChange={handleChangeSelect}
+                  input={<OutlinedInput label="Related Classifications" />}
+                  renderValue={(selected) => (
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                      {selected.map((value) => (
+                        <Chip
+                          key={value}
+                          label={
+                            classifications.find(
+                              (classification) => classification.id === value
+                            ).name
+                          }
+                        />
+                      ))}
+                    </Box>
+                  )}
+                  MenuProps={MenuProps}
+                >
+                  {classifications.map((classification) => (
+                    <MenuItem key={classification.id} value={classification.id}>
+                      {classification.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions sx={{ padding: 3 }}>
+          <Button onClick={onClose} color="inherit">
+            Cancel
+          </Button>
+          <Box sx={{ display: "flex", ml: "auto" }}>
             <Button
-              onClick={handleDelete}
+              onClick={handleSubmit}
+              variant="contained"
+              color="primary"
+              disabled={isLoading}
+              sx={{ mr: 1 }}
+            >
+              Save
+            </Button>
+            <Button
+              onClick={() => setDeletePrompt(true)}
               variant="contained"
               color="error"
-              disabled={isLoadingDelete}
+              disabled={isLoading}
             >
               Delete
             </Button>
-          </DialogActions>
-        </Box>
-      )}
-    </Dialog>
-  );
+          </Box>
+        </DialogActions>
+      </Box>
+    ) : (
+      <Box>
+        <DialogTitle>Delete Achievement</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this achievement?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeletePrompt(false)} color="inherit">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleDelete}
+            variant="contained"
+            color="error"
+            disabled={linearLoading}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Box>
+    )}
+  </Dialog>
+)
 };
 
 export default EditJobModal;

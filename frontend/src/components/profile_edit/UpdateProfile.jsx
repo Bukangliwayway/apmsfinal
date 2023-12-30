@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import useGetDemographicProfile from "../../hooks/useGetDemographicProfile";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { useNavigate, useLocation } from "react-router-dom";
-import useAuth from "../../hooks/utilities/useAuth";
+import useAll from "../../hooks/utilities/useAll";
 import {
   Box,
   Breadcrumbs,
@@ -44,7 +44,7 @@ import useGetAchievementProfiles from "../../hooks/useGetAchievementProfiles";
 function UpdateProfile() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { auth, setAuth } = useAuth();
+  const { auth, setAuth } = useAll();
   const [value, setValue] = React.useState(0);
   const [activeTab, setActiveTab] = useState("profile_background");
   const [modalOpen, setModalOpen] = useState({

@@ -54,21 +54,7 @@ async def fetchProfile(db: Session = Depends(get_db), user: UserResponse = Depen
 
     employments_data = []
 
-    # Access the user's course classifications from their profile
-    user_course_classification_ids = None
-    if profile.course and profile.course.classifications:
-        user_course_classification_ids = {classification.id for classification in profile.course.classifications}
-
     for employment in employments:
-        job_classification_ids = None
-        if employment.job and employment.job.classifications:
-            job_classification_ids = {classification.id for classification in employment.job.classifications}  
-        if user_course_classification_ids is not None and job_classification_ids is not None:
-            aligned_with_academic_program = bool(user_course_classification_ids & job_classification_ids)
-        else:
-            aligned_with_academic_program = False
-        
-
         # Build a dictionary with selected fields and add it to the list
         employment_dict = {
             "id": employment.id,
@@ -77,7 +63,7 @@ async def fetchProfile(db: Session = Depends(get_db), user: UserResponse = Depen
             "date_hired": employment.date_hired,
             "date_end": employment.date_end,
             "classification": employment.job.classifications[0].name if employment.job and employment.job.classifications else '',
-            "aligned_with_academic_program": aligned_with_academic_program,
+            "aligned_with_academic_program": employment.aligned_with_academic_program,
             "gross_monthly_income": employment.gross_monthly_income,
             "employment_contract": employment.employment_contract,
             "location_of_employment": employment.city,
@@ -92,6 +78,7 @@ async def fetchProfile(db: Session = Depends(get_db), user: UserResponse = Depen
         "date_graduated": profile.date_graduated,
         "role": profile.role,
         "profile_picture": profile.profile_picture,
+        "batch_year": profile.batch_year,
         "employments": employments_data,
     }
 

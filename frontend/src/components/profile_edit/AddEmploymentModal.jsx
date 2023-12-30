@@ -1,13 +1,10 @@
-import { useMutation, useQueryClient, useQuery } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import {
-  Alert,
   Box,
   Button,
   Dialog,
-  Avatar,
   Typography,
   DialogActions,
   DialogContent,
@@ -18,70 +15,32 @@ import {
   Select,
   TextField,
   Grid,
-  Snackbar,
-  LinearProgress,
   Tooltip,
   FormControlLabel,
   Switch,
   Skeleton,
   OutlinedInput,
 } from "@mui/material";
-import { stringify } from "flatted";
 
-import {
-  BusinessCenter,
-  Work,
-  LocalGroceryStore,
-  LocalHospital,
-  School,
-  Build,
-  AccountBalance,
-  Store,
-  MonetizationOn,
-  Computer,
-  Palette,
-  LocalShipping,
-  GroupWork,
-  BuildCircle,
-  Gavel,
-  Security,
-  HeadsetMic,
-  Forest,
-  SupervisorAccount,
-  LocalOffer,
-  SpeakerNotes,
-  Landscape,
-  Biotech,
-  Add,
-} from "@mui/icons-material";
+import { Add } from "@mui/icons-material";
 
 import Autocomplete from "@mui/material/Autocomplete";
 import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers";
-import dayjs from "dayjs";
-import useGetEmploymentSpecific from "../../hooks/useGetEmploymentSpecific";
 import useJobs from "../../hooks/useJobs";
 import useRegions from "../../hooks/useRegion";
 import useCitiesMunicipalities from "../../hooks/useCitiesMunicipalities";
 import useCountries from "../../hooks/useCountries";
 import AddJob from "../selections/AddJobModal";
+import useAll from "../../hooks/utilities/useAll";
 
 const AddEmploymentModal = ({ open, onClose }) => {
   const queryClient = useQueryClient();
   const [employmentProfile, setEmploymentProfile] = useState(null);
-  const [modalJob, setModalJob] = useState(false);
 
   const [openModal, setOpenModal] = useState(false);
-
-  const handleOpen = () => {
-    setOpenModal(true);
-  };
-
-  const handleClose = () => {
-    setOpenModal(false);
-  };
 
   const { data: jobs, isLoading: isLoadingJobs } = useJobs();
   const { data: regions, isLoading: isLoadingRegions } = useRegions();
@@ -108,7 +67,6 @@ const AddEmploymentModal = ({ open, onClose }) => {
       onError: (error) => {
         setMessage(error.response ? error.response.data.detail : error.message);
         setSeverity("error");
-        setOpenSnackbar(true);
       },
       onSuccess: (data, variables, context) => {
         queryClient.invalidateQueries("employment-profile");
@@ -117,15 +75,19 @@ const AddEmploymentModal = ({ open, onClose }) => {
         setMessage("Employment Profile updated successfully");
         setSeverity("success");
       },
+      onSettled: () => {
+        setLinearLoading(false);
+        setOpenSnackbar(true);
+        onClose();
+      },
     }
   );
 
-  const { isLoading, isError, error, isSuccess } = mutation;
+  const { isLoading } = mutation;
 
   const axiosPrivate = useAxiosPrivate();
-  const [message, setMessage] = useState("");
-  const [severity, setSeverity] = useState("error");
-  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const { setMessage, setSeverity, setOpenSnackbar, setLinearLoading } =
+    useAll();
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -211,30 +173,8 @@ const AddEmploymentModal = ({ open, onClose }) => {
 
     // Convert the object to a JSON string
     const payload = JSON.stringify(data);
-
-    try {
-      await mutation.mutateAsync(payload);
-    } catch (error) {
-      if (error.response) {
-        setMessage(error.response.data.detail);
-        setSeverity("error");
-      } else if (error.request) {
-        setMessage("No response received from the server");
-        setSeverity("error");
-      } else {
-        setMessage("Error: " + error.message);
-        setSeverity("error");
-      }
-    }
-    setOpenSnackbar(true);
-  };
-
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setOpenSnackbar(false);
+    setLinearLoading(true);
+    await mutation.mutateAsync(payload);
   };
 
   const monthlyGrossIncome = [
@@ -378,11 +318,11 @@ const AddEmploymentModal = ({ open, onClose }) => {
 
   if (isLoadingJobs || isLoadingRegions || isLoadingCountries) {
     return (
-      <Dialog open={true}>
+      <Dialog open={true} fullWidth>
         <DialogTitle>
           <Skeleton variant="text" />
         </DialogTitle>
-        <DialogContent sx={{ width: "40vw" }}>
+        <DialogContent>
           <Box>
             <Skeleton variant="rectangular" width="100%" height={50} />
           </Box>
@@ -416,21 +356,8 @@ const AddEmploymentModal = ({ open, onClose }) => {
 
   return (
     <>
-      <Dialog open={open} onClose={onClose}>
-        <Snackbar
-          open={openSnackbar}
-          autoHideDuration={3000}
-          onClose={handleCloseSnackbar}
-        >
-          <Alert onClose={handleCloseSnackbar} severity={severity}>
-            {message}
-          </Alert>
-        </Snackbar>
-        <Box sx={{ width: "100%", position: "relative", top: 0 }}>
-          {isLoading && <LinearProgress />}
-          {!isLoading && <Box sx={{ height: 4 }} />}
-        </Box>
-        <DialogTitle>Edit Employment History</DialogTitle>
+      <Dialog open={open} onClose={onClose} fullWidth>
+        <DialogTitle>Add Employment History</DialogTitle>
         <DialogContent>
           <Grid container spacing={5}>
             <Grid item xs={12}>
@@ -484,7 +411,7 @@ const AddEmploymentModal = ({ open, onClose }) => {
                     <Button
                       variant="contained"
                       startIcon={<Add />}
-                      onClick={() => handleOpen(true)}
+                      onClick={() => setOpenModal(true)}
                     >
                       Job
                     </Button>
@@ -802,7 +729,9 @@ const AddEmploymentModal = ({ open, onClose }) => {
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={onClose} color="inherit">
+            Cancel
+          </Button>
           <Button
             onClick={handleSubmit}
             variant="contained"

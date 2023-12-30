@@ -2,13 +2,11 @@ import React from "react";
 import { ResponsiveLine } from "@nivo/line";
 import { Box, Skeleton } from "@mui/material";
 import useWorkAlignmentOverTime from "../../hooks/analytics/useWorkAlignmentOverTime";
-
+import useAll from "../../hooks/utilities/useAll";
 
 const WorkAlignmentOverTime = () => {
-  const {
-    data: workAlignmment,
-    isLoading: isLoadingWorkAlignment,
-  } = useWorkAlignmentOverTime();
+  const { data: workAlignmment, isLoading: isLoadingWorkAlignment } =
+    useWorkAlignmentOverTime();
 
   if (isLoadingWorkAlignment) {
     return (
@@ -17,6 +15,9 @@ const WorkAlignmentOverTime = () => {
       </Box>
     );
   }
+
+  const { mode } = useAll();
+
   return (
     <ResponsiveLine
       data={workAlignmment?.data}
@@ -29,6 +30,27 @@ const WorkAlignmentOverTime = () => {
         stacked: false,
         reverse: false,
       }}
+      theme={{
+        axis: {
+          ticks: {
+            text: {
+              fill: mode == "light" ? "#333" : "#DCE1E7",
+            },
+          },
+          legend: {
+            text: {
+              fill: mode == "light" ? "#333" : "#DCE1E7",
+            },
+          },
+        },
+        tooltip: {
+          container: {
+            background: mode == "light" ? "#fff" : "#333", // Change the text color of tooltip here
+            color: mode == "light" ? "#333" : "#DCE1E7", // Change the text color of tooltip here
+          },
+        },
+      }}
+      curve="natural"
       yFormat=" >-.2f"
       axisTop={null}
       axisRight={null}
@@ -50,7 +72,7 @@ const WorkAlignmentOverTime = () => {
       }}
       enableGridX={false}
       enableGridY={false}
-      colors={{ scheme: "blues" }}
+      colors={{ scheme: "paired" }}
       lineWidth={1}
       enablePoints={false}
       pointSize={10}

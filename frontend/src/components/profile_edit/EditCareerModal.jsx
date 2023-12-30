@@ -1,13 +1,12 @@
-import { useMutation, useQueryClient, useQuery } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import { useState, useEffect } from "react";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import useAll from "../../hooks/utilities/useAll";
 
 import {
-  Alert,
   Box,
   Button,
   Dialog,
-  Avatar,
   Typography,
   DialogActions,
   DialogContent,
@@ -18,25 +17,12 @@ import {
   Select,
   TextField,
   Grid,
-  Snackbar,
-  LinearProgress,
-  Tooltip,
   Skeleton,
-  FormControlLabel,
-  Switch,
   OutlinedInput,
 } from "@mui/material";
 
 import {
-  LibraryBooks as LibraryBooksIcon,
   School as SchoolIcon,
-  EmojiPeople as EmojiPeopleIcon,
-  Create as CreateIcon,
-  LocalLibrary as LocalLibraryIcon,
-  SportsSoccer as SportsSoccerIcon,
-  Public as PublicIcon,
-  Lightbulb as LightbulbIcon,
-  Star as StarIcon,
   Work as WorkIcon,
   Business as BusinessIcon,
   BusinessCenter as BusinessCenterIcon,
@@ -55,7 +41,6 @@ import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import useGetCareerProfile from "../../hooks/useGetCareerProfile";
 import useCourses from "../../hooks/useCourses";
-import useAuth from "../../hooks/utilities/useAuth";
 
 const careerProfileEditModal = ({ open, onClose }) => {
   const queryClient = useQueryClient();
@@ -63,7 +48,9 @@ const careerProfileEditModal = ({ open, onClose }) => {
   const { data: courses, isLoading: isLoadingCourses } = useCourses();
   const { data: cachedData, isLoading: isLoadingDisplay } =
     useGetCareerProfile();
-  const { auth } = useAuth();
+  const { auth, setMessage, setSeverity, setOpenSnackbar, setLinearLoading } =
+    useAll();
+  const axiosPrivate = useAxiosPrivate();
 
   const [careerProfile, setCareerProfile] = useState(null);
 
@@ -96,24 +83,26 @@ const careerProfileEditModal = ({ open, onClose }) => {
       onError: (error) => {
         setMessage(error.response ? error.response.data.detail : error.message);
         setSeverity("error");
-        setOpenSnackbar(true);
       },
-      onSuccess: (data, variables, context) => {
+      onSuccess: () => {
         queryClient.invalidateQueries("career-profile");
         queryClient.invalidateQueries("profile-me");
 
-        setMessage("Career Profile updated successfully");
+        setMessage("Career Profile Updated Successfully");
         setSeverity("success");
+      },
+      onSettled: () => {
+        setLinearLoading(false);
+        setOpenSnackbar(true);
+        onClose();
       },
     }
   );
 
-  const { isLoading, isError, error, isSuccess } = mutation;
-
-  const axiosPrivate = useAxiosPrivate();
-  const [message, setMessage] = useState("");
-  const [severity, setSeverity] = useState("error");
-  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const { isLoading } = mutation;
+  useEffect(() => {
+    setLinearLoading(isLoading);
+  }, [isLoading]);
 
   const handleDateChange = (date) => {
     setCareerProfile((prevProfile) => ({
@@ -148,21 +137,8 @@ const careerProfileEditModal = ({ open, onClose }) => {
     // Convert the object to a JSON string
     const payload = JSON.stringify(filteredData);
 
-    try {
-      await mutation.mutateAsync(payload);
-    } catch (error) {
-      if (error.response) {
-        setMessage(error.response.data.detail);
-        setSeverity("error");
-      } else if (error.request) {
-        setMessage("No response received from the server");
-        setSeverity("error");
-      } else {
-        setMessage("Error: " + error.message);
-        setSeverity("error");
-      }
-    }
-    setOpenSnackbar(true);
+    setLinearLoading(true);
+    await mutation.mutateAsync(payload);
   };
 
   const handleCloseSnackbar = (event, reason) => {
@@ -231,11 +207,11 @@ const careerProfileEditModal = ({ open, onClose }) => {
 
   if (isLoadingCourses) {
     return (
-      <Dialog open={true}>
+      <Dialog open={true} fullWidth>
         <DialogTitle>
           <Skeleton variant="text" />
         </DialogTitle>
-        <DialogContent sx={{ width: "40vw" }}>
+        <DialogContent>
           <Box>
             <Skeleton variant="rectangular" width="100%" height={50} />
             <Skeleton variant="text" width="80%" />
@@ -265,20 +241,7 @@ const careerProfileEditModal = ({ open, onClose }) => {
   );
 
   return (
-    <Dialog open={open} onClose={onClose}>
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={severity}>
-          {message}
-        </Alert>
-      </Snackbar>
-      <Box sx={{ position: "relative", top: 0 }}>
-        {isLoading && <LinearProgress />}
-        {!isLoading && <Box sx={{ height: 4 }} />}
-      </Box>
+    <Dialog open={open} onClose={onClose} fullWidth>
       <DialogTitle>Edit Profile</DialogTitle>
       <DialogContent>
         <Grid container spacing={2} p={2}>
@@ -378,7 +341,7 @@ const careerProfileEditModal = ({ open, onClose }) => {
                           />
                         );
                       }
-                      return null; // Handle cases where the option with the selected value doesn't exist
+                      return null;
                     })}
                   </Box>
                 )}
@@ -394,7 +357,9 @@ const careerProfileEditModal = ({ open, onClose }) => {
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={onClose} color="inherit">
+          Cancel
+        </Button>
         <Button
           onClick={handleSubmit}
           variant="contained"
