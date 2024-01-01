@@ -107,7 +107,7 @@ function AdminSidebar({ mode }) {
                     </ListItemIcon>
                     <ListItemText
                       primary={
-                        <Typography variant="body1" fontWeight={"800"}>
+                        <Typography variant="body1" fontWeight={"bold"}>
                           Overalls
                         </Typography>
                       }
@@ -128,7 +128,7 @@ function AdminSidebar({ mode }) {
                     </ListItemIcon>
                     <ListItemText
                       primary={
-                        <Typography variant="body1" fontWeight={"800"}>
+                        <Typography variant="body1" fontWeight={"bold"}>
                           Jobs Rate
                         </Typography>
                       }
@@ -149,7 +149,7 @@ function AdminSidebar({ mode }) {
                     </ListItemIcon>
                     <ListItemText
                       primary={
-                        <Typography variant="body1" fontWeight={"800"}>
+                        <Typography variant="body1" fontWeight={"bold"}>
                           Responses
                         </Typography>
                       }
@@ -204,7 +204,7 @@ function AdminSidebar({ mode }) {
                     </ListItemIcon>
                     <ListItemText
                       primary={
-                        <Typography variant="body1" fontWeight={"800"}>
+                        <Typography variant="body1" fontWeight={"bold"}>
                           Classes
                         </Typography>
                       }
@@ -223,7 +223,7 @@ function AdminSidebar({ mode }) {
                     </ListItemIcon>
                     <ListItemText
                       primary={
-                        <Typography variant="body1" fontWeight={"800"}>
+                        <Typography variant="body1" fontWeight={"bold"}>
                           Courses
                         </Typography>
                       }
@@ -242,7 +242,7 @@ function AdminSidebar({ mode }) {
                     </ListItemIcon>
                     <ListItemText
                       primary={
-                        <Typography variant="body1" fontWeight={"800"}>
+                        <Typography variant="body1" fontWeight={"bold"}>
                           Jobs
                         </Typography>
                       }
@@ -295,7 +295,7 @@ function AdminSidebar({ mode }) {
                     </ListItemIcon>
                     <ListItemText
                       primary={
-                        <Typography variant="body1" fontWeight={"800"}>
+                        <Typography variant="body1" fontWeight={"bold"}>
                           Overall
                         </Typography>
                       }
@@ -314,7 +314,7 @@ function AdminSidebar({ mode }) {
                     </ListItemIcon>
                     <ListItemText
                       primary={
-                        <Typography variant="body1" fontWeight={"800"}>
+                        <Typography variant="body1" fontWeight={"bold"}>
                           Approve
                         </Typography>
                       }
@@ -333,7 +333,7 @@ function AdminSidebar({ mode }) {
                     </ListItemIcon>
                     <ListItemText
                       primary={
-                        <Typography variant="body1" fontWeight={"800"}>
+                        <Typography variant="body1" fontWeight={"bold"}>
                           Profiles
                         </Typography>
                       }
@@ -352,7 +352,7 @@ function AdminSidebar({ mode }) {
                     </ListItemIcon>
                     <ListItemText
                       primary={
-                        <Typography variant="body1" fontWeight={"800"}>
+                        <Typography variant="body1" fontWeight={"bold"}>
                           Education
                         </Typography>
                       }
@@ -371,7 +371,7 @@ function AdminSidebar({ mode }) {
                     </ListItemIcon>
                     <ListItemText
                       primary={
-                        <Typography variant="body1" fontWeight={"800"}>
+                        <Typography variant="body1" fontWeight={"bold"}>
                           Employment
                         </Typography>
                       }
@@ -390,7 +390,7 @@ function AdminSidebar({ mode }) {
                     </ListItemIcon>
                     <ListItemText
                       primary={
-                        <Typography variant="body1" fontWeight={"800"}>
+                        <Typography variant="body1" fontWeight={"bold"}>
                           Achivements
                         </Typography>
                       }
@@ -409,7 +409,7 @@ function AdminSidebar({ mode }) {
                     </ListItemIcon>
                     <ListItemText
                       primary={
-                        <Typography variant="body1" fontWeight={"800"}>
+                        <Typography variant="body1" fontWeight={"bold"}>
                           Unclaimed
                         </Typography>
                       }
@@ -428,7 +428,7 @@ function AdminSidebar({ mode }) {
                     </ListItemIcon>
                     <ListItemText
                       primary={
-                        <Typography variant="body1" fontWeight={"800"}>
+                        <Typography variant="body1" fontWeight={"bold"}>
                           History
                         </Typography>
                       }

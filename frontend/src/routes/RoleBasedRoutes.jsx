@@ -24,6 +24,7 @@ import { ManageEmployments } from "../components/users_upload/ManageEmployments"
 import { ManageAchievements } from "../components/users_upload/ManageAchievements";
 import { ManageTwoWayLink } from "../components/users_upload/ManageTwoWayLink";
 import { ManageUploadHistory } from "../components/users_upload/ManageHistory";
+import OverallDashboard from "../components/analytics/OverallDashboard";
 const RoleBasedRoutes = () => {
   const { auth } = useAll();
   const commonRoutes = (
@@ -151,6 +152,30 @@ const RoleBasedRoutes = () => {
         {commonRoutes}
         <Route
           path="home"
+          element={
+            <MainLayout mode="admin">
+              <MainDashboard />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="dashboard/overalls"
+          element={
+            <MainLayout mode="admin">
+              <OverallDashboard />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="dashboard/classifications"
+          element={
+            <MainLayout mode="admin">
+              <MainDashboard />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="dashboard/response-rate"
           element={
             <MainLayout mode="admin">
               <MainDashboard />
