@@ -22,6 +22,9 @@ import {
   TextField,
   Tooltip,
   Typography,
+  Container,
+  Card,
+  CardContent,
 } from "@mui/material";
 
 import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
@@ -260,20 +263,20 @@ const Register = () => {
 
   useEffect(() => {
     setBackdropLoading(isPublicUserLoading || isLoading);
-  }, [isLoading, isPublicUserLoading]);
+  }, [isLoading, isPublicUserLoading, setBackdropLoading]);
 
   return (
-    <Grid container>
+    <>
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth>
         <DialogTitle>Register Instead as a Public User</DialogTitle>
         <DialogContent
           sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}
         >
           <Typography variant="body1">
-            It appears that you've registered your credentials, but there is no
-            matching record of yours in the system. If you're confident in your
-            credentials, it's possible that the system does not yet have the
-            record for your batch.
+            It appears that you&#39;ve registered your credentials, but there is
+            no matching record of yours in the system. If you&#39;re confident
+            in your credentials, it&#39;s possible that the system does not yet
+            have the record for your batch.
           </Typography>
           <Typography variant="body1">
             Consider our alternative:
@@ -300,159 +303,177 @@ const Register = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      <Grid
-        item
-        container
-        xs={12}
-        height={"99vh"}
-        sx={{ display: "flex", alignItems: "center", flexDirection: "column" }}
+      <Box
+        sx={{
+          height: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
       >
-        <Grid item xs={7}>
-          <Typography variant="h5">Alumni Registration</Typography>
-        </Grid>
-        <Grid
-          item
-          xs={5}
-          ml={"auto"}
-          height={"50vh"}
-          p={2}
-          pt={"10vh"}
-          container
-          spacing={2}
-        >
-          <Grid item xs={12}>
-            <Tooltip title="click to update profile picture">
-              {/* Profile Picture */}
-              <CardActionArea component="label" htmlFor="profile-picture">
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
+        <Container maxWidth="sm" sx={{ py: 4 }}>
+          <Box textAlign={"center"} mb={4}>
+            <Typography> (logo) PUPQC APMS </Typography>
+          </Box>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" textAlign={"center"} mb={4}>
+                Alumni Registration
+              </Typography>
+              <Grid item xs={12} mb={2}>
+                <Tooltip title="click to upload profile picture">
+                  {/* Profile Picture */}
+                  <CardActionArea component="label" htmlFor="profile-picture">
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                      }}
+                    >
+                      <input
+                        type="file"
+                        accept="image/*"
+                        id="profile-picture"
+                        name="profile_picture"
+                        style={{ display: "none" }}
+                        onChange={handleFileChange}
+                      />
+
+                      <Avatar
+                        alt="Profile"
+                        src={formData?.profile_picture_url}
+                        sx={{ width: "100px", height: "100px" }}
+                      />
+                      <Typography variant="body2">
+                        {formData?.profile_picture_name}
+                      </Typography>
+                    </Box>
+                  </CardActionArea>
+                </Tooltip>
+              </Grid>
+              <Grid item xs={12} mb={2}>
+                <TextField
+                  size="small"
+                  defaultValue="Small"
+                  variant="outlined"
+                  fullWidth
+                  label="Student Number"
+                  value={formData?.student_number}
+                  onChange={handleChange}
+                  name="student_number"
+                  required
+                  InputProps={{
+                    inputComponent: StudentNumberMask,
                   }}
+                />
+              </Grid>
+              <Grid item xs={12} mb={2}>
+                <TextField
+                  size="small"
+                  defaultValue="Small"
+                  name="first_name"
+                  label="First Name"
+                  value={formData.first_name}
+                  onChange={handleChange}
+                  required
+                  sx={{ width: "100%" }}
+                />
+              </Grid>
+              <Grid item xs={12} mb={2}>
+                <TextField
+                  size="small"
+                  defaultValue="Small"
+                  name="last_name"
+                  label="Last Name"
+                  value={formData.last_name}
+                  onChange={handleChange}
+                  required
+                  sx={{ width: "100%" }}
+                />
+              </Grid>
+
+              <Grid item xs={12} mb={2}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DemoContainer
+                    components={["DatePicker"]}
+                    sx={{ padding: 0, }}
+                  >
+                    <DemoItem >
+                      <DatePicker
+                        slotProps={{ textField: { size: 'small' }  }}
+                        name="birthdate"
+                        label="Birthdate *"
+                        value={formData?.birthdate}
+                        onChange={handleDateChange}
+                        renderInput={(params) => <TextField {...params} />}
+                        required
+                        
+                      />
+                    </DemoItem>
+                  </DemoContainer>
+                </LocalizationProvider>
+              </Grid>
+              <Grid item xs={12} mb={2}>
+                <TextField
+                  size="small"
+                  defaultValue="Small"
+                  name="email"
+                  label="Email"
+                  type="email"
+                  placeholder="Input Email"
+                  variant="outlined"
+                  fullWidth
+                  onChange={handleChange}
+                  value={formData.email}
+                  required
+                />
+              </Grid>
+              <Grid
+                item
+                xs={12}
+                mb={2}
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  marginTop: "1rem",
+                }}
+              >
+                <ReCAPTCHA
+                  ref={recaptcha}
+                  sitekey={`${import.meta.env.VITE_RECAPTCHA_HTML_KEY}`}
+                />
+              </Grid>
+              <Grid
+                item
+                xs={12}
+                mb={2}
+                sx={{ display: "flex", justifyContent: "center" }}
+              >
+                <Button
+                  width={"100%"}
+                  onClick={handleSubmit}
+                  variant="contained"
+                  color="primary"
+                  disabled={isLoading}
+                  mx={"auto"}
                 >
-                  <input
-                    type="file"
-                    accept="image/*"
-                    id="profile-picture"
-                    name="profile_picture"
-                    style={{ display: "none" }}
-                    onChange={handleFileChange}
-                  />
-
-                  <Avatar
-                    alt="Profile"
-                    src={formData?.profile_picture_url}
-                    sx={{ width: "100px", height: "100px" }}
-                  />
-                  <Typography variant="body2">
-                    {formData?.profile_picture_name}
-                  </Typography>
-                </Box>
-              </CardActionArea>
-            </Tooltip>
-          </Grid>
-          <Grid item xs={12}>
-            <TextField
-              variant="outlined"
-              fullWidth
-              label="Student Number"
-              value={formData?.student_number}
-              onChange={handleChange}
-              name="student_number"
-              required
-              InputProps={{
-                inputComponent: StudentNumberMask,
-              }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              name="first_name"
-              label="First Name"
-              value={formData.first_name}
-              onChange={handleChange}
-              required
-              sx={{ width: "100%" }}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              name="last_name"
-              label="Last Name"
-              value={formData.last_name}
-              onChange={handleChange}
-              required
-              sx={{ width: "100%" }}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={6}>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DemoContainer components={["DatePicker"]} sx={{ padding: 0 }}>
-                <DemoItem>
-                  <DatePicker
-                    name="birthdate"
-                    label="Birthdate *"
-                    value={formData?.birthdate}
-                    onChange={handleDateChange}
-                    renderInput={(params) => <TextField {...params} />}
-                    required
-                  />
-                </DemoItem>
-              </DemoContainer>
-            </LocalizationProvider>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              name="email"
-              label="Email"
-              type="email"
-              placeholder="Input Email"
-              variant="outlined"
-              fullWidth
-              onChange={handleChange}
-              value={formData.email}
-              required
-            />
-          </Grid>
-          <Grid
-            item
-            xs={12}
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              marginTop: "1rem",
-            }}
-          >
-            <ReCAPTCHA
-              ref={recaptcha}
-              sitekey={`${import.meta.env.VITE_RECAPTCHA_HTML_KEY}`}
-            />
-          </Grid>
-          <Grid item xs={12} sx={{ display: "flex", justifyContent: "center" }}>
-            <Button
-              width={"100%"}
-              onClick={handleSubmit}
-              variant="contained"
-              color="primary"
-              disabled={isLoading}
-              mx={"auto"}
-            >
-              Register
-            </Button>
-          </Grid>
-          <Grid item xs={12}>
-            <Link
-              to={"/login"}
-              style={{ display: "block", textAlign: "center" }}
-            >
-              login instead
-            </Link>
-          </Grid>
-        </Grid>
-      </Grid>
-    </Grid>
+                  Register
+                </Button>
+              </Grid>
+              <Grid item xs={12} mb={2}>
+                <Link
+                  to={"/login"}
+                  style={{ display: "block", textAlign: "center" }}
+                >
+                  login instead
+                </Link>
+              </Grid>
+            </CardContent>
+          </Card>
+        </Container>
+      </Box>
+    </>
   );
 };
 

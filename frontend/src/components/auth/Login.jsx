@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import useAll from "../../hooks/utilities/useAll";
 import { useMutation } from "react-query";
 import axios from "../../api/axios";
@@ -14,10 +14,6 @@ import {
   TextField,
   Typography,
   FormControlLabel,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   Container,
   Divider,
 } from "@mui/material";
@@ -58,7 +54,7 @@ const Login = () => {
       setSeverity("success");
       setOpenSnackbar(true);
     }
-  }, [snackbarMessage]);
+  }, [setMessage, setOpenSnackbar, setSeverity, snackbarMessage]);
 
   useEffect(() => {
     localStorage.setItem("persist", persist);
@@ -118,7 +114,7 @@ const Login = () => {
     await LoginMutation.mutateAsync(dataString);
   };
 
-  const { isLoading: isLoginLoading } = LoginMutation;
+  LoginMutation;
 
   return (
     <>
@@ -142,7 +138,10 @@ const Login = () => {
               <Container component="main" maxWidth="xs">
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
-                    <Typography marginBottom={1} fontSize={15} fontWeight={600}>
+                    <Typography 
+                      marginBottom={1} 
+                      sx={{fontSize:16, fontWeight:450}}
+                      >
                       Username
                     </Typography>
                     <TextField
@@ -150,23 +149,45 @@ const Login = () => {
                         shrink: false,
                         disableAnimation: true,
                       }}
+                      size="small"
+                      defaultValue="Small"
                       inputRef={userRef}
                       placeholder="Your username"
                       variant="outlined"
                       fullWidth
                       value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      required
                     />
                   </Grid>
 
                   <Grid item xs={12}>
-                    <Typography marginBottom={1} fontSize={15} fontWeight={600}>
-                      Password
-                    </Typography>
+                    <Box
+                      sx={{ display: "flex", justifyContent: "space-between" }}
+                    >
+                      <Typography fontSize={16} fontWeight={450}>
+                        Password
+                      </Typography>
+                      <Button
+                        sx={{
+                          cursor: "pointer",
+                          textTransform: "none",
+                          padding: "0",
+                        }}
+                        fontSize={16}
+                        marginBottom={1}
+                        onClick={() => setForgotPass(true)}
+                      >
+                        Forgot Password?
+                      </Button>
+                    </Box>
                     <TextField
                       InputLabelProps={{
                         shrink: false,
                         disableAnimation: true,
                       }}
+                      size="small"
+                      defaultValue="Small"
                       type="password"
                       variant="outlined"
                       placeholder="Your password"
@@ -176,19 +197,10 @@ const Login = () => {
                       className="input"
                       required
                     />
-
-                    <Typography
-                      sx={{ cursor: "pointer" }}
-                      onClick={() => setForgotPass(true)}
-                    >
-                      Forgot Password?
-                    </Typography>
-                  </Grid>
-
-                  <Grid item xs={12}>
                     <FormControlLabel
                       control={
                         <Checkbox
+                          size="small"
                           color="primary"
                           checked={persist || false}
                           onChange={(event) => setPersist(event.target.checked)}
@@ -199,6 +211,10 @@ const Login = () => {
                         <Typography>Remember me on this device</Typography>
                       }
                     />
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    
                     <Box mt={2}>
                       <Button
                         type="submit"
@@ -254,7 +270,7 @@ const Login = () => {
             </Box>
           </Card>
           <Box mt={2} textAlign="center">
-            <Typography variant="body2">
+            <Typography variant="body1">
               Don&#39;t have an account yet? <Link to="/register">Sign up</Link>
             </Typography>
           </Box>
