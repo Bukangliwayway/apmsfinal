@@ -51,8 +51,13 @@ const Register = () => {
   const recaptcha = useRef();
   const [openDialog, setOpenDialog] = useState(false);
 
-  const { setMessage, setSeverity, setOpenSnackbar, setBackdropLoading } =
-    useAll();
+  const {
+    setMessage,
+    setSeverity,
+    setOpenSnackbar,
+    setBackdropLoading,
+    setLinearLoading,
+  } = useAll();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -99,17 +104,12 @@ const Register = () => {
           "Content-Type": "multipart/form-data",
         },
       };
-      const response = await axios.post(
-        "/auth/register/alumni",
-        newProfile,
-        axiosConfig
-      );
+      await axios.post("/auth/register/alumni", newProfile, axiosConfig);
     },
     {
       onError: (error) => {
         setMessage(error.response ? error.response.data.detail : error.message);
         setSeverity("error");
-        setOpenSnackbar(true);
         if (
           error.response
             ? error.response.data.detail
@@ -142,6 +142,10 @@ const Register = () => {
           replace: true,
         });
       },
+      onSettled: () => {
+        setBackdropLoading(false);
+        setOpenSnackbar(true);
+      },
     }
   );
 
@@ -152,17 +156,12 @@ const Register = () => {
           "Content-Type": "multipart/form-data",
         },
       };
-      const response = await axios.post(
-        "/auth/register/public_user",
-        newProfile,
-        axiosConfig
-      );
+      await axios.post("/auth/register/public_user", newProfile, axiosConfig);
     },
     {
       onError: (error) => {
         setMessage(error.response ? error.response.data.detail : error.message);
         setSeverity("error");
-        setOpenSnackbar(true);
       },
 
       onSuccess: (data, variables, context) => {
@@ -186,6 +185,10 @@ const Register = () => {
           },
           replace: true,
         });
+      },
+      onSettled: () => {
+        setLinearLoading(false);
+        setOpenSnackbar(true);
       },
     }
   );
@@ -240,6 +243,7 @@ const Register = () => {
     payload.append("profile_picture", formData?.profile_picture);
     payload.append("recaptcha", captchaValue);
 
+    setBackdropLoading(true);
     await mutation.mutateAsync(payload);
   };
 
@@ -253,21 +257,23 @@ const Register = () => {
     payload.append("student_number", formData?.student_number);
     payload.append("email", formData?.email);
     payload.append("profile_picture", formData?.profile_picture);
-
+    setLinearLoading(true);
     await publicUserMutation.mutateAsync(payload);
   };
 
   const { isLoading } = mutation;
+  const { isLoading: isPublicUserLoading } = publicUserMutation;
 
-  const { isPublicUserLoading } = publicUserMutation;
-
-  useEffect(() => {
-    setBackdropLoading(isPublicUserLoading || isLoading);
-  }, [isLoading, isPublicUserLoading, setBackdropLoading]);
+  console.log("tanginamo: ", isPublicUserLoading);
+  console.log("tanginaka: ", isLoading);
 
   return (
     <>
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth>
+      <Dialog
+        open={openDialog}
+        onClose={() => !isPublicUserLoading && setOpenDialog(false)}
+        fullWidth
+      >
         <DialogTitle>Register Instead as a Public User</DialogTitle>
         <DialogContent
           sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}
@@ -291,13 +297,18 @@ const Register = () => {
           </Typography>
         </DialogContent>
         <DialogActions sx={{ padding: 3 }}>
-          <Button onClick={() => setOpenDialog(false)} color="inherit">
+          <Button
+            onClick={() => setOpenDialog(false)}
+            color="inherit"
+            disabled={isPublicUserLoading}
+          >
             Cancel
           </Button>
           <Button
             onClick={handleSubmitPublicUser}
             variant="contained"
             color="primary"
+            disabled={isPublicUserLoading}
           >
             Proceed
           </Button>
@@ -312,8 +323,31 @@ const Register = () => {
         }}
       >
         <Container maxWidth="sm" sx={{ py: 4 }}>
-          <Box textAlign={"center"} mb={4}>
-            <Typography> (logo) PUPQC APMS </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 2,
+            }}
+            mb={4}
+          >
+            <Avatar
+              sx={{ width: 50, height: 50 }}
+              src={
+                "https://www.clipartmax.com/png/full/70-708931_the-pup-logo-polytechnic-university-of-the-philippines-logo.png"
+              }
+            />
+            <Typography
+              variant="h4"
+              sx={{
+                display: { xs: "none", sm: "block" },
+                fontWeight: 700,
+                color: "text.primary",
+              }}
+            >
+              PUPQC APMS
+            </Typography>
           </Box>
           <Card>
             <CardContent>
