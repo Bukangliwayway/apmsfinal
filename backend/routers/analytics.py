@@ -1,3 +1,4 @@
+from fastapi.encoders import jsonable_encoder
 import numpy as np
 from itertools import groupby
 from datetime import date, datetime
@@ -466,6 +467,18 @@ async def over_employer_type(db: Session = Depends(get_db), user: UserResponse =
 async def current_batches(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
     batch_years = db.query(models.User.batch_year.distinct().label("batch_year")).order_by(models.User.batch_year.desc()).all()
     return [result.batch_year for result in batch_years]
+
+@router.get("/respondents-list/{batch_year}/{course_code}")
+async def get_respondents_list(
+    batch_year: int,
+    course_code: str,
+    db: Session = Depends(get_db),
+    user: UserResponse = Depends(get_current_user)
+):
+    respondents = db.query(models.User.id, models.User.username, models.User.first_name, models.User.last_name, models.User.is_completed).join(models.Course).filter(and_(models.Course.code == course_code, models.User.batch_year == batch_year)).order_by(models.User.is_completed).all()
+    db.close() 
+    # Close the database session
+    return respondents
 
 @router.get("/course_response_rate/{batch_year}")
 async def over_employer_type(batch_year: int, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):

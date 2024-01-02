@@ -43,6 +43,7 @@ const MainDashboard = () => {
             sx={{
               backgroundColor: (theme) => theme.palette.common.main,
               height: "33vh",
+              overflow: "hidden",
             }}
           >
             <CourseLowestResponseRate />
@@ -77,6 +78,7 @@ const MainDashboard = () => {
             sx={{
               backgroundColor: (theme) => theme.palette.common.main,
               height: "56vh" + "1rem",
+              overflow: "hidden",
             }}
           >
             <CourseEmploymentRate />

@@ -8,6 +8,7 @@ export const AllProvider = ({ children }) => {
   const [auth, setAuth] = useState({}); // for saving the user details
   const [message, setMessage] = useState(""); // for the alert message
   const [severity, setSeverity] = useState("error"); // for setting the severity of the alert
+  const [cohort, setCohort] = useState({}); // for setting the severity of the alert
   const [openSnackbar, setOpenSnackbar] = useState(false); // for snackbar
   const [linearLoading, setLinearLoading] = useState(false); //for top linear loading
   const [backdropLoading, setBackdropLoading] = useState(false); //for backdrop loading
@@ -39,6 +40,8 @@ export const AllProvider = ({ children }) => {
         setBackdropLoading,
         expiredToken,
         setExpiredToken,
+        cohort,
+        setCohort,
       }}
     >
       {children}

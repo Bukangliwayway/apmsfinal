@@ -17,6 +17,7 @@ import {
 import React, { useEffect, useState } from "react";
 import useCourseResponseRate from "../../hooks/analytics/useCourseResponseRate";
 import useGetAllBatches from "../../hooks/analytics/useGetAllBatches";
+import useAll from "../../hooks/utilities/useAll";
 
 function LinearProgressWithLabel(props) {
   return (
@@ -33,6 +34,10 @@ function LinearProgressWithLabel(props) {
 
 const CourseResponseRate = () => {
   const [selected, setSelected] = useState(null);
+  const [renderKey, setRenderKey] = useState(0);
+
+  const { cohort, setCohort } = useAll();
+
   const { data: allBatches, isLoading: isLoadingAllBatches } =
     useGetAllBatches();
   const { data: courseResponseRate, isLoading: isLoadingCourseResponseRate } =
@@ -40,12 +45,19 @@ const CourseResponseRate = () => {
 
   useEffect(() => {
     setSelected(allBatches?.data[0]);
+    setRenderKey((prevKey) => prevKey + 1);
+    setCohort({
+      batch_year: allBatches?.data[0],
+    });
   }, [allBatches]);
-  
 
   const [open, setOpen] = useState(0);
-  const handleClick = (index) => {
+  const handleClick = (index, code) => {
     setOpen((prevState) => {
+      setCohort({
+        batch_year: selected,
+        course_code: code,
+      });
       if (prevState == index) return 0;
       return index;
     });
@@ -53,9 +65,12 @@ const CourseResponseRate = () => {
 
   const handleChange = (event) => {
     setSelected(event.target.value);
+    setCohort({
+      batch_year: event.target.value,
+    });
   };
 
-  if (isLoadingAllBatches || isLoadingCourseResponseRate) {
+  if (isLoadingAllBatches) {
     return (
       <Box>
         <Skeleton variant="rectangular" width={"100%"} height={"100%"} />
@@ -63,13 +78,16 @@ const CourseResponseRate = () => {
     );
   }
 
-  console.log(courseResponseRate?.data);
-
   return (
     <Box padding={2}>
       <FormControl sx={{ width: "25ch" }}>
         <InputLabel>Batch Year</InputLabel>
-        <Select value={selected} onChange={handleChange} label="Overall Type">
+        <Select
+          key={renderKey}
+          value={selected}
+          onChange={handleChange}
+          label="Overall Type"
+        >
           {allBatches.data.map((option) => (
             <MenuItem key={option} value={option}>
               {option}
@@ -83,7 +101,7 @@ const CourseResponseRate = () => {
           .slice(0, 5)
           .map((course, index) => (
             <ListItemButton
-              onClick={() => handleClick(index + 1)}
+              onClick={() => handleClick(index + 1, course.course_code)}
               sx={{ display: "flex", flexDirection: "column" }}
             >
               <ListItem sx={{ display: "flex", gap: 1, padding: 0 }}>
