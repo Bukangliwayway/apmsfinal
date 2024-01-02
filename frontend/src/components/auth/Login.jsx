@@ -135,13 +135,10 @@ const Login = () => {
               <Typography variant="h6" textAlign={"center"} mb={4}>
                 Login to your account
               </Typography>
-              <Container component="main" maxWidth="xs">
+              <Container component="main" maxWidth="sm">
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
-                    <Typography 
-                      marginBottom={1} 
-                      sx={{fontSize:16, fontWeight:450}}
-                      >
+                    <Typography gutterBottom sx={{ fontWeight: 500 }}>
                       Username
                     </Typography>
                     <TextField
@@ -165,16 +162,13 @@ const Login = () => {
                     <Box
                       sx={{ display: "flex", justifyContent: "space-between" }}
                     >
-                      <Typography fontSize={16} fontWeight={450}>
-                        Password
-                      </Typography>
+                      <Typography sx={{ fontWeight: 500 }}>Password</Typography>
                       <Button
                         sx={{
                           cursor: "pointer",
                           textTransform: "none",
                           padding: "0",
                         }}
-                        fontSize={16}
                         marginBottom={1}
                         onClick={() => setForgotPass(true)}
                       >
@@ -214,7 +208,6 @@ const Login = () => {
                   </Grid>
 
                   <Grid item xs={12}>
-                    
                     <Box mt={2}>
                       <Button
                         type="submit"
