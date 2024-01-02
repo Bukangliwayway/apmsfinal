@@ -3,6 +3,8 @@ import useAll from "../../hooks/utilities/useAll";
 import { useMutation } from "react-query";
 import axios from "../../api/axios";
 import LinkedInLogin from "./LinkedInLogin";
+import { IconBrandGoogle } from "@tabler/icons-react";
+
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import {
   Button,
@@ -16,6 +18,7 @@ import {
   FormControlLabel,
   Container,
   Divider,
+  Avatar,
 } from "@mui/material";
 import { ForgotPass } from "./ForgotPass";
 
@@ -127,8 +130,31 @@ const Login = () => {
         }}
       >
         <Container maxWidth="sm" sx={{ py: 4 }}>
-          <Box textAlign={"center"} mb={4}>
-            <Typography> (logo) PUPQC APMS </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 2,
+            }}
+            mb={4}
+          >
+            <Avatar
+              sx={{ width: 50, height: 50 }}
+              src={
+                "https://www.clipartmax.com/png/full/70-708931_the-pup-logo-polytechnic-university-of-the-philippines-logo.png"
+              }
+            />
+            <Typography
+              variant="h4"
+              sx={{
+                display: { xs: "none", sm: "block" },
+                fontWeight: 700,
+                color: "text.primary",
+              }}
+            >
+              PUPQC APMS
+            </Typography>
           </Box>
           <Card>
             <CardContent>
@@ -255,9 +281,10 @@ const Login = () => {
               pb={4}
             >
               <Button variant="outlined" sx={{ textTransform: "none" }}>
-                {/* <SvgIcon component="svg" viewBox="0 0 24 24" className="text-google" width="24" height="24">
-                        </SvgIcon> */}
-                Login with Google
+                <IconBrandGoogle />
+                <Typography variant="body2" ml={1}>
+                  Login with Google
+                </Typography>
               </Button>
               <LinkedInLogin />
             </Box>

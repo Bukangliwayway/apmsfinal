@@ -1,5 +1,6 @@
-import { Button } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import React from "react";
+import { IconBrandLinkedin } from "@tabler/icons-react";
 
 const LinkedInLogin = () => {
   const handleLinkedInAuth = () => {
@@ -23,10 +24,13 @@ const LinkedInLogin = () => {
   };
 
   return (
-    <Button variant="outlined" onClick={handleLinkedInAuth} sx={{textTransform:"none"}}>
-      {/* <SvgIcon component="svg" viewBox="0 0 24 24" className="text-linkedIn" width="24" height="24">
-      </SvgIcon> */}
-       Login with LinkedIn
+    <Button
+      variant="outlined"
+      onClick={handleLinkedInAuth}
+      sx={{ textTransform: "none" }}
+    >
+      <IconBrandLinkedin />
+      <Typography variant="body2" ml={1}>Login with LinkedIn</Typography>
     </Button>
   );
 };
