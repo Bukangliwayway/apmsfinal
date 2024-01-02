@@ -4,7 +4,8 @@ import useClassificationEmploymentRate from "../../hooks/analytics/useClassifica
 import { Box, Skeleton } from "@mui/material";
 import useAll from "../../hooks/utilities/useAll";
 
-const ClassificationEmploymentRate = () => {
+const ClassificationEmploymentRate = ({ solo = false }) => {
+  const { mode } = useAll();
   const {
     data: classificationResponseRate,
     isLoading: isLoadingClassificationResponseRate,
@@ -17,41 +18,80 @@ const ClassificationEmploymentRate = () => {
       </Box>
     );
   }
-  const { mode } = useAll();
+
+  let top5Classifications = null;
+  // take just the top 5
+  if (!solo) {
+    const batchKeys = classificationResponseRate?.data?.keys;
+    const batchClassifications =
+      classificationResponseRate?.data?.classification;
+    // Summing up batches for each classification
+    const summedClassifications = {};
+    batchClassifications.forEach((classification, index) => {
+      const classificationSum = Object.keys(classification)
+        .filter((key) => batchKeys.includes(key))
+        .reduce((sum, key) => sum + classification[key], 0);
+
+      summedClassifications[index] = {
+        ...classification,
+        sum: classificationSum,
+      };
+    });
+
+    // Sorting classifications based on the sum in descending order
+    const sortedClassifications = Object.values(summedClassifications).sort(
+      (a, b) => b.sum - a.sum
+    );
+
+    // Taking the top 5 classifications
+    top5Classifications = sortedClassifications.slice(0, 5);
+  }
+
+  const data_count = classificationResponseRate?.data?.classification.length;
 
   return (
-    <div style={{ height: "25vh" }}>
+    <Box height={solo ? Math.ceil(data_count / 5) * 40 + "vh" : "100%"}>
       <ResponsiveBar
-        data={classificationResponseRate?.data?.classification}
+        data={
+          solo
+            ? classificationResponseRate?.data?.classification
+            : top5Classifications
+        }
+        tooltip={({ index, id, value, color }) => (
+          <Box
+            style={{
+              padding: "0.5rem",
+              color: mode == "light" ? "#333" : "#DCE1E7",
+              background: mode == "light" ? "#fff" : "#333",
+              gap: 1,
+            }}
+          >
+            <Box p={1} width={"1ch"} sx={{ background: color }}></Box>
+            <span>
+              {
+                classificationResponseRate?.data?.classification[index]
+                  .classification_name
+              }
+            </span>
+            <br />
+            <span
+              style={{
+                textTransform: "capitalize",
+              }}
+            >
+              {id}: <strong>{value}</strong>
+            </span>
+          </Box>
+        )}
         keys={classificationResponseRate?.data?.keys}
         indexBy="classification_code"
-        margin={{ top: 25, right: 100, bottom: 50, left: 50 }}
+        margin={{ top: 25, right: 120, bottom: 50, left: 90 }}
         padding={0.2}
+        layout={solo ? "horizontal" : "vertical"}
         groupMode="grouped"
         valueScale={{ type: "linear" }}
         indexScale={{ type: "band", round: true }}
         colors={{ scheme: "paired" }}
-        defs={[
-          {
-            id: "dots",
-            type: "patternDots",
-            background: "inherit",
-            color: "#38bcb2",
-            size: 4,
-            padding: 1,
-            stagger: true,
-          },
-          {
-            id: "lines",
-            type: "patternLines",
-            background: "inherit",
-            color: "#eed312",
-            rotation: -45,
-            lineWidth: 6,
-            spacing: 10,
-          },
-        ]}
-        
         theme={{
           axis: {
             ticks: {
@@ -67,8 +107,13 @@ const ClassificationEmploymentRate = () => {
           },
           tooltip: {
             container: {
-              background: mode == "light" ? "#fff" : "#333", // Change the text color of tooltip here
-              color: mode == "light" ? "#333" : "#DCE1E7", // Change the text color of tooltip here
+              background: mode == "light" ? "#fff" : "#333",
+              color: mode == "light" ? "#333" : "#DCE1E7",
+            },
+          },
+          legends: {
+            text: {
+              fill: mode == "light" ? "#333" : "#DCE1E7",
             },
           },
         }}
@@ -93,7 +138,7 @@ const ClassificationEmploymentRate = () => {
           tickRotation: 0,
           legend: "Employment Count",
           legendPosition: "middle",
-          legendOffset: -40,
+          legendOffset: -60,
           truncateTickAt: 0,
         }}
         enableGridY={false}
@@ -128,7 +173,7 @@ const ClassificationEmploymentRate = () => {
           velocity: 0,
         }}
       />
-    </div>
+    </Box>
   );
 };
 

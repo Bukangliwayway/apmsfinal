@@ -1,13 +1,15 @@
 import {
   Box,
+  Collapse,
   LinearProgress,
   List,
   ListItem,
+  ListItemButton,
   ListItemText,
   Skeleton,
   Typography,
 } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import useCourseEmploymentRate from "../../hooks/analytics/useCourseEmploymentRate";
 
 function LinearProgressWithLabel(props) {
@@ -23,7 +25,15 @@ function LinearProgressWithLabel(props) {
   );
 }
 
-const CourseEmploymentRate = () => {
+const CourseEmploymentRate = ({ solo = false }) => {
+  const [open, setOpen] = useState(0);
+  const handleClick = (index) => {
+    setOpen((prevState) => {
+      if (prevState == index) return 0;
+      return index;
+    });
+  };
+
   const { data: courseResponseRate, isLoading: isLoadingCourseResponseRate } =
     useCourseEmploymentRate();
 
@@ -39,32 +49,63 @@ const CourseEmploymentRate = () => {
       <Typography variant={"body2"} sx={{ fontWeight: "800" }}>
         Overall Employment Rate per Course:
       </Typography>
-      <List
-        dense={true}
-        sx={{ display: "flex", flexDirection: "column", gap: 1 }}
-      >
+      <List sx={{ display: "flex", flexDirection: "column" }} dense={!solo}>
         {courseResponseRate?.data
           .sort((a, b) => b.employment_rate - a.employment_rate)
           .slice(0, 10)
           .map((course, index) => (
-            <ListItem sx={{ display: "flex", gap: 1, padding: 0 }}>
-              <Typography
-                variant={"subtitle2"}
-                sx={{
-                  textTransform: "uppercase",
-                  minWidth: "35%",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap", // Initially set to "nowrap"
-                  width: "auto"
-                }}
+            <>
+              <ListItemButton
+                onClick={() => handleClick(index + 1)}
+                sx={{ display: "flex", flexDirection: "column" }}
               >
-                {course.course_code}
-               </Typography> 
-              <Box sx={{ width: "100%" }}>
-                <LinearProgressWithLabel value={course.employment_rate} />
-              </Box>
-            </ListItem>
+                <ListItem sx={{ display: "flex", gap: 1, padding: 0 }}>
+                  <Typography
+                    variant={"subtitle2"}
+                    sx={{
+                      textTransform: "uppercase",
+                      minWidth: "35%",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap", // Initially set to "nowrap"
+                      width: "auto",
+                    }}
+                  >
+                    {course.course_code}
+                  </Typography>
+                  <Box sx={{ width: "100%" }}>
+                    <LinearProgressWithLabel value={course.employment_rate} />
+                  </Box>
+                </ListItem>
+                <Collapse in={open == index + 1}>
+                  <Box
+                    p={1}
+                    sx={{ display: "flex", flexDirection: "column", gap: 1 }}
+                  >
+                    <Typography sx={{ textTransform: "capitalize" }}>
+                      {course.course_name}
+                    </Typography>
+
+                    <Box sx={{ display: "flex", gap: 1 }}>
+                      <Typography variant="caption">
+                        Employed Student:
+                      </Typography>
+                      <Typography variant="caption">
+                        {course.users_employed}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: "flex", gap: 1 }}>
+                      <Typography variant="caption">
+                        Students under this Course:
+                      </Typography>
+                      <Typography variant="caption">
+                        {course.users_count}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Collapse>
+              </ListItemButton>
+            </>
           ))}
       </List>
     </Box>

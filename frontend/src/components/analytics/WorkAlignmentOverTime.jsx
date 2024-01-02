@@ -7,6 +7,7 @@ import useAll from "../../hooks/utilities/useAll";
 const WorkAlignmentOverTime = () => {
   const { data: workAlignmment, isLoading: isLoadingWorkAlignment } =
     useWorkAlignmentOverTime();
+  const { mode } = useAll();
 
   if (isLoadingWorkAlignment) {
     return (
@@ -15,8 +16,6 @@ const WorkAlignmentOverTime = () => {
       </Box>
     );
   }
-
-  const { mode } = useAll();
 
   return (
     <ResponsiveLine

@@ -9,6 +9,7 @@ const EmploymentCountOverTime = () => {
     data: employmentCountOverTime,
     isLoading: isLoadingEmploymentCountOverTIme,
   } = useEmploymentCountOverTime();
+  const { mode } = useAll();
 
   if (isLoadingEmploymentCountOverTIme) {
     return (
@@ -17,8 +18,6 @@ const EmploymentCountOverTime = () => {
       </Box>
     );
   }
-
-  const { mode } = useAll();
 
   return (
     <ResponsiveLine

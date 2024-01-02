@@ -94,7 +94,7 @@ function AdminSidebar({ mode }) {
           </ListItem>
         </RouterLink>
         {!mode && (
-          <Collapse in={open?.dashboard || false} timeout="auto" unmountOnExit>
+          <Collapse in={open?.dashboard || false}>
             <List component="Box">
               <RouterLink
                 to="/dashboard/overalls"
@@ -118,7 +118,7 @@ function AdminSidebar({ mode }) {
             </List>
             <List component="Box">
               <RouterLink
-                to="/dashboard/classifications"
+                to="/dashboard/employments"
                 style={{ textDecoration: "none", color: "inherit" }}
               >
                 <ListItem disablePadding>
@@ -189,7 +189,7 @@ function AdminSidebar({ mode }) {
           </ListItemButton>
         </RouterLink>
         {!mode && (
-          <Collapse in={open?.selections || false} timeout="auto" unmountOnExit>
+          <Collapse in={open?.selections || false}>
             <List component="Box">
               <RouterLink
                 to="/selections/classifications"
@@ -282,7 +282,7 @@ function AdminSidebar({ mode }) {
           </ListItemButton>
         </RouterLink>
         {!mode && (
-          <Collapse in={open?.accounts || false} timeout="auto" unmountOnExit>
+          <Collapse in={open?.accounts || false}>
             <List component="Box">
               <RouterLink
                 to="/accounts/all-accounts"

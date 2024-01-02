@@ -417,6 +417,7 @@ async def over_employer_type(db: Session = Depends(get_db), user: UserResponse =
       course_employment_rate.append({
             "course_id": course.id,
             "course_code": course.code,
+            "course_name": course.name,
             "users_count": len(course_users),
             "users_employed": course_users_employed,
             "employment_rate": round((course_users_employed / len(course_users)) * 100) if course_users else 0
@@ -452,6 +453,34 @@ async def over_employer_type(db: Session = Depends(get_db), user: UserResponse =
       
       course_response_rate.append({
             "course_id": course.id,
+            "course_name": course.name,
+            "course_code": course.code,
+            "users_count": len(course_users),
+            "users_completed": course_users_completed,
+            "response_rate": round((course_users_completed / len(course_users)) * 100) if course_users else 0
+      })
+      
+  return  course_response_rate
+
+@router.get("/all-batches")
+async def current_batches(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    batch_years = db.query(models.User.batch_year.distinct().label("batch_year")).order_by(models.User.batch_year.desc()).all()
+    return [result.batch_year for result in batch_years]
+
+@router.get("/course_response_rate/{batch_year}")
+async def over_employer_type(batch_year: int, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+  courses = db.query(models.Course).filter(models.Course.in_pupqc == True).all()
+  course_response_rate = []
+
+  for course in courses:
+      course_users = db.query(models.User).filter(and_(func.lower(models.User.role) == 'alumni', models.User.course_id == course.id, models.User.batch_year == batch_year )).all()
+      course_users_completed = len([user for user in course_users if user.is_completed])
+      
+      if len(course_users) == 0: continue
+      
+      course_response_rate.append({
+            "course_id": course.id,
+            "course_name": course.name,
             "course_code": course.code,
             "users_count": len(course_users),
             "users_completed": course_users_completed,

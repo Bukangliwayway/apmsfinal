@@ -1,16 +1,22 @@
 import {
   Box,
   Collapse,
+  FormControl,
+  InputLabel,
   LinearProgress,
   List,
   ListItem,
   ListItemButton,
   ListItemText,
+  MenuItem,
+  OutlinedInput,
+  Select,
   Skeleton,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
-import useCourseLowestResponseRate from "../../hooks/analytics/useCourseLowestResponseRate";
+import React, { useEffect, useState } from "react";
+import useCourseResponseRate from "../../hooks/analytics/useCourseResponseRate";
+import useGetAllBatches from "../../hooks/analytics/useGetAllBatches";
 
 function LinearProgressWithLabel(props) {
   return (
@@ -25,7 +31,18 @@ function LinearProgressWithLabel(props) {
   );
 }
 
-const CourseLowestResponseRate = ({ solo = false }) => {
+const CourseResponseRate = () => {
+  const [selected, setSelected] = useState(null);
+  const { data: allBatches, isLoading: isLoadingAllBatches } =
+    useGetAllBatches();
+  const { data: courseResponseRate, isLoading: isLoadingCourseResponseRate } =
+    useCourseResponseRate(selected);
+
+  useEffect(() => {
+    setSelected(allBatches?.data[0]);
+  }, [allBatches]);
+  
+
   const [open, setOpen] = useState(0);
   const handleClick = (index) => {
     setOpen((prevState) => {
@@ -34,25 +51,34 @@ const CourseLowestResponseRate = ({ solo = false }) => {
     });
   };
 
-  const {
-    data: courseLowestResponseRate,
-    isLoading: isLoadingCourseLowestResponseRate,
-  } = useCourseLowestResponseRate();
+  const handleChange = (event) => {
+    setSelected(event.target.value);
+  };
 
-  if (isLoadingCourseLowestResponseRate) {
+  if (isLoadingAllBatches || isLoadingCourseResponseRate) {
     return (
       <Box>
         <Skeleton variant="rectangular" width={"100%"} height={"100%"} />
       </Box>
     );
   }
+
+  console.log(courseResponseRate?.data);
+
   return (
     <Box padding={2}>
-      <Typography variant={"body2"} sx={{ fontWeight: "800" }}>
-        Lowest Course Response Rates this Year:
-      </Typography>
-      <List sx={{ display: "flex", flexDirection: "column" }} dense={!solo}>
-        {courseLowestResponseRate?.data
+      <FormControl sx={{ width: "25ch" }}>
+        <InputLabel>Batch Year</InputLabel>
+        <Select value={selected} onChange={handleChange} label="Overall Type">
+          {allBatches.data.map((option) => (
+            <MenuItem key={option} value={option}>
+              {option}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <List sx={{ display: "flex", flexDirection: "column" }}>
+        {courseResponseRate?.data
           .sort((a, b) => a.response_rate - b.response_rate)
           .slice(0, 5)
           .map((course, index) => (
@@ -112,4 +138,4 @@ const CourseLowestResponseRate = ({ solo = false }) => {
   );
 };
 
-export default CourseLowestResponseRate;
+export default CourseResponseRate;
