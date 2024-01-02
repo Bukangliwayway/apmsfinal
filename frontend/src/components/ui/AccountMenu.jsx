@@ -25,14 +25,10 @@ export default function AccountMenu() {
     return await axiosPrivate.get("/users/me");
   };
 
-  const { isLoading, data, isError, error, isFetching } = useQuery(
-    "profile-me",
-    getProfile,
-    {
-      staleTime: 300000,
-      // refetchOnWindowFocus: true,
-    }
-  );
+  const { data } = useQuery("profile-me", getProfile, {
+    staleTime: 300000,
+    // refetchOnWindowFocus: true,
+  });
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -64,7 +60,6 @@ export default function AccountMenu() {
         id="account-menu"
         open={open}
         onClose={handleClose}
-        onClick={() => navigate("/profile/me")}
         PaperProps={{
           sx: {
             overflow: "visible",
@@ -86,7 +81,7 @@ export default function AccountMenu() {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem onClick={handleClose}>
+        <MenuItem onClick={() => navigate("/profile/me")}>
           <Avatar
             sx={{ width: 32, height: 32, mr: 1 }}
             src={data?.data?.profile_picture}
