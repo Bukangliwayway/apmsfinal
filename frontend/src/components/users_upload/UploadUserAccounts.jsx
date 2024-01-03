@@ -1,8 +1,6 @@
 import {
   Box,
-  CircularProgress,
   Grid,
-  Skeleton,
   Tab,
   Tabs,
   Typography,
@@ -29,8 +27,6 @@ import AchievementDataGrid from "./AchievementDataGrid";
 import AllProfileDataGrid from "./AllProfileDataGrid";
 import TwoWayLinkUploadInput from "./TwoWayLinkUploadInput";
 import TwoWayLinkDataGrid from "./TwoWayLinkDataGrid";
-import useGetHistoryAll from "../../hooks/all_profiles/useGetHistory";
-import DisplayHistory from "./DisplayHistory";
 import PendingProfilesDataGrid from "./PendingProfilesDataGrid";
 import UploadHistoryDataGrid from "./UploadHistoryDataGrid";
 
