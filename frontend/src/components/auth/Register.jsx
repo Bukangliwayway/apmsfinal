@@ -324,34 +324,30 @@ const Register = () => {
       >
         <Container maxWidth="sm" sx={{ py: 4 }}>
           <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: 2,
-            }}
+            display={"flex"}
+            justifyContent={"center"}
+            alignItems={"center"}
+            gap={2}
             mb={4}
           >
-            <Avatar
-              sx={{ width: 50, height: 50 }}
+            <img
               src={
                 "https://www.clipartmax.com/png/full/70-708931_the-pup-logo-polytechnic-university-of-the-philippines-logo.png"
               }
+              style={{ width: "auto", height: "50px" }}
             />
-            <Typography
-              variant="h4"
-              sx={{
-                display: { xs: "none", sm: "block" },
-                fontWeight: 700,
-                color: "text.primary",
-              }}
-            >
+            <Typography variant="h4" fontWeight={800}>
               PUPQC APMS
             </Typography>
           </Box>
           <Card>
             <CardContent>
-              <Typography variant="h6" textAlign={"center"} mb={4}>
+              <Typography
+                variant="h6"
+                fontWeight={700}
+                textAlign={"center"}
+                mb={4}
+              >
                 Alumni Registration
               </Typography>
               <Container component="main" maxWidth="sm">
@@ -391,7 +387,7 @@ const Register = () => {
                     </Tooltip>
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography gutterBottom sx={{ fontSize: 14 }}>
+                    <Typography gutterBottom fontSize={14} fontWeight={600}>
                       Student Number
                     </Typography>
                     <TextField
@@ -409,48 +405,42 @@ const Register = () => {
                       fullWidth
                     />
                   </Grid>
-                  <Grid item xs={12}>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        gap: 2,
-                      }}
-                    >
-                      <Box>
-                        <Typography gutterBottom sx={{ fontSize: 14 }}>
-                          First Name
-                        </Typography>
-                        <TextField
-                          size="small"
-                          defaultValue="Small"
-                          name="first_name"
-                          placeholder="Enter first name"
-                          value={formData.first_name}
-                          onChange={handleChange}
-                          required
-                          sx={{ width: "100%" }}
-                        />
-                      </Box>
-                      <Box>
-                        <Typography gutterBottom sx={{ fontSize: 14 }}>
-                          Last Name
-                        </Typography>
-                        <TextField
-                          size="small"
-                          defaultValue="Small"
-                          name="last_name"
-                          placeholder="Enter last name"
-                          value={formData.last_name}
-                          onChange={handleChange}
-                          required
-                          sx={{ width: "100%" }}
-                        />
-                      </Box>
-                    </Box>
+                  <Grid item xs={6}>
+                    <Typography gutterBottom fontSize={14} fontWeight={600}>
+                      First Name
+                    </Typography>
+                    <TextField
+                      size="small"
+                      defaultValue="Small"
+                      name="first_name"
+                      placeholder="Enter first name"
+                      value={formData.first_name}
+                      onChange={handleChange}
+                      required
+                      fullWidth
+                    />
                   </Grid>
                   <Grid item xs={6}>
-                    <Typography gutterBottom sx={{ fontSize: 14 }}>
+                    <Typography
+                      gutterBottom
+                      fontSize={14}
+                      sx={{ fontWeight: "fontWeightSemiBold" }}
+                    >
+                      Last Name
+                    </Typography>
+                    <TextField
+                      size="small"
+                      defaultValue="Small"
+                      name="last_name"
+                      placeholder="Enter last name"
+                      value={formData.last_name}
+                      onChange={handleChange}
+                      required
+                      fullWidth
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography gutterBottom fontSize={14} fontWeight={600}>
                       Email Address
                     </Typography>
                     <TextField
@@ -467,7 +457,7 @@ const Register = () => {
                     />
                   </Grid>
                   <Grid item xs={6}>
-                    <Typography gutterBottom sx={{ fontSize: 14 }}>
+                    <Typography gutterBottom fontSize={14} fontWeight={600}>
                       Birthdate
                     </Typography>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -491,11 +481,7 @@ const Register = () => {
                       sitekey={`${import.meta.env.VITE_RECAPTCHA_HTML_KEY}`}
                     />
                   </Grid>
-                  <Grid
-                    item
-                    xs={12}
-                    sx={{ display: "flex", justifyContent: "center" }}
-                  >
+                  <Grid item xs={12} mt={2}>
                     <Button
                       fullWidth
                       onClick={handleSubmit}
@@ -505,19 +491,39 @@ const Register = () => {
                     >
                       Register
                     </Button>
+                    <Typography mt={1.5} variant="body2" align="center">
+                      By using this service, you understood and agree to the PUP
+                      Online Services{" "}
+                      <a
+                        target={"_blank"}
+                        href="https://www.pup.edu.ph/terms/"
+                        rel="noreferrer"
+                      >
+                        {" "}
+                        Terms of Use
+                      </a>{" "}
+                      and{" "}
+                      <a
+                        target={"_blank"}
+                        href="https://www.pup.edu.ph/privacy/"
+                        rel="noreferrer"
+                      >
+                        Privacy Statement
+                      </a>
+                    </Typography>
                   </Grid>
                 </Grid>
               </Container>
             </CardContent>
           </Card>
-          <Grid item xs={12}>
-            <Link
-              to={"/login"}
-              style={{ display: "block", textAlign: "center" }}
-            >
-              login instead
-            </Link>
-          </Grid>
+          <Box mt={2} textAlign="center">
+            <Typography variant="body1">
+              Already have account?{" "}
+              <Link to="/login" underline="none">
+                Sign in
+              </Link>
+            </Typography>
+          </Box>
         </Container>
       </Box>
     </>

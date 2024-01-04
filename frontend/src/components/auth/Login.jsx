@@ -18,7 +18,6 @@ import {
   FormControlLabel,
   Container,
   Divider,
-  Avatar,
 } from "@mui/material";
 import { ForgotPass } from "./ForgotPass";
 
@@ -131,40 +130,39 @@ const Login = () => {
       >
         <Container maxWidth="sm" sx={{ py: 4 }}>
           <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: 2,
-            }}
+            display={"flex"}
+            justifyContent={"center"}
+            alignItems={"center"}
+            gap={2}
             mb={4}
           >
-            <Avatar
-              sx={{ width: 50, height: 50 }}
+            <img
               src={
                 "https://www.clipartmax.com/png/full/70-708931_the-pup-logo-polytechnic-university-of-the-philippines-logo.png"
               }
+              style={{ width: "auto", height: "50px" }}
             />
-            <Typography
-              variant="h4"
-              sx={{
-                display: { xs: "none", sm: "block" },
-                fontWeight: 700,
-                color: "text.primary",
-              }}
-            >
+            <Typography variant="h4" fontWeight={"800"}>
               PUPQC APMS
             </Typography>
           </Box>
           <Card>
             <CardContent>
-              <Typography variant="h6" textAlign={"center"} mb={4}>
+              <Typography variant="h6" fontWeight={700} textAlign={"center"}>
                 Login to your account
               </Typography>
               <Container component="main" maxWidth="sm">
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
-                    <Typography gutterBottom sx={{ fontWeight: 500 }}>
+                    <Typography
+                      color="textSecondary"
+                      variant="body2"
+                      mb={5}
+                      textAlign={"center"}
+                    >
+                      {refreshMessage}
+                    </Typography>
+                    <Typography gutterBottom fontSize={14} fontWeight={600}>
                       Username
                     </Typography>
                     <TextField
@@ -188,7 +186,9 @@ const Login = () => {
                     <Box
                       sx={{ display: "flex", justifyContent: "space-between" }}
                     >
-                      <Typography sx={{ fontWeight: 500 }}>Password</Typography>
+                      <Typography fontSize={14} fontWeight={600}>
+                        Password
+                      </Typography>
                       <Button
                         sx={{
                           cursor: "pointer",
@@ -234,7 +234,7 @@ const Login = () => {
                   </Grid>
 
                   <Grid item xs={12}>
-                    <Box mt={2}>
+                    <Box mt={5}>
                       <Button
                         type="submit"
                         variant="contained"
@@ -244,43 +244,43 @@ const Login = () => {
                       >
                         login
                       </Button>
-                      <Typography
-                        color="textSecondary"
-                        variant="body2"
-                        marginTop={1}
-                      >
-                        {refreshMessage}
+                      <Typography mt={1.5} variant="body2" align="center">
+                        By using this service, you understood and agree to the
+                        PUP Online Services{" "}
+                        <a
+                          target={"_blank"}
+                          href="https://www.pup.edu.ph/terms/"
+                          rel="noreferrer"
+                        >
+                          {" "}
+                          Terms of Use
+                        </a>{" "}
+                        and{" "}
+                        <a
+                          target={"_blank"}
+                          href="https://www.pup.edu.ph/privacy/"
+                          rel="noreferrer"
+                        >
+                          Privacy Statement
+                        </a>
                       </Typography>
                     </Box>
                   </Grid>
                 </Grid>
               </Container>
-            </CardContent>
-
-            <CardContent>
               <Box textAlign="center" my={1} position="relative">
                 <Divider>or</Divider>
-                {/* <Divider />
-                <Typography
-                  variant="body2"
-                  sx={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    bg: 'background.paper',
-                    px: 1,
-                  }}
-                >
-                  OR
-                </Typography> */}
               </Box>
             </CardContent>
             <Box
               sx={{ display: "flex", justifyContent: "center", gap: "2rem" }}
               pb={4}
             >
-              <Button variant="outlined" sx={{ textTransform: "none" }}>
+              <Button
+                variant="outlined"
+                color={"inherit"}
+                sx={{ textTransform: "none" }}
+              >
                 <IconBrandGoogle />
                 <Typography variant="body2" ml={1}>
                   Login with Google
@@ -291,7 +291,10 @@ const Login = () => {
           </Card>
           <Box mt={2} textAlign="center">
             <Typography variant="body1">
-              Don&#39;t have an account yet? <Link to="/register">Sign up</Link>
+              Don&#39;t have an account yet?{" "}
+              <Link to="/register" underline="none">
+                Sign up
+              </Link>
             </Typography>
           </Box>
         </Container>

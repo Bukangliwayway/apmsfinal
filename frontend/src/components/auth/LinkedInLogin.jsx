@@ -25,6 +25,7 @@ const LinkedInLogin = () => {
 
   return (
     <Button
+      color={"inherit"}
       variant="outlined"
       onClick={handleLinkedInAuth}
       sx={{ textTransform: "none" }}

@@ -43,7 +43,6 @@ const App = () => {
     },
     typography: {
       fontFamily: "Inter, Arial, sans-serif", // Font family
-      fontSize: 14,
       fontWeightThin: 100,
       fontWeightExtraLight: 200,
       fontWeightLight: 300,
@@ -89,7 +88,6 @@ const App = () => {
     },
     typography: {
       fontFamily: "Inter, Arial, sans-serif", // Font family
-      fontSize: 14,
       fontWeightThin: 100,
       fontWeightExtraLight: 200,
       fontWeightLight: 300,
