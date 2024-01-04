@@ -73,7 +73,10 @@ class User(Base):
     achievement = relationship("Achievement", back_populates="user")
     employment = relationship("Employment", back_populates="user")
     upload_history = relationship("UploadHistory", back_populates="user")
-
+    post = relationship("Post", back_populates="uploader")
+    interests_in_events = relationship("UserInterestEvent", back_populates="user")
+    donations = relationship("Donation", back_populates="user", foreign_keys="Donation.user_id")
+    approved_donations = relationship("Donation", back_populates="approver", foreign_keys="Donation.approver_id")
 
 class Achievement(Base):
     __tablename__ = 'achievement'
@@ -256,3 +259,66 @@ class UploadHistory(Base):
     link = Column(String) # The Cloudinary Link of the PDF table 
     user_id = Column(UUID(as_uuid=True), ForeignKey('user.id', ondelete="CASCADE")) #Uploaded by
     user = relationship("User", back_populates="upload_history")
+
+class Post(Base):
+    __tablename__ = 'post'
+    id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
+    created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text("now()"))
+    updated_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text("now()"))
+    deleted_at = Column(TIMESTAMP(timezone=True))  # Deletion timestamp (null if not deleted)
+    title = Column(String)
+    content = Column(Text)
+    content_date = Column(Date)
+    post_type = Column(String)  # Discriminator column
+    img_link = Column(String)
+    video_link = Column(String)
+    uploader_id = Column(UUID(as_uuid=True), ForeignKey('user.id', ondelete="CASCADE"))
+    uploader = relationship("User", back_populates="post")
+    __mapper_args__ = {'polymorphic_on': post_type}
+
+class Event(Post):
+    __tablename__ = 'event'
+    id = Column(UUID(as_uuid=True), ForeignKey('post.id', ondelete="CASCADE"), primary_key=True)
+    event_date = Column(Date)
+    end_date = Column(Date) # if event is longer than a day
+    interested_count = Column(Integer,server_default='0')
+    interested_users = relationship("UserInterestEvent", back_populates="event")
+    __mapper_args__ = {'polymorphic_identity': 'event'}
+
+
+class Donation(Base):
+    __tablename__ = 'donation'
+
+    id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey('user.id', ondelete="CASCADE"))
+    approver_id = Column(UUID(as_uuid=True), ForeignKey('user.id', ondelete="CASCADE"))
+    fundraising_id = Column(UUID(as_uuid=True), ForeignKey('fundraising.id', ondelete="CASCADE"))
+    comment = Column(Text)
+    proof_of_donation = Column(String) # must be a link
+    donation_amount = Column(Integer,server_default='0')
+    approved_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text("now()"))
+
+    user = relationship("User", back_populates="donations", foreign_keys=[user_id])
+    approver = relationship("User", back_populates="approved_donations", foreign_keys=[approver_id])
+    fundraising = relationship("Fundraising", back_populates="donations", foreign_keys=[fundraising_id])
+
+
+class Fundraising(Post):
+    __tablename__ = 'fundraising'
+    id = Column(UUID(as_uuid=True), ForeignKey('post.id', ondelete="CASCADE"), primary_key=True)
+    goal_amount = Column(Integer)
+    total_collected = Column(Integer,server_default='0')
+    fulfilled = Column(Boolean, nullable=False, server_default='False')
+    donors_count = Column(Integer,server_default='0')
+    donations = relationship("Donation", back_populates="fundraising")
+    __mapper_args__ = {'polymorphic_identity': 'fundraising'}
+
+
+class UserInterestEvent(Base):
+    __tablename__ = 'user_interest_event'
+
+    user_id = Column(UUID(as_uuid=True), ForeignKey('user.id', ondelete="CASCADE"), primary_key=True)
+    event_id = Column(UUID(as_uuid=True), ForeignKey('event.id', ondelete="CASCADE"), primary_key=True)
+
+    user = relationship("User", back_populates="interests_in_events")
+    event = relationship("Event", back_populates="interested_users")

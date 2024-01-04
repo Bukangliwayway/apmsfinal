@@ -27,6 +27,7 @@ const App = () => {
       },
       primary: {
         main: "#0054a6",
+        light: '#ECEEF1'
       },
       text: {
         primary: "#182433",
@@ -67,6 +68,7 @@ const App = () => {
       },
       primary: {
         main: "#0054a6",
+        light: "#27313D",
       },
       text: {
         primary: "#DCE1E7",
@@ -81,7 +83,7 @@ const App = () => {
       MuiCard: {
         styleOverrides: {
           root: {
-            backgroundColor: '#182433', // Set your desired background color for all cards
+            backgroundColor: "#182433", // Set your desired background color for all cards
           },
         },
       },

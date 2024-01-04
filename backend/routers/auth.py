@@ -110,8 +110,6 @@ async def create_alumni( email: str = Body(...), code: str = Body(...), password
 
     
 
-
-
 @router.post('/register/alumni')
 async def create_alumni(student_number: str = Form(...), email: str = Form(...), birthdate: date = Form(...), first_name: str = Form(...), 
                         last_name: str = Form(...), recaptcha: str = Form(...), profile_picture: Optional[UploadFile] = File(None), db: Session = Depends(get_db)):
