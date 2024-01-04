@@ -7,7 +7,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useState } from "react";
-import AlumniResponseRate from "./OverallPie";
+import OverallPie from "./OverallPie";
 
 const OverallDashboard = () => {
   const [selected, setSelected] = useState("response rate");
@@ -29,7 +29,7 @@ const OverallDashboard = () => {
         </Select>
       </FormControl>
       <Box height={"30rem"} p={5}>
-        <AlumniResponseRate solo={true} type={selected} />
+        <OverallPie solo={true} type={selected} />
       </Box>
     </Box>
   );

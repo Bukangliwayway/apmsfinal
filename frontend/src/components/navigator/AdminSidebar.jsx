@@ -1,15 +1,23 @@
 import {
   AccountCircle,
+  Announcement,
+  Article,
   Business,
   CheckCircle,
   CloudUpload,
+  Event,
+  Group,
   GroupAdd,
   HowToReg,
+  Hub,
   Label,
   MenuBook,
+  MonetizationOn,
+  Payment,
   People,
   Person,
   PieChart,
+  Public,
   School,
   Security,
   Settings,
@@ -36,6 +44,7 @@ function AdminSidebar({ mode }) {
     dashboard: false,
     selections: false,
     accounts: false,
+    posts: false,
   });
   const centerFlex = {
     display: "flex",
@@ -161,89 +170,134 @@ function AdminSidebar({ mode }) {
           </Collapse>
         )}
         <RouterLink
-          to="/selections"
+          to="/pup-feeds"
           style={{ textDecoration: "none", color: "inherit" }}
         >
-          <ListItemButton
-            selected={selectedIndex === 3}
-            onClick={!mode ? () => handleClick("selections") : undefined}
-            sx={centerFlex}
-          >
-            <ListItemIcon sx={centerFlex}>
-              <Settings
-                sx={{
-                  fontSize: mode && "2rem",
-                  textAlign: "center",
-                }}
-              />
-            </ListItemIcon>
-            {!mode && (
-              <ListItemText
-                primary={
-                  <Typography variant="body1" fontWeight={"bold"}>
-                    Selections
-                  </Typography>
-                }
-              />
-            )}
-          </ListItemButton>
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={!mode ? () => handleClick("posts") : undefined}
+              sx={centerFlex}
+            >
+              <ListItemIcon sx={centerFlex}>
+                <Hub
+                  sx={{
+                    fontSize: mode && "2rem",
+                    textAlign: "center",
+                  }}
+                />
+              </ListItemIcon>
+              {!mode && (
+                <ListItemText
+                  primary={
+                    <Typography variant="body1" fontWeight={"bold"}>
+                      PUP Feeds
+                    </Typography>
+                  }
+                />
+              )}
+            </ListItemButton>
+          </ListItem>
         </RouterLink>
         {!mode && (
-          <Collapse in={open?.selections || false}>
+          <Collapse in={open?.posts || false}>
             <List component="Box">
               <RouterLink
-                to="/selections/classifications"
+                to="/pup-feeds/announcements"
                 style={{ textDecoration: "none", color: "inherit" }}
               >
                 <ListItem disablePadding>
-                  <ListItemButton
-                    sx={{ ...centerFlex }}
-                  >
+                  <ListItemButton sx={{ ...centerFlex }}>
                     <ListItemIcon sx={{ ...centerFlex, marginLeft: "1rem" }}>
-                      <CheckCircle sx={{ textAlign: "center" }} />
+                      <Announcement sx={{ textAlign: "center" }} />
                     </ListItemIcon>
                     <ListItemText
                       primary={
                         <Typography variant="body1" fontWeight={"bold"}>
-                          Classes
+                          Bulletins
                         </Typography>
                       }
                     />
                   </ListItemButton>
                 </ListItem>
               </RouterLink>
+            </List>
+            <List component="Box">
               <RouterLink
-                to="/selections/courses"
+                to="/pup-feeds/news"
                 style={{ textDecoration: "none", color: "inherit" }}
               >
                 <ListItem disablePadding>
                   <ListItemButton sx={{ ...centerFlex }}>
                     <ListItemIcon sx={{ ...centerFlex, marginLeft: "1rem" }}>
-                      <MenuBook sx={{ textAlign: "center" }} />
+                      <Article sx={{ textAlign: "center" }} />
                     </ListItemIcon>
                     <ListItemText
                       primary={
                         <Typography variant="body1" fontWeight={"bold"}>
-                          Courses
+                          News
                         </Typography>
                       }
                     />
                   </ListItemButton>
                 </ListItem>
               </RouterLink>
+            </List>
+            <List component="Box">
               <RouterLink
-                to="/selections/jobs"
+                to="/pup-feeds/events"
                 style={{ textDecoration: "none", color: "inherit" }}
               >
                 <ListItem disablePadding>
                   <ListItemButton sx={{ ...centerFlex }}>
                     <ListItemIcon sx={{ ...centerFlex, marginLeft: "1rem" }}>
-                      <Business sx={{ textAlign: "center" }} />
+                      <Event sx={{ textAlign: "center" }} />
                     </ListItemIcon>
                     <ListItemText
                       primary={
                         <Typography variant="body1" fontWeight={"bold"}>
-                          Jobs
+                          Events
+                        </Typography>
+                      }
+                    />
+                  </ListItemButton>
+                </ListItem>
+              </RouterLink>
+            </List>
+            <List component="Box">
+              <RouterLink
+                to="/pup-feeds/fundraising"
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <ListItem disablePadding>
+                  <ListItemButton sx={{ ...centerFlex }}>
+                    <ListItemIcon sx={{ ...centerFlex, marginLeft: "1rem" }}>
+                      <MonetizationOn sx={{ textAlign: "center" }} />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={
+                        <Typography variant="body1" fontWeight={"bold"}>
+                          Fundraising
+                        </Typography>
+                      }
+                    />
+                  </ListItemButton>
+                </ListItem>
+              </RouterLink>
+            </List>
+            <List component="Box">
+              <RouterLink
+                to="/pup-feeds/fundraising/donations"
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <ListItem disablePadding>
+                  <ListItemButton sx={{ ...centerFlex }}>
+                    <ListItemIcon sx={{ ...centerFlex, marginLeft: "1rem" }}>
+                      <Payment sx={{ textAlign: "center" }} />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={
+                        <Typography variant="body1" fontWeight={"bold"}>
+                          Donations
                         </Typography>
                       }
                     />
@@ -430,6 +484,97 @@ function AdminSidebar({ mode }) {
                       primary={
                         <Typography variant="body1" fontWeight={"bold"}>
                           History
+                        </Typography>
+                      }
+                    />
+                  </ListItemButton>
+                </ListItem>
+              </RouterLink>
+            </List>
+          </Collapse>
+        )}
+        <RouterLink
+          to="/selections"
+          style={{ textDecoration: "none", color: "inherit" }}
+        >
+          <ListItemButton
+            selected={selectedIndex === 3}
+            onClick={!mode ? () => handleClick("selections") : undefined}
+            sx={centerFlex}
+          >
+            <ListItemIcon sx={centerFlex}>
+              <Settings
+                sx={{
+                  fontSize: mode && "2rem",
+                  textAlign: "center",
+                }}
+              />
+            </ListItemIcon>
+            {!mode && (
+              <ListItemText
+                primary={
+                  <Typography variant="body1" fontWeight={"bold"}>
+                    Selections
+                  </Typography>
+                }
+              />
+            )}
+          </ListItemButton>
+        </RouterLink>
+        {!mode && (
+          <Collapse in={open?.selections || false}>
+            <List component="Box">
+              <RouterLink
+                to="/selections/classifications"
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <ListItem disablePadding>
+                  <ListItemButton sx={{ ...centerFlex }}>
+                    <ListItemIcon sx={{ ...centerFlex, marginLeft: "1rem" }}>
+                      <CheckCircle sx={{ textAlign: "center" }} />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={
+                        <Typography variant="body1" fontWeight={"bold"}>
+                          Classes
+                        </Typography>
+                      }
+                    />
+                  </ListItemButton>
+                </ListItem>
+              </RouterLink>
+              <RouterLink
+                to="/selections/courses"
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <ListItem disablePadding>
+                  <ListItemButton sx={{ ...centerFlex }}>
+                    <ListItemIcon sx={{ ...centerFlex, marginLeft: "1rem" }}>
+                      <MenuBook sx={{ textAlign: "center" }} />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={
+                        <Typography variant="body1" fontWeight={"bold"}>
+                          Courses
+                        </Typography>
+                      }
+                    />
+                  </ListItemButton>
+                </ListItem>
+              </RouterLink>
+              <RouterLink
+                to="/selections/jobs"
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <ListItem disablePadding>
+                  <ListItemButton sx={{ ...centerFlex }}>
+                    <ListItemIcon sx={{ ...centerFlex, marginLeft: "1rem" }}>
+                      <Business sx={{ textAlign: "center" }} />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={
+                        <Typography variant="body1" fontWeight={"bold"}>
+                          Jobs
                         </Typography>
                       }
                     />

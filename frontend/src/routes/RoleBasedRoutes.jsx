@@ -29,7 +29,7 @@ import EmploymentDashboard from "../components/analytics/EmploymentDashboard";
 import ResponsesDashboard from "../components/analytics/ResponsesDashboard";
 const RoleBasedRoutes = () => {
   const { auth } = useAll();
-  const commonRoutes = (
+  const profileRoutes = (
     <>
       <Route
         path="feed"
@@ -106,6 +106,168 @@ const RoleBasedRoutes = () => {
     </>
   );
 
+  const adminRoutes = (
+    <>
+      <Route
+        path="dashboard/overalls"
+        element={
+          <MainLayout mode="admin">
+            <OverallDashboard />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="dashboard/employments"
+        element={
+          <MainLayout mode="admin">
+            <EmploymentDashboard />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="dashboard/response-rate"
+        element={
+          <MainLayout mode="admin">
+            <ResponsesDashboard />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="selections"
+        element={
+          <MainLayout mode="admin">
+            <ManageSelections />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="selections/classifications"
+        element={
+          <MainLayout mode="admin">
+            <ManageClassifications />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="selections/courses"
+        element={
+          <MainLayout mode="admin">
+            <ManageCourses />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="selections/jobs"
+        element={
+          <MainLayout mode="admin">
+            <ManageJobs />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="accounts"
+        element={
+          <MainLayout mode="admin">
+            <UploadProfiles />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="accounts/all-accounts"
+        element={
+          <MainLayout mode="admin">
+            <ManageAllProfiles />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="accounts/approve-users"
+        element={
+          <MainLayout mode="admin">
+            <ManageApproveUsers />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="accounts/users-accounts"
+        element={
+          <MainLayout mode="admin">
+            <ManageUserAccounts />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="accounts/upload-educations"
+        element={
+          <MainLayout mode="admin">
+            <ManageEducations />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="accounts/upload-employment"
+        element={
+          <MainLayout mode="admin">
+            <ManageEmployments />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="accounts/upload-achievements"
+        element={
+          <MainLayout mode="admin">
+            <ManageAchievements />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="accounts/upload-twowaylink"
+        element={
+          <MainLayout mode="admin">
+            <ManageTwoWayLink />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="accounts/upload-history"
+        element={
+          <MainLayout mode="admin">
+            <ManageUploadHistory />
+          </MainLayout>
+        }
+      />
+    </>
+  );
+
+  const publicRoutes = (
+    <>
+      <Route
+        path="profile/me/employment-details"
+        element={
+          <MainLayout mode="public">
+            <EditableEmploymentProfile />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="profile/me/educational-details"
+        element={
+          <MainLayout mode="public">
+            <EditableEducationProfile />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="profile/me/achievements-details"
+        element={
+          <MainLayout mode="public">
+            <EditableAchievementModal />
+          </MainLayout>
+        }
+      />
+    </>
+  );
+
   if (auth?.role === "public") {
     return (
       <Routes>
@@ -117,41 +279,24 @@ const RoleBasedRoutes = () => {
             </MainLayout>
           }
         />
-        <Route path="*" element={<Missing />} />
+        {publicRoutes}
         <Route
-          path="profile/me/employment-details"
+          path="*"
           element={
             <MainLayout mode="public">
-              <EditableEmploymentProfile />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="profile/me/educational-details"
-          element={
-            <MainLayout mode="public">
-              <EditableEducationProfile />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="profile/me/achievements-details"
-          element={
-            <MainLayout mode="public">
-              <EditableAchievementModal />
+              <Missing />
             </MainLayout>
           }
         />
       </Routes>
     );
   } else if (auth?.role === "alumni") {
-    return <Routes>{commonRoutes}</Routes>;
-  } else if (auth?.role === "faculty") {
-    return <Routes>{commonRoutes}</Routes>;
+    return <Routes>{profileRoutes}</Routes>;
+  } else if (auth?.role === "officer") {
+    return <Routes>{profileRoutes}</Routes>;
   } else if (auth?.role === "admin") {
     return (
       <Routes>
-        {commonRoutes}
         <Route
           path="home"
           element={
@@ -160,134 +305,8 @@ const RoleBasedRoutes = () => {
             </MainLayout>
           }
         />
-        <Route
-          path="dashboard/overalls"
-          element={
-            <MainLayout mode="admin">
-              <OverallDashboard />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="dashboard/employments"
-          element={
-            <MainLayout mode="admin">
-              <EmploymentDashboard />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="dashboard/response-rate"
-          element={
-            <MainLayout mode="admin">
-              <ResponsesDashboard />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="selections"
-          element={
-            <MainLayout mode="admin">
-              <ManageSelections />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="selections/classifications"
-          element={
-            <MainLayout mode="admin">
-              <ManageClassifications />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="selections/courses"
-          element={
-            <MainLayout mode="admin">
-              <ManageCourses />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="selections/jobs"
-          element={
-            <MainLayout mode="admin">
-              <ManageJobs />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="accounts"
-          element={
-            <MainLayout mode="admin">
-              <UploadProfiles />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="accounts/all-accounts"
-          element={
-            <MainLayout mode="admin">
-              <ManageAllProfiles />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="accounts/approve-users"
-          element={
-            <MainLayout mode="admin">
-              <ManageApproveUsers />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="accounts/users-accounts"
-          element={
-            <MainLayout mode="admin">
-              <ManageUserAccounts />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="accounts/upload-educations"
-          element={
-            <MainLayout mode="admin">
-              <ManageEducations />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="accounts/upload-employment"
-          element={
-            <MainLayout mode="admin">
-              <ManageEmployments />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="accounts/upload-achievements"
-          element={
-            <MainLayout mode="admin">
-              <ManageAchievements />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="accounts/upload-twowaylink"
-          element={
-            <MainLayout mode="admin">
-              <ManageTwoWayLink />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="accounts/upload-history"
-          element={
-            <MainLayout mode="admin">
-              <ManageUploadHistory />
-            </MainLayout>
-          }
-        />
+        {profileRoutes}
+        {adminRoutes}
         <Route
           path="*"
           element={

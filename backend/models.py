@@ -270,7 +270,6 @@ class Post(Base):
     content = Column(Text)
     content_date = Column(Date)
     post_type = Column(String)  # Discriminator column
-    supporting_link = Column(String)
     img_link = Column(String)
     video_link = Column(String)
     uploader_id = Column(UUID(as_uuid=True), ForeignKey('user.id', ondelete="CASCADE"))

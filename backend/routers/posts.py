@@ -18,14 +18,13 @@ router = APIRouter()
 user_dependency = Annotated[dict, Depends(get_current_user)]
 
 @router.post('/create-post')
-async def create_post(title: str = Form(...), content: str = Form(...), content_date: Optional[date] = Form(None), post_type: str = Form(...),  supporting_link: Optional[str] = Form(None), video_link: Optional[str] = Form(None), img: Optional[UploadFile] = File(None), goal_amount: Optional[int] = Form(None), event_date: Optional[date] = Form(None), end_date: Optional[date] = Form(None), db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+async def create_post(title: str = Form(...), content: str = Form(...), content_date: Optional[date] = Form(None), post_type: str = Form(...), video_link: Optional[str] = Form(None), img: Optional[UploadFile] = File(None), goal_amount: Optional[int] = Form(None), event_date: Optional[date] = Form(None), end_date: Optional[date] = Form(None), db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
   if post_type == "event" and event_date is not None:
     post = models.Event(
             title=title,
             content=content,
             content_date=content_date,
             post_type=post_type,
-            supporting_link = supporting_link or '',
             video_link = video_link or '',
             uploader_id = user.id,
             event_date=event_date,
@@ -37,7 +36,6 @@ async def create_post(title: str = Form(...), content: str = Form(...), content_
             content=content,
             content_date=content_date,
             post_type=post_type,
-            supporting_link = supporting_link or '',
             video_link = video_link or '',
             uploader_id = user.id,
             goal_amount=goal_amount,
@@ -48,7 +46,6 @@ async def create_post(title: str = Form(...), content: str = Form(...), content_
       content=content,
       content_date=content_date,
       post_type=post_type,
-      supporting_link = supporting_link or '',
       video_link = video_link or '',
       uploader_id = user.id,
     )
@@ -91,7 +88,6 @@ def fetch_posts(offset: int = 0, placing: int = 1, db: Session = Depends(get_db)
       'content': post.content,
       'content_date': post.content_date,
       'post_type': post.post_type,
-      'supporting_link': post.supporting_link,
       'img_link': post.img_link,
       'video_link': post.video_link,
       'uploader': {
@@ -99,6 +95,7 @@ def fetch_posts(offset: int = 0, placing: int = 1, db: Session = Depends(get_db)
         'last_name': post.uploader.last_name,
         'first_name': post.uploader.first_name,
         'username': post.uploader.username,
+        'profile_picture': post.uploader.profile_picture,
       },
       'event_date': post.event_date if isinstance(post, models.Event) else None,
       'end_date': post.end_date if isinstance(post, models.Event) else None,
@@ -113,7 +110,7 @@ def fetch_posts(offset: int = 0, placing: int = 1, db: Session = Depends(get_db)
   return result
 
 @router.put("/edit-post/{post_id}")
-async def edit_post(post_id: UUID, title: Optional[str] = Form(None), content: Optional[str] = Form(None), content_date: Optional[date] = Form(None), post_type: Optional[str] = Form(None),  supporting_link: Optional[str] = Form(None), video_link: Optional[str] = Form(None), img: Optional[UploadFile] = File(None), goal_amount: Optional[int] = Form(None), event_date: Optional[date] = Form(None), end_date: Optional[date] = Form(None), db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+async def edit_post(post_id: UUID, title: Optional[str] = Form(None), content: Optional[str] = Form(None), content_date: Optional[date] = Form(None), post_type: Optional[str] = Form(None), video_link: Optional[str] = Form(None), img: Optional[UploadFile] = File(None), goal_amount: Optional[int] = Form(None), event_date: Optional[date] = Form(None), end_date: Optional[date] = Form(None), db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
     post = db.query(models.Post).filter(models.Post.id == post_id).first()
 
     if not post:

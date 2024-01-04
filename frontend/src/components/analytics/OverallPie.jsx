@@ -1,5 +1,4 @@
 import { ResponsivePie } from "@nivo/pie";
-import mockdatapie from "../mockdata/mockdatapie";
 import React from "react";
 import useOverallResponseRate from "../../hooks/analytics/useOverallResponseRate";
 import { Box, Skeleton, Typography } from "@mui/material";
