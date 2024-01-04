@@ -27,6 +27,8 @@ import { ManageUploadHistory } from "../components/users_upload/ManageHistory";
 import OverallDashboard from "../components/analytics/OverallDashboard";
 import EmploymentDashboard from "../components/analytics/EmploymentDashboard";
 import ResponsesDashboard from "../components/analytics/ResponsesDashboard";
+import MainFeed from "../components/pup_feeds/MainFeed";
+import CreatePost from "../components/pup_feeds/CreatePost";
 const RoleBasedRoutes = () => {
   const { auth } = useAll();
   const profileRoutes = (
@@ -268,6 +270,27 @@ const RoleBasedRoutes = () => {
     </>
   );
 
+  const postRoutes = (
+    <>
+      <Route
+        path="pup-feeds"
+        element={
+          <MainLayout mode="admin">
+            <MainFeed />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="pup-feeds/create"
+        element={
+          <MainLayout mode="admin">
+            <CreatePost />
+          </MainLayout>
+        }
+      />
+    </>
+  );
+
   if (auth?.role === "public") {
     return (
       <Routes>
@@ -307,6 +330,7 @@ const RoleBasedRoutes = () => {
         />
         {profileRoutes}
         {adminRoutes}
+        {postRoutes}
         <Route
           path="*"
           element={

@@ -23,12 +23,15 @@ import AddJob from "./AddJobModal";
 
 export const ManageSelections = () => {
   const [value, setValue] = useState(0);
-  const [activeTab, setActiveTab] = useState("manage_classifications");
   const [modalOpen, setModalOpen] = useState({
     classification: false,
     job: false,
     course: false,
   });
+  const [activeTab, setActiveTab] = useState("manage_classifications");
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
 
   const handleModalOpen = (type) => {
     setModalOpen((prevState) => ({
@@ -46,20 +49,7 @@ export const ManageSelections = () => {
     }));
   };
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
 
-  const scrollToSection = (sectionId) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      const targetOffset = element.offsetTop - 165; // Fixed offset of -63
-      window.scrollTo({
-        top: targetOffset,
-        behavior: "smooth",
-      });
-    }
-  };
   return (
     <Box>
       <Box
