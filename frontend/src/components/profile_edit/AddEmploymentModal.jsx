@@ -26,7 +26,6 @@ import { Add } from "@mui/icons-material";
 
 import Autocomplete from "@mui/material/Autocomplete";
 import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
-import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers";
 import useJobs from "../../hooks/useJobs";
@@ -445,7 +444,6 @@ const AddEmploymentModal = ({ open, onClose }) => {
                   />
                 </Grid>
                 <Grid item xs={6}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DemoContainer components={["DatePicker"]}>
                       <DemoItem>
                         <DatePicker
@@ -459,7 +457,6 @@ const AddEmploymentModal = ({ open, onClose }) => {
                         />
                       </DemoItem>
                     </DemoContainer>
-                  </LocalizationProvider>
                 </Grid>
                 <Grid
                   item
@@ -468,7 +465,6 @@ const AddEmploymentModal = ({ open, onClose }) => {
                     display: employmentProfile?.current_job ? "none" : "block",
                   }}
                 >
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DemoContainer
                       components={["DatePicker"]}
                       sx={{ width: "100%" }}
@@ -483,7 +479,6 @@ const AddEmploymentModal = ({ open, onClose }) => {
                         />
                       </DemoItem>
                     </DemoContainer>
-                  </LocalizationProvider>
                 </Grid>
               </Grid>
             </Grid>

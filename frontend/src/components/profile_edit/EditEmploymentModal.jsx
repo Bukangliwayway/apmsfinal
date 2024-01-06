@@ -22,14 +22,10 @@ import {
   OutlinedInput,
 } from "@mui/material";
 
-import {
-  Add,
-} from "@mui/icons-material";
+import { Add } from "@mui/icons-material";
 
 import Autocomplete from "@mui/material/Autocomplete";
 import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
-import { LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import useGetEmploymentSpecific from "../../hooks/useGetEmploymentSpecific";
@@ -486,21 +482,19 @@ const EditEmploymentModal = ({ open, onClose, employmentID }) => {
                   />
                 </Grid>
                 <Grid item xs={6}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DemoContainer components={["DatePicker"]}>
-                      <DemoItem>
-                        <DatePicker
-                          name="date_hired"
-                          label="Date Hired"
-                          value={employmentProfile?.date_hired}
-                          onChange={handleDateHiredChange}
-                          renderInput={(params) => (
-                            <TextField {...params} required />
-                          )}
-                        />
-                      </DemoItem>
-                    </DemoContainer>
-                  </LocalizationProvider>
+                  <DemoContainer components={["DatePicker"]}>
+                    <DemoItem>
+                      <DatePicker
+                        name="date_hired"
+                        label="Date Hired"
+                        value={employmentProfile?.date_hired}
+                        onChange={handleDateHiredChange}
+                        renderInput={(params) => (
+                          <TextField {...params} required />
+                        )}
+                      />
+                    </DemoItem>
+                  </DemoContainer>
                 </Grid>
                 <Grid
                   item
@@ -509,22 +503,20 @@ const EditEmploymentModal = ({ open, onClose, employmentID }) => {
                     display: employmentProfile?.current_job ? "none" : "block",
                   }}
                 >
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DemoContainer
-                      components={["DatePicker"]}
-                      sx={{ width: "100%" }}
-                    >
-                      <DemoItem>
-                        <DatePicker
-                          name="date_end"
-                          label="Date End"
-                          value={employmentProfile?.date_end}
-                          onChange={handleDateEndChange}
-                          renderInput={(params) => <TextField {...params} />}
-                        />
-                      </DemoItem>
-                    </DemoContainer>
-                  </LocalizationProvider>
+                  <DemoContainer
+                    components={["DatePicker"]}
+                    sx={{ width: "100%" }}
+                  >
+                    <DemoItem>
+                      <DatePicker
+                        name="date_end"
+                        label="Date End"
+                        value={employmentProfile?.date_end}
+                        onChange={handleDateEndChange}
+                        renderInput={(params) => <TextField {...params} />}
+                      />
+                    </DemoItem>
+                  </DemoContainer>
                 </Grid>
               </Grid>
             </Grid>

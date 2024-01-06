@@ -1,6 +1,5 @@
 import { useState, useRef, forwardRef, useEffect } from "react";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { useMutation } from "react-query";
 import { IMaskInput } from "react-imask";
@@ -27,7 +26,6 @@ import {
   CardContent,
 } from "@mui/material";
 
-import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import dayjs from "dayjs";
 const StudentNumberMask = forwardRef(function StudentNumberMask(props, ref) {
   const { onChange, ...other } = props;
@@ -460,7 +458,6 @@ const Register = () => {
                     <Typography gutterBottom fontSize={14} fontWeight={600}>
                       Birthdate
                     </Typography>
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DatePicker
                         disableFuture
                         slotProps={{ textField: { size: "small" } }}
@@ -473,7 +470,6 @@ const Register = () => {
                         )}
                         required
                       />
-                    </LocalizationProvider>
                   </Grid>
                   <Grid item xs={12}>
                     <ReCAPTCHA

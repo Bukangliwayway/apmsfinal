@@ -35,7 +35,6 @@ import {
 import Autocomplete from "@mui/material/Autocomplete";
 import Chip from "@mui/material/Chip";
 import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
-import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
@@ -280,7 +279,6 @@ const careerProfileEditModal = ({ open, onClose }) => {
           </Grid>
           {auth?.role == "public" && (
             <Grid item xs={12}>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DemoContainer components={["DatePicker"]}>
                   <DemoItem>
                     <DatePicker
@@ -296,7 +294,6 @@ const careerProfileEditModal = ({ open, onClose }) => {
                     />
                   </DemoItem>
                 </DemoContainer>
-              </LocalizationProvider>
             </Grid>
           )}
           <Grid item xs={12}>
