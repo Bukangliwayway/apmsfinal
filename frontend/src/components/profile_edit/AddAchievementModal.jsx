@@ -20,7 +20,6 @@ import {
 } from "@mui/material";
 
 import Autocomplete from "@mui/material/Autocomplete";
-import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import { Add } from "@mui/icons-material";
@@ -319,21 +318,17 @@ const AddAchievementModal = ({ open, onClose }) => {
               </Typography>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
-                    <DemoContainer components={["DatePicker"]}>
-                      <DemoItem>
-                        <DatePicker
-                          views={["year"]}
-                          label="year attained"
-                          value={
-                            achievementProfile?.date_of_attainment
-                              ? dayjs(achievementProfile?.date_of_attainment)
-                              : null
-                          }
-                          onChange={handleDateChange}
-                          renderInput={(params) => <TextField {...params} />}
-                        />
-                      </DemoItem>
-                    </DemoContainer>
+                  <DatePicker
+                    views={["year"]}
+                    label="year attained"
+                    value={
+                      achievementProfile?.date_of_attainment
+                        ? dayjs(achievementProfile?.date_of_attainment)
+                        : null
+                    }
+                    onChange={handleDateChange}
+                    renderInput={(params) => <TextField {...params} />}
+                  />
                 </Grid>
                 <Grid item xs={12}>
                   <TextField

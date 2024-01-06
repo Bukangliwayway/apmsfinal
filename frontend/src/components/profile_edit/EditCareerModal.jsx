@@ -34,7 +34,6 @@ import {
 
 import Autocomplete from "@mui/material/Autocomplete";
 import Chip from "@mui/material/Chip";
-import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
@@ -279,21 +278,17 @@ const careerProfileEditModal = ({ open, onClose }) => {
           </Grid>
           {auth?.role == "public" && (
             <Grid item xs={12}>
-                <DemoContainer components={["DatePicker"]}>
-                  <DemoItem>
-                    <DatePicker
-                      views={["year"]}
-                      label="Batch Year"
-                      value={
-                        careerProfile?.date_graduated
-                          ? dayjs(careerProfile.date_graduated)
-                          : null
-                      }
-                      onChange={handleDateChange}
-                      renderInput={(params) => <TextField {...params} />}
-                    />
-                  </DemoItem>
-                </DemoContainer>
+              <DatePicker
+                views={["year"]}
+                label="Batch Year"
+                value={
+                  careerProfile?.date_graduated
+                    ? dayjs(careerProfile.date_graduated)
+                    : null
+                }
+                onChange={handleDateChange}
+                renderInput={(params) => <TextField {...params} />}
+              />
             </Grid>
           )}
           <Grid item xs={12}>

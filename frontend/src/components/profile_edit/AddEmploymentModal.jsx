@@ -25,8 +25,6 @@ import {
 import { Add } from "@mui/icons-material";
 
 import Autocomplete from "@mui/material/Autocomplete";
-import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers";
 import useJobs from "../../hooks/useJobs";
 import useRegions from "../../hooks/useRegion";
@@ -444,8 +442,7 @@ const AddEmploymentModal = ({ open, onClose }) => {
                   />
                 </Grid>
                 <Grid item xs={6}>
-                    <DemoContainer components={["DatePicker"]}>
-                      <DemoItem>
+ 
                         <DatePicker
                           name="date_hired"
                           label="Date Hired"
@@ -455,8 +452,7 @@ const AddEmploymentModal = ({ open, onClose }) => {
                             <TextField {...params} required />
                           )}
                         />
-                      </DemoItem>
-                    </DemoContainer>
+                    
                 </Grid>
                 <Grid
                   item
@@ -465,11 +461,7 @@ const AddEmploymentModal = ({ open, onClose }) => {
                     display: employmentProfile?.current_job ? "none" : "block",
                   }}
                 >
-                    <DemoContainer
-                      components={["DatePicker"]}
-                      sx={{ width: "100%" }}
-                    >
-                      <DemoItem>
+                  
                         <DatePicker
                           name="date_end"
                           label="Date End"
@@ -477,8 +469,7 @@ const AddEmploymentModal = ({ open, onClose }) => {
                           onChange={handleDateEndChange}
                           renderInput={(params) => <TextField {...params} />}
                         />
-                      </DemoItem>
-                    </DemoContainer>
+                     
                 </Grid>
               </Grid>
             </Grid>

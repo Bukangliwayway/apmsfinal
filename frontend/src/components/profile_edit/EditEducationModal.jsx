@@ -24,7 +24,6 @@ import {
 import { Add } from "@mui/icons-material";
 
 import Autocomplete from "@mui/material/Autocomplete";
-import { DemoContainer, DemoItem } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
@@ -374,20 +373,14 @@ const EditEducationModal = ({ open, onClose, educationID }) => {
                   />
                 </Grid>
                 <Grid item xs={6}>
-                    <DemoContainer components={["DatePicker"]}>
-                      <DemoItem>
-                        <DatePicker
-                          views={["year", "month"]}
-                          name="date_started"
-                          label="Date Started"
-                          value={educationProfile?.date_start}
-                          onChange={handleDateStarted}
-                          renderInput={(params) => (
-                            <TextField {...params} required />
-                          )}
-                        />
-                      </DemoItem>
-                    </DemoContainer>
+                  <DatePicker
+                    views={["year", "month"]}
+                    name="date_started"
+                    label="Date Started"
+                    value={educationProfile?.date_start}
+                    onChange={handleDateStarted}
+                    renderInput={(params) => <TextField {...params} required />}
+                  />
                 </Grid>
                 <Grid
                   item
@@ -398,21 +391,14 @@ const EditEducationModal = ({ open, onClose, educationID }) => {
                       : "block",
                   }}
                 >
-                    <DemoContainer
-                      components={["DatePicker"]}
-                      sx={{ width: "100%" }}
-                    >
-                      <DemoItem>
-                        <DatePicker
-                          views={["year", "month"]}
-                          name="date_graduated"
-                          label="Date Graduated"
-                          value={educationProfile?.date_graduated}
-                          onChange={handleDateGraduated}
-                          renderInput={(params) => <TextField {...params} />}
-                        />
-                      </DemoItem>
-                    </DemoContainer>
+                  <DatePicker
+                    views={["year", "month"]}
+                    name="date_graduated"
+                    label="Date Graduated"
+                    value={educationProfile?.date_graduated}
+                    onChange={handleDateGraduated}
+                    renderInput={(params) => <TextField {...params} />}
+                  />
                 </Grid>
               </Grid>
             </Grid>
