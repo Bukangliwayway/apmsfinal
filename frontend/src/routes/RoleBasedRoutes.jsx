@@ -281,7 +281,7 @@ const RoleBasedRoutes = () => {
         }
       />
       <Route
-        path="pup-feeds/create"
+        path="pup-feeds/create/:type"
         element={
           <MainLayout mode="admin">
             <CreatePost />

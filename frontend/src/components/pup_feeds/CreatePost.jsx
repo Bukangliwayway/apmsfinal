@@ -4,10 +4,16 @@ import {
   Tab,
   Tabs,
   TextField,
-  Button,
+  Tooltip,
   Stack,
   Typography,
+  InputAdornment,
+  IconButton,
+  Input,
+  CardActionArea,
+  Button,
 } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers";
 import {
   Announcement,
   Article,
@@ -16,6 +22,8 @@ import {
   Lock,
   LockOpen,
   TextFields,
+  VideoLibrary,
+  Photo,
 } from "@mui/icons-material";
 import { useRef, useState } from "react";
 import {
@@ -27,25 +35,123 @@ import {
 } from "mui-tiptap";
 import ContentTextFieldControls from "./ContentTextFieldControls";
 import useExtensions from "./useExtensions";
+import { useParams } from "react-router-dom";
+import useAll from "../../hooks/utilities/useAll";
+import { useMutation } from "react-query";
 
 const CreatePost = () => {
+  const { type } = useParams();
   const extensions = useExtensions({
     placeholder: "Add your own content here...",
   });
   const rteRef = useRef(null);
   const [showMenuBar, setShowMenuBar] = useState(true);
   const [isEditable, setIsEditable] = useState(true);
-  const [submittedContent, setSubmittedContent] = useState("");
-  const [value, setValue] = useState(-1);
-  const [postType, setPostType] = useState("news");
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
+  const [content, setContent] = useState("");
+  const [goalAmount, setGoalAmount] = useState("");
+  const {
+    setAuth,
+    auth,
+    setMessage,
+    setSeverity,
+    setOpenSnackbar,
+    setLinearLoading,
+  } = useAll();
+
+  const typeToValueMap = {
+    announcement: 0,
+    news: 1,
+    event: 2,
+    fundraising: 3,
+  };
+  const [value, setValue] = useState(
+    type !== null && type !== undefined ? typeToValueMap[type] : -1
+  );
+  const [postType, setPostType] = useState(type || "");
+  const [title, setTitle] = useState("");
+  const [date, setDate] = useState();
+  const [endDate, setEndDate] = useState();
+  const [photo, setPhoto] = useState({});
+  const [video, setVideo] = useState("");
+
+  const PostMutation = useMutation(
+    async (details) => {
+      const axiosConfig = {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        withCredentials: true, // Set this to true for cross-origin requests with credentials
+      };
+
+      await axios.post(`/posts/create-post`, details, axiosConfig);
+    },
+    {
+      onError: (error) => {
+        setMessage(error.response ? error.response.data.detail : error.message);
+        setSeverity("error");
+        setOpenSnackbar(true);
+      },
+      onSuccess: (response) => {
+        const data = response?.data;
+        setAuth(username, data?.role, data?.access_token);
+        if (auth) {
+          navigate(from, { replace: true });
+        }
+      },
+      onSettled: () => {
+        setLinearLoading(false);
+      },
+    }
+  );
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (
+      !postType ||
+      (postType == "fundraising" && !goalAmount) ||
+      !title ||
+      !content ||
+      !date
+    ) {
+      setMessage("please fill out all of the required fields.");
+      setSeverity("error");
+      setOpenSnackbar(true);
+      return;
+    }
+
+    const payload = new FormData();
+    payload.append("title", title);
+    payload.append("content", content);
+    payload.append("content_date", date?.format("YYYY-MM-DD"));
+    payload.append("post_type", postType);
+    payload.append("video_link", video);
+    payload.append("img", photo?.file);
+    payload.append("goal_amount", goalAmount);
+    payload.append("end_date", endDate?.format("YYYY-MM-DD"));
+
+    setLinearLoading(true);
+    await PostMutation.mutateAsync(payload);
   };
 
   return (
-    <Grid container width={"75%"} mx={"auto"} sx={{ display: "flex", gap: 2 }}>
+    <Grid
+      container
+      width={"75%"}
+      mx={"auto"}
+      sx={{
+        display: "flex",
+        gap: 2,
+        backgroundColor: (theme) => theme.palette.common.main,
+        paddingX: "1rem",
+      }}
+    >
       <Grid item xs={12}>
-        <Tabs value={value} onChange={handleChange} variant="fullWidth">
+        <Tabs
+          value={value}
+          onChange={(event, newValue) => setValue(newValue)}
+          variant="fullWidth"
+        >
           <Tab
             icon={<Announcement />}
             label="Announcement"
@@ -59,7 +165,7 @@ const CreatePost = () => {
           <Tab
             icon={<Event />}
             label="Events"
-            onClick={() => setPostType("events")}
+            onClick={() => setPostType("event")}
           />
           <Tab
             icon={<MonetizationOn />}
@@ -69,7 +175,12 @@ const CreatePost = () => {
         </Tabs>
       </Grid>
       <Grid item xs={12}>
-        <TextField fullWidth required label="Content Title" />
+        <TextField
+          fullWidth
+          required
+          label="Content Title"
+          onChange={(event) => setTitle(event.target.value)}
+        />
       </Grid>
       <Grid item xs={12}>
         <Box
@@ -84,7 +195,9 @@ const CreatePost = () => {
           <RichTextEditor
             ref={rteRef}
             extensions={extensions}
-            // content={exampleContent}
+            onBlur={() => {
+              setContent(rteRef.current?.editor?.getHTML() ?? "");
+            }}
             editable={isEditable}
             renderControls={() => <ContentTextFieldControls />}
             RichTextFieldProps={{
@@ -131,18 +244,6 @@ const CreatePost = () => {
                     selected={!isEditable}
                     IconComponent={isEditable ? Lock : LockOpen}
                   />
-
-                  <Button
-                    variant="contained"
-                    size="small"
-                    onClick={() => {
-                      setSubmittedContent(
-                        rteRef.current?.editor?.getHTML() ?? ""
-                      );
-                    }}
-                  >
-                    Save
-                  </Button>
                 </Stack>
               ),
             }}
@@ -155,6 +256,148 @@ const CreatePost = () => {
             )}
           </RichTextEditor>
         </Box>
+      </Grid>
+      <Grid item xs={postType == "event" ? 6 : 12}>
+        <DatePicker
+          slotProps={{ textField: { size: "small" } }}
+          label={postType == "event" ? "Event Start Date" : "Content Date"}
+          placeholder="Input the Date to be highlighted here"
+          value={date}
+          onChange={(date) => setDate(date)}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              fullWidth
+              helperText="Leave this one blank if event is just 1 day"
+            />
+          )}
+          required
+        />
+      </Grid>
+      {postType == "event" && (
+        <Tooltip title="Leave this one blank if Event is just 1 Day">
+          <Grid item xs={5}>
+            <DatePicker
+              slotProps={{ textField: { size: "small" } }}
+              label="Event End Date"
+              name="End Date"
+              placeholder="Input the Date to be highlighted here"
+              value={endDate}
+              onChange={(endDate) => setEndDate(endDate)}
+              renderInput={(params) => <TextField {...params} fullWidth />}
+            />
+          </Grid>
+        </Tooltip>
+      )}
+
+      {postType == "fundraising" && (
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Goal Amount"
+            value={goalAmount}
+            onChange={(e) => {
+              const sanitizedValue = event.target.value.replace(/\D/g, "");
+              setGoalAmount(sanitizedValue);
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <IconButton>
+                    <MonetizationOn />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Grid>
+      )}
+      <Grid item xs={12}>
+        <TextField
+          fullWidth
+          label="Video Link "
+          onChange={(event) => {
+            setVideo(event.target.value);
+            console.log(video);
+          }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <IconButton>
+                  <VideoLibrary />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <Tooltip title="Click to Upload an Image">
+          <CardActionArea component="label" htmlFor="image-upload-input">
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "100%",
+                height: 450,
+                background: `url(${photo?.url || "/no-image.jpeg"})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                color: "black",
+              }}
+            >
+              <input
+                type="file"
+                accept="image/*"
+                id="image-upload-input"
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  console.log("tangina");
+                  const file = e.target.files[0]; // Get the selected file
+                  if (file) {
+                    setPhoto(() => ({
+                      file: file,
+                      url: URL.createObjectURL(file),
+                      name: file.name,
+                    }));
+                  }
+                }}
+              />
+              <Box
+                backgroundColor="white"
+                p={"1rem"}
+                sx={{ borderRadius: "1rem" }}
+              >
+                <Typography
+                  variant={"h6"}
+                  sx={{ display: "flex", gap: 2, alignItems: "center" }}
+                >
+                  <Photo />
+                  Click to upload an Image Content
+                </Typography>
+              </Box>
+            </Box>
+            <Typography
+              sx={{ backgroundColor: "inherit", padding: 1 }}
+              variant="body2"
+            >
+              {photo.name}
+            </Typography>
+          </CardActionArea>
+        </Tooltip>
+      </Grid>
+      <Grid xs={12} pt={2} pb={4}>
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          fullWidth
+          onClick={handleSubmit}
+        >
+          Post
+        </Button>
       </Grid>
     </Grid>
   );

@@ -29,7 +29,7 @@ const MainFeed = () => {
       >
         <Box sx={{ display: "flex", flexDirection: "row" }}>
           <ListItem>
-            <ListItemButton onClick={() => navigate("create")}>
+            <ListItemButton onClick={() => navigate("create/announcement")}>
               <ListItemIcon>
                 <AddBox />
               </ListItemIcon>
@@ -37,25 +37,19 @@ const MainFeed = () => {
             </ListItemButton>
           </ListItem>
           <Box sx={{ display: "flex", flexDirection: "row" }}>
+            <ListItem></ListItem>
             <ListItem>
-              <ListItemIcon>
-                <ListItemButton onClick={() => navigate("create")}>
-                  <Announcement />
-                </ListItemButton>
-              </ListItemIcon>
-            </ListItem>
-            <ListItem>
-              <ListItemButton onClick={() => navigate("create")}>
+              <ListItemButton onClick={() => navigate("create/news")}>
                 <Article />
               </ListItemButton>
             </ListItem>
             <ListItem>
-              <ListItemButton onClick={() => navigate("create")}>
+              <ListItemButton onClick={() => navigate("create/event")}>
                 <Event />
               </ListItemButton>
             </ListItem>
             <ListItem>
-              <ListItemButton onClick={() => navigate("create")}>
+              <ListItemButton onClick={() => navigate("create/fundraising")}>
                 <MonetizationOn />
               </ListItemButton>
             </ListItem>

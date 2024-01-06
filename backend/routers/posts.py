@@ -18,8 +18,8 @@ router = APIRouter()
 user_dependency = Annotated[dict, Depends(get_current_user)]
 
 @router.post('/create-post')
-async def create_post(title: str = Form(...), content: str = Form(...), content_date: Optional[date] = Form(None), post_type: str = Form(...), video_link: Optional[str] = Form(None), img: Optional[UploadFile] = File(None), goal_amount: Optional[int] = Form(None), event_date: Optional[date] = Form(None), end_date: Optional[date] = Form(None), db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
-  if post_type == "event" and event_date is not None:
+async def create_post(title: str = Form(...), content: str = Form(...), content_date: Optional[date] = Form(None), post_type: str = Form(...), video_link: Optional[str] = Form(None), img: Optional[UploadFile] = File(None), goal_amount: Optional[int] = Form(None), end_date: Optional[date] = Form(None), db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+  if post_type == "event" and content_date is not None:
     post = models.Event(
             title=title,
             content=content,
@@ -27,7 +27,7 @@ async def create_post(title: str = Form(...), content: str = Form(...), content_
             post_type=post_type,
             video_link = video_link or '',
             uploader_id = user.id,
-            event_date=event_date,
+            event_date=content_date,
             end_date=end_date,
           )
   elif post_type == "fundraising" and goal_amount is not None:

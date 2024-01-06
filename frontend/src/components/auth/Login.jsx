@@ -116,8 +116,6 @@ const Login = () => {
     await LoginMutation.mutateAsync(dataString);
   };
 
-  LoginMutation;
-
   return (
     <>
       <Box
