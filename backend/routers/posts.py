@@ -40,8 +40,17 @@ async def create_post(title: str = Form(...), content: str = Form(...), content_
             uploader_id = user.id,
             goal_amount=goal_amount,
           )
-  elif post_type == 'news' or post_type == 'announcement':
-    post = models.Post(
+  elif post_type == 'news':
+    post = models.News(
+      title=title,
+      content=content,
+      content_date=content_date,
+      post_type=post_type,
+      video_link = video_link or '',
+      uploader_id = user.id,
+    )
+  elif post_type == 'announcement':
+    post = models.Announcement(
       title=title,
       content=content,
       content_date=content_date,
@@ -50,6 +59,7 @@ async def create_post(title: str = Form(...), content: str = Form(...), content_
       uploader_id = user.id,
     )
   else:
+    print(post_type)
     raise HTTPException(status_code=400, detail='Invalid Post')
   
   db.add(post)

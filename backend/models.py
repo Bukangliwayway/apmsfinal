@@ -274,7 +274,20 @@ class Post(Base):
     video_link = Column(String)
     uploader_id = Column(UUID(as_uuid=True), ForeignKey('user.id', ondelete="CASCADE"))
     uploader = relationship("User", back_populates="post")
-    __mapper_args__ = {'polymorphic_on': post_type}
+    __mapper_args__ = {
+        'polymorphic_identity': 'post',
+        'polymorphic_on': post_type
+    }
+
+class Announcement(Post):
+    __tablename__ = 'announcement'
+    id = Column(UUID(as_uuid=True), ForeignKey('post.id', ondelete="CASCADE"), primary_key=True)
+    __mapper_args__ = {'polymorphic_identity': 'announcement'}
+
+class News(Post):
+    __tablename__ = 'news'
+    id = Column(UUID(as_uuid=True), ForeignKey('post.id', ondelete="CASCADE"), primary_key=True)
+    __mapper_args__ = {'polymorphic_identity': 'news'}
 
 class Event(Post):
     __tablename__ = 'event'

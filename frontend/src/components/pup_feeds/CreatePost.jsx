@@ -35,11 +35,14 @@ import {
 } from "mui-tiptap";
 import ContentTextFieldControls from "./ContentTextFieldControls";
 import useExtensions from "./useExtensions";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import useAll from "../../hooks/utilities/useAll";
 import { useMutation } from "react-query";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
 const CreatePost = () => {
+  const navigate = useNavigate();
+  const axiosPrivate = useAxiosPrivate();
   const { type } = useParams();
   const extensions = useExtensions({
     placeholder: "Add your own content here...",
@@ -67,15 +70,15 @@ const CreatePost = () => {
   const [value, setValue] = useState(
     type !== null && type !== undefined ? typeToValueMap[type] : -1
   );
-  const [postType, setPostType] = useState(type || "");
   const [title, setTitle] = useState("");
   const [date, setDate] = useState();
   const [endDate, setEndDate] = useState();
   const [photo, setPhoto] = useState({});
+  const [postType, setPostType] = useState(type || "announcement");
   const [video, setVideo] = useState("");
 
   const PostMutation = useMutation(
-    async (details) => {
+    async (postProfile) => {
       const axiosConfig = {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -83,7 +86,7 @@ const CreatePost = () => {
         withCredentials: true, // Set this to true for cross-origin requests with credentials
       };
 
-      await axios.post(`/posts/create-post`, details, axiosConfig);
+      await axiosPrivate.post(`/posts/create-post`, postProfile, axiosConfig);
     },
     {
       onError: (error) => {
@@ -92,14 +95,16 @@ const CreatePost = () => {
         setOpenSnackbar(true);
       },
       onSuccess: (response) => {
-        const data = response?.data;
-        setAuth(username, data?.role, data?.access_token);
-        if (auth) {
-          navigate(from, { replace: true });
-        }
+        const capitalizedPostType =
+          postType.charAt(0).toUpperCase() + postType.slice(1);
+
+        setMessage(`${capitalizedPostType} Posted Successfully`);
+        setSeverity("success");
+        navigate("/pup-feeds");
       },
       onSettled: () => {
         setLinearLoading(false);
+        setOpenSnackbar(true);
       },
     }
   );
@@ -123,12 +128,26 @@ const CreatePost = () => {
     const payload = new FormData();
     payload.append("title", title);
     payload.append("content", content);
-    payload.append("content_date", date?.format("YYYY-MM-DD"));
     payload.append("post_type", postType);
-    payload.append("video_link", video);
-    payload.append("img", photo?.file);
-    payload.append("goal_amount", goalAmount);
-    payload.append("end_date", endDate?.format("YYYY-MM-DD"));
+    if (date) {
+      payload.append("content_date", date.format("YYYY-MM-DD"));
+    }
+
+    if (video) {
+      payload.append("video_link", video);
+    }
+
+    if (photo?.file) {
+      payload.append("img", photo.file);
+    }
+
+    if (goalAmount) {
+      payload.append("goal_amount", goalAmount);
+    }
+
+    if (endDate) {
+      payload.append("end_date", endDate.format("YYYY-MM-DD"));
+    }
 
     setLinearLoading(true);
     await PostMutation.mutateAsync(payload);
@@ -318,7 +337,6 @@ const CreatePost = () => {
           label="Video Link "
           onChange={(event) => {
             setVideo(event.target.value);
-            console.log(video);
           }}
           InputProps={{
             startAdornment: (
@@ -354,7 +372,6 @@ const CreatePost = () => {
                 id="image-upload-input"
                 style={{ display: "none" }}
                 onChange={(e) => {
-                  console.log("tangina");
                   const file = e.target.files[0]; // Get the selected file
                   if (file) {
                     setPhoto(() => ({

@@ -202,7 +202,7 @@ function AdminSidebar({ mode }) {
           <Collapse in={open?.posts || false}>
             <List component="Box">
               <RouterLink
-                to="/pup-feeds/announcements"
+                to="/pup-feeds/announcement"
                 style={{ textDecoration: "none", color: "inherit" }}
               >
                 <ListItem disablePadding>
@@ -244,7 +244,7 @@ function AdminSidebar({ mode }) {
             </List>
             <List component="Box">
               <RouterLink
-                to="/pup-feeds/events"
+                to="/pup-feeds/event"
                 style={{ textDecoration: "none", color: "inherit" }}
               >
                 <ListItem disablePadding>

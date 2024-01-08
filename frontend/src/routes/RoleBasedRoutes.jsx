@@ -29,6 +29,10 @@ import EmploymentDashboard from "../components/analytics/EmploymentDashboard";
 import ResponsesDashboard from "../components/analytics/ResponsesDashboard";
 import MainFeed from "../components/pup_feeds/MainFeed";
 import CreatePost from "../components/pup_feeds/CreatePost";
+import AnnouncementFeed from "../components/pup_feeds/AnnouncementFeed";
+import NewsFeed from "../components/pup_feeds/NewsFeed";
+import EventFeed from "../components/pup_feeds/EventFeed";
+import FundraisingFeed from "../components/pup_feeds/FundraisingFeed";
 const RoleBasedRoutes = () => {
   const { auth } = useAll();
   const profileRoutes = (
@@ -277,6 +281,38 @@ const RoleBasedRoutes = () => {
         element={
           <MainLayout mode="admin">
             <MainFeed />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="pup-feeds/announcement"
+        element={
+          <MainLayout mode="admin">
+            <AnnouncementFeed />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="pup-feeds/news"
+        element={
+          <MainLayout mode="admin">
+            <NewsFeed />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="pup-feeds/event"
+        element={
+          <MainLayout mode="admin">
+            <EventFeed />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="pup-feeds/fundraising"
+        element={
+          <MainLayout mode="admin">
+            <FundraisingFeed />
           </MainLayout>
         }
       />
