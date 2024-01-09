@@ -16,10 +16,11 @@ import { Delete, Edit, MoreHoriz } from "@mui/icons-material";
 import PopupState, { bindTrigger, bindMenu } from "material-ui-popup-state";
 import useAll from "../../hooks/utilities/useAll";
 import DeletePostModal from "./DeletePostModal";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const AllFeedsContent = () => {
-
+  const location = useLocation();
+  const [reload, setReload] = useState(location.state?.reload || false);
   const [load, setLoad]  = useState({offset:0, placing: 10})
   const navigate = useNavigate();
   const [useLoad, setUseLoad]  = useState({offset:0, placing: 10})
@@ -28,7 +29,14 @@ const AllFeedsContent = () => {
     isLoading: isLoadingFeeds,
     isError: isErrorFeeds,
     error: errorFeeds,
+    refetch
   } = useGetAllFeeds(load.offset, load.placing);
+
+  useEffect(() => {
+    if (reload) {
+      refetch()
+    }
+  }, [reload]);
 
   const { mode } = useAll();
 

@@ -10,6 +10,8 @@ from starlette import status
 from backend.schemas import UserResponse
 from backend import models
 import cloudinary.uploader
+from datetime import datetime
+
 import pandas as pd
 import os
 
@@ -142,6 +144,7 @@ async def edit_post(post_id: UUID, title: Optional[str] = Form(None), content: O
         result = cloudinary.uploader.upload(contents, public_id=f"{folder}/{filename}", tags=[f'post_img{post.id}'])
         post.img_link = result.get("url")
 
+    post.updated_at = datetime.utcnow()
     db.commit()
 
 

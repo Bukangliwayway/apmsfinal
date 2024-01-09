@@ -114,7 +114,11 @@ const ModifyPost = () => {
 
         setMessage(`${capitalizedPostType} Updated Successfully`);
         setSeverity("success");
-        navigate("/pup-feeds");
+        navigate("/pup-feeds", {
+          state: {
+            reload: true,
+          },
+        });
       },
       onSettled: () => {
         setLinearLoading(false);
