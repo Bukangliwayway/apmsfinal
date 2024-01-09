@@ -41,18 +41,8 @@ const ContentTextFieldControls = () => {
       <MenuButtonUndo />
       <MenuButtonRedo />
       <MenuDivider />
-      <MenuSelectFontFamily
-        options={[
-          { label: "Comic Sans", value: "Comic Sans MS, Comic Sans" },
-          { label: "Cursive", value: "cursive" },
-          { label: "Monospace", value: "monospace" },
-          { label: "Serif", value: "serif" },
-        ]}
-      />
 
-      <MenuDivider />
-
-      <MenuSelectHeading />
+      <MenuSelectHeading levels={[3, "paragraph"]} />
 
       <MenuDivider />
       <MenuButtonBold />

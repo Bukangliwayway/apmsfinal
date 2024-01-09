@@ -14,20 +14,22 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  Card,
 } from "@mui/material";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import AllFeedsContent from "./AllFeedsContent";
 
 const MainFeed = () => {
   const navigate = useNavigate();
   return (
-    <Grid container width={"75%"} mx={"auto"} sx={{ display: "flex", gap: 2 }}>
+    <Grid container width={"50%"} mx={"auto"} sx={{ display: "flex", gap: 2 }}>
       <Grid
         item
         xs={12}
         sx={{ backgroundColor: (theme) => theme.palette.common.main }}
       >
-        <Box sx={{ display: "flex", flexDirection: "row" }}>
+        <Card sx={{ display: "flex", flexDirection: "row" }}>
           <ListItem>
             <ListItemButton onClick={() => navigate("create/announcement")}>
               <ListItemIcon>
@@ -54,7 +56,13 @@ const MainFeed = () => {
               </ListItemButton>
             </ListItem>
           </Box>
-        </Box>
+        </Card>
+      </Grid>
+      <Grid
+        item
+        xs={12}
+      >
+        <AllFeedsContent/>
       </Grid>
     </Grid>
   );

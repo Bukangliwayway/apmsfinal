@@ -73,7 +73,7 @@ async def create_post(title: str = Form(...), content: str = Form(...), content_
     post.img_link = result.get("url")
     db.commit()
 
-@router.get('/fetch-post')
+@router.get('/fetch-post/{offset}/{placing}')
 def fetch_posts(offset: int = 0, placing: int = 1, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
   limit = 10
   start = offset * placing

@@ -16,7 +16,7 @@ export const AllProvider = ({ children }) => {
     localStorage.getItem("persist") == "true"
   );
 
-  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: light)");
   const [mode, setMode] = useState(prefersDarkMode ? "dark" : "light");
 
   return (

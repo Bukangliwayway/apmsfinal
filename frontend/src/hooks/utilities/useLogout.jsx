@@ -23,7 +23,7 @@ const useLogout = () => {
       : "Logged Out Successfully!";
     try {
       setBackdropLoading(true);
-      queryClient.cancelQueries();
+      // queryClient.cancelQueries();
       await axios("/auth/logout", {
         withCredentials: true,
       });
