@@ -145,13 +145,13 @@ async def edit_post(post_id: UUID, title: Optional[str] = Form(None), content: O
     db.commit()
 
 
-@router.put("/delete-post/{post_id}")
+@router.delete("/delete-post/{post_id}")
 async def delete_post(post_id: UUID, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
     post = db.query(models.Post).filter(models.Post.id == post_id).first()
 
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
-
-    post.deleted_at = datetime.utcnow()
+    db.delete(post)
     db.commit()
+
 

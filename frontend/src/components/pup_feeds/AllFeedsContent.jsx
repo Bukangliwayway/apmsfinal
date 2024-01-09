@@ -15,16 +15,20 @@ import LoadingCircular from "../status_display/LoadingCircular";
 import { Delete, Edit, MoreHoriz } from "@mui/icons-material";
 import PopupState, { bindTrigger, bindMenu } from "material-ui-popup-state";
 import useAll from "../../hooks/utilities/useAll";
+import DeletePostModal from "./DeletePostModal";
 
 const AllFeedsContent = () => {
+
+  const [load, setLoad]  = useState({offset:0, placing: 10})
+  const [useLoad, setUseLoad]  = useState({offset:0, placing: 10})
   const {
     data: feeds,
     isLoading: isLoadingFeeds,
     isError: isErrorFeeds,
     error: errorFeeds,
-  } = useGetAllFeeds(0, 10);
+  } = useGetAllFeeds(load.offset, load.placing);
 
-const { mode } = useAll();
+  const { mode } = useAll();
 
   const [feedID, setFeedID] = useState(null);
 
@@ -33,8 +37,18 @@ const { mode } = useAll();
     deleteModal: false,
   });
 
-  const handleModalOpen = (type, id) => {
-    feedID(id);
+  const handleCloseModal = (type) => {
+    setModalOpen((prev) => ({ ...prev, [type]: false }));
+    setFeedID("");
+  };
+
+  const handleModalOpen = (type, id, offset, placing) => {
+    setFeedID(id);
+    setUseLoad({
+      offset: offset,
+      placing: placing
+    })
+    console.log(offset, placing);
     setModalOpen((prev) => ({ ...prev, [type]: true }));
   };
 
@@ -127,7 +141,7 @@ const { mode } = useAll();
                       </Button>
                       <Menu {...bindMenu(popupState)}>
                         <MenuItem
-                          onClick={() => handleModalOpen("editModal", feed?.id)} // Trigger the profile edit modal
+                          onClick={() => handleModalOpen("editModal", feed?.id, load?.offset, load?.placing)} 
                         >
                           <ListItemIcon>
                             <Edit fontSize="small" />
@@ -136,7 +150,7 @@ const { mode } = useAll();
                         </MenuItem>
                         <MenuItem
                           onClick={() =>
-                            handleModalOpen("deleteModal", feed?.id)
+                            handleModalOpen("deleteModal", feed?.id,  load?.offset, load?.placing)
                           }
                         >
                           <ListItemIcon>
@@ -162,15 +176,17 @@ const { mode } = useAll();
                         left: 0,
                         right: 0,
                         top: "calc(100% - 10rem)", // Adjust the value as needed
-                        backgroundImage: mode == "light" ? "linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.5))" : "linear-gradient(rgba(36, 47, 61, 0), rgba(36, 47, 61, 0.5))",
+                        backgroundImage:
+                          mode == "light"
+                            ? "linear-gradient(rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.5))"
+                            : "linear-gradient(rgba(36, 47, 61, 0), rgba(36, 47, 61, 0.5))",
                         backgroundSize: "100% 10rem",
                         backgroundRepeat: "no-repeat",
                       },
                     }),
                 }}
               >
-                <Box                     mb={"1rem"}
->
+                <Box mb={"1rem"}>
                   <Typography variant="h6">{capitalizedTitle}</Typography>
                 </Box>
                 {!feed?.img_link && (
@@ -196,6 +212,15 @@ const { mode } = useAll();
           </>
         );
       })}
+      {feedID && isModalOpen.deleteModal ? (
+        <DeletePostModal
+          open={isModalOpen.deleteModal}
+          onClose={() => handleCloseModal("deleteModal")}
+          feedID={feedID}
+          offset={useLoad?.offset}
+          placing={useLoad?.placing}
+        />
+      ) : null}
     </Box>
   );
 };
