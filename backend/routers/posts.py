@@ -155,3 +155,39 @@ async def delete_post(post_id: UUID, db: Session = Depends(get_db), user: UserRe
     db.commit()
 
 
+@router.get('/fetch-post/{post_id}')
+def fetch_posts(post_id: UUID, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+  post = db.query(models.Post)\
+  .join(models.User, models.User.id == models.Post.uploader_id)\
+  .filter(models.Post.id == post_id)\
+  .first()
+  if not post:
+      raise HTTPException(status_code=404, detail="No post found")
+  
+  post_dict = {
+    'id': post.id,
+    'created_at': post.created_at,
+    'updated_at': post.updated_at,
+    'title': post.title,
+    'content': post.content,
+    'content_date': post.content_date,
+    'post_type': post.post_type,
+    'img_link': post.img_link,
+    'video_link': post.video_link,
+    'uploader': {
+      'id': post.uploader_id,
+      'last_name': post.uploader.last_name,
+      'first_name': post.uploader.first_name,
+      'username': post.uploader.username,
+      'profile_picture': post.uploader.profile_picture,
+    },
+    'event_date': post.event_date if isinstance(post, models.Event) else None,
+    'end_date': post.end_date if isinstance(post, models.Event) else None,
+    'interested_count': post.interested_count if isinstance(post, models.Event) else None,
+    'goal_amount': post.goal_amount if isinstance(post, models.Fundraising) else None,
+    'total_collected': post.total_collected if isinstance(post, models.Fundraising) else None,
+    'fulfilled': post.fulfilled if isinstance(post, models.Fundraising) else None,
+    'donors_count': post.donors_count if isinstance(post, models.Fundraising) else None,
+  }
+
+  return post_dict

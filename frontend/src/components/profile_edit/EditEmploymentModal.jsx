@@ -143,7 +143,6 @@ const EditEmploymentModal = ({ open, onClose, employmentID }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("employmentProfile:", employmentProfile);
 
     if (
       employmentProfile.job == "" ||

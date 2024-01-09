@@ -24,7 +24,7 @@ import {
   VideoLibrary,
   Photo,
 } from "@mui/icons-material";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   LinkBubbleMenu,
   MenuButton,
@@ -37,11 +37,16 @@ import { useNavigate, useParams } from "react-router-dom";
 import useAll from "../../hooks/utilities/useAll";
 import { useMutation } from "react-query";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import useGetSpecificFeed from "../../hooks/feeds/useGetSpecificFeed";
+import LoadingCircular from "../status_display/LoadingCircular";
+import dayjs from "dayjs";
 
-const CreatePost = () => {
+const ModifyPost = () => {
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
-  const { type } = useParams();
+  const { type, postID } = useParams();
+  const { data: postData, isLoading: isLoadingData } =
+    useGetSpecificFeed(postID);
   const extensions = useExtensions({
     placeholder: "Add your own content here...",
   });
@@ -51,17 +56,26 @@ const CreatePost = () => {
   const [content, setContent] = useState("");
   const [goalAmount, setGoalAmount] = useState("");
   const [title, setTitle] = useState("");
-  const [date, setDate] = useState();
-  const [endDate, setEndDate] = useState();
+  const [date, setDate] = useState(dayjs());
+  const [endDate, setEndDate] = useState(dayjs());
   const [photo, setPhoto] = useState({});
   const [postType, setPostType] = useState(type || "announcement");
   const [video, setVideo] = useState("");
-  const {
-    setMessage,
-    setSeverity,
-    setOpenSnackbar,
-    setLinearLoading,
-  } = useAll();
+  const { setMessage, setSeverity, setOpenSnackbar, setLinearLoading } =
+    useAll();
+
+  useEffect(() => {
+    if (postData && !isLoadingData) {
+      setContent(postData.data.content || "");
+      setTitle(postData.data.title || "");
+      setGoalAmount(postData.data.goal_amount || "");
+      setVideo(postData.data.video_link || "");
+      setPhoto({ url: postData.data.img_link || "" });
+      setPostType(type || "announcement");
+      setDate(dayjs(postData.data.content_date) || null);
+      setEndDate(dayjs(postData.data.end_date) || null);
+    }
+  }, [postData, isLoadingData]);
 
   const typeToValueMap = {
     announcement: 0,
@@ -73,7 +87,6 @@ const CreatePost = () => {
     type !== null && type !== undefined ? typeToValueMap[type] : -1
   );
 
-
   const PostMutation = useMutation(
     async (postProfile) => {
       const axiosConfig = {
@@ -83,7 +96,11 @@ const CreatePost = () => {
         withCredentials: true, // Set this to true for cross-origin requests with credentials
       };
 
-      await axiosPrivate.post(`/posts/create-post`, postProfile, axiosConfig);
+      await axiosPrivate.put(
+        `/posts/edit-post/${postID}`,
+        postProfile,
+        axiosConfig
+      );
     },
     {
       onError: (error) => {
@@ -91,11 +108,11 @@ const CreatePost = () => {
         setSeverity("error");
         setOpenSnackbar(true);
       },
-      onSuccess: (response) => {
+      onSuccess: () => {
         const capitalizedPostType =
           postType.charAt(0).toUpperCase() + postType.slice(1);
 
-        setMessage(`${capitalizedPostType} Posted Successfully`);
+        setMessage(`${capitalizedPostType} Updated Successfully`);
         setSeverity("success");
         navigate("/pup-feeds");
       },
@@ -127,7 +144,7 @@ const CreatePost = () => {
     payload.append("content", content);
     payload.append("post_type", postType);
     if (date) {
-      payload.append("content_date", date.format("YYYY-MM-DD"));
+      payload.append("content_date", date.format("YYYY-MM-DD") || null);
     }
 
     if (video) {
@@ -142,13 +159,15 @@ const CreatePost = () => {
       payload.append("goal_amount", goalAmount);
     }
 
-    if (endDate) {
+    if (endDate && endDate.isValid()) {
       payload.append("end_date", endDate.format("YYYY-MM-DD"));
     }
 
     setLinearLoading(true);
     await PostMutation.mutateAsync(payload);
   };
+
+  if (isLoadingData) return <LoadingCircular />;
 
   return (
     <Grid
@@ -196,6 +215,7 @@ const CreatePost = () => {
           required
           label="Content Title"
           onChange={(event) => setTitle(event.target.value)}
+          value={title || ""}
         />
       </Grid>
       <Grid item xs={12}>
@@ -208,69 +228,72 @@ const CreatePost = () => {
             },
           }}
         >
-          <RichTextEditor
-            ref={rteRef}
-            extensions={extensions}
-            onBlur={() => {
-              setContent(rteRef.current?.editor?.getHTML() ?? "");
-            }}
-            editable={isEditable}
-            renderControls={() => <ContentTextFieldControls />}
-            RichTextFieldProps={{
-              variant: "outlined",
-              MenuBarProps: {
-                hide: !showMenuBar,
-              },
-              footer: (
-                <Stack
-                  direction="row"
-                  spacing={2}
-                  sx={{
-                    borderTopStyle: "solid",
-                    borderTopWidth: 1,
-                    borderTopColor: (theme) => theme.palette.divider,
-                    py: 1,
-                    px: 1.5,
-                  }}
-                >
-                  <MenuButton
-                    value="formatting"
-                    tooltipLabel={
-                      showMenuBar ? "Hide formatting" : "Show formatting"
-                    }
-                    size="small"
-                    onClick={() =>
-                      setShowMenuBar((currentState) => !currentState)
-                    }
-                    selected={showMenuBar}
-                    IconComponent={TextFields}
-                  />
+          {content && (
+            <RichTextEditor
+              ref={rteRef}
+              content={content}
+              extensions={extensions}
+              onBlur={() => {
+                setContent(rteRef.current?.editor?.getHTML() ?? "");
+              }}
+              editable={isEditable}
+              renderControls={() => <ContentTextFieldControls />}
+              RichTextFieldProps={{
+                variant: "outlined",
+                MenuBarProps: {
+                  hide: !showMenuBar,
+                },
+                footer: (
+                  <Stack
+                    direction="row"
+                    spacing={2}
+                    sx={{
+                      borderTopStyle: "solid",
+                      borderTopWidth: 1,
+                      borderTopColor: (theme) => theme.palette.divider,
+                      py: 1,
+                      px: 1.5,
+                    }}
+                  >
+                    <MenuButton
+                      value="formatting"
+                      tooltipLabel={
+                        showMenuBar ? "Hide formatting" : "Show formatting"
+                      }
+                      size="small"
+                      onClick={() =>
+                        setShowMenuBar((currentState) => !currentState)
+                      }
+                      selected={showMenuBar}
+                      IconComponent={TextFields}
+                    />
 
-                  <MenuButton
-                    value="formatting"
-                    tooltipLabel={
-                      isEditable
-                        ? "Prevent edits (use read-only mode)"
-                        : "Allow edits"
-                    }
-                    size="small"
-                    onClick={() =>
-                      setIsEditable((currentState) => !currentState)
-                    }
-                    selected={!isEditable}
-                    IconComponent={isEditable ? Lock : LockOpen}
-                  />
-                </Stack>
-              ),
-            }}
-          >
-            {() => (
-              <>
-                <LinkBubbleMenu />
-                <TableBubbleMenu />
-              </>
-            )}
-          </RichTextEditor>
+                    <MenuButton
+                      value="formatting"
+                      tooltipLabel={
+                        isEditable
+                          ? "Prevent edits (use read-only mode)"
+                          : "Allow edits"
+                      }
+                      size="small"
+                      onClick={() =>
+                        setIsEditable((currentState) => !currentState)
+                      }
+                      selected={!isEditable}
+                      IconComponent={isEditable ? Lock : LockOpen}
+                    />
+                  </Stack>
+                ),
+              }}
+            >
+              {() => (
+                <>
+                  <LinkBubbleMenu />
+                  <TableBubbleMenu />
+                </>
+              )}
+            </RichTextEditor>
+          )}
         </Box>
       </Grid>
       <Grid item xs={postType == "event" ? 6 : 12}>
@@ -311,7 +334,7 @@ const CreatePost = () => {
           <TextField
             fullWidth
             label="Goal Amount"
-            value={goalAmount}
+            value={goalAmount || 0}
             onChange={(e) => {
               const sanitizedValue = event.target.value.replace(/\D/g, "");
               setGoalAmount(sanitizedValue);
@@ -335,6 +358,7 @@ const CreatePost = () => {
           onChange={(event) => {
             setVideo(event.target.value);
           }}
+          value={video || ""}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -410,11 +434,11 @@ const CreatePost = () => {
           fullWidth
           onClick={handleSubmit}
         >
-          Post
+          Update
         </Button>
       </Grid>
     </Grid>
   );
 };
 
-export default CreatePost;
+export default ModifyPost;

@@ -16,10 +16,12 @@ import { Delete, Edit, MoreHoriz } from "@mui/icons-material";
 import PopupState, { bindTrigger, bindMenu } from "material-ui-popup-state";
 import useAll from "../../hooks/utilities/useAll";
 import DeletePostModal from "./DeletePostModal";
+import { useNavigate } from "react-router-dom";
 
 const AllFeedsContent = () => {
 
   const [load, setLoad]  = useState({offset:0, placing: 10})
+  const navigate = useNavigate();
   const [useLoad, setUseLoad]  = useState({offset:0, placing: 10})
   const {
     data: feeds,
@@ -48,13 +50,11 @@ const AllFeedsContent = () => {
       offset: offset,
       placing: placing
     })
-    console.log(offset, placing);
     setModalOpen((prev) => ({ ...prev, [type]: true }));
   };
 
   if (isLoadingFeeds) return <LoadingCircular />;
 
-  console.log(feeds?.data);
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
       {feeds?.data.map((feed, index) => {
@@ -141,8 +141,8 @@ const AllFeedsContent = () => {
                       </Button>
                       <Menu {...bindMenu(popupState)}>
                         <MenuItem
-                          onClick={() => handleModalOpen("editModal", feed?.id, load?.offset, load?.placing)} 
-                        >
+                          onClick={() => navigate(`/pup-feeds/modify/${feed?.post_type}/${feed?.id}`)}
+                          >
                           <ListItemIcon>
                             <Edit fontSize="small" />
                           </ListItemIcon>

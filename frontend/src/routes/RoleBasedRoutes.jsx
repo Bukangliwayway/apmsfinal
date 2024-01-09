@@ -33,6 +33,7 @@ import AnnouncementFeed from "../components/pup_feeds/AnnouncementFeed";
 import NewsFeed from "../components/pup_feeds/NewsFeed";
 import EventFeed from "../components/pup_feeds/EventFeed";
 import FundraisingFeed from "../components/pup_feeds/FundraisingFeed";
+import ModifyPost from "../components/pup_feeds/ModifyPost";
 const RoleBasedRoutes = () => {
   const { auth } = useAll();
   const profileRoutes = (
@@ -321,6 +322,14 @@ const RoleBasedRoutes = () => {
         element={
           <MainLayout mode="admin">
             <CreatePost />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="pup-feeds/modify/:type/:postID"
+        element={
+          <MainLayout mode="admin">
+            <ModifyPost />
           </MainLayout>
         }
       />
