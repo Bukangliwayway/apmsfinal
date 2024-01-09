@@ -21,20 +21,20 @@ import { useLocation, useNavigate } from "react-router-dom";
 const AllFeedsContent = () => {
   const location = useLocation();
   const [reload, setReload] = useState(location.state?.reload || false);
-  const [load, setLoad]  = useState({offset:0, placing: 10})
+  const [load, setLoad] = useState({ offset: 0, placing: 10 });
   const navigate = useNavigate();
-  const [useLoad, setUseLoad]  = useState({offset:0, placing: 10})
+  const [useLoad, setUseLoad] = useState({ offset: 0, placing: 10 });
   const {
     data: feeds,
     isLoading: isLoadingFeeds,
     isError: isErrorFeeds,
     error: errorFeeds,
-    refetch
+    refetch,
   } = useGetAllFeeds(load.offset, load.placing);
 
   useEffect(() => {
     if (reload) {
-      refetch()
+      refetch();
     }
   }, [reload]);
 
@@ -56,8 +56,8 @@ const AllFeedsContent = () => {
     setFeedID(id);
     setUseLoad({
       offset: offset,
-      placing: placing
-    })
+      placing: placing,
+    });
     setModalOpen((prev) => ({ ...prev, [type]: true }));
   };
 
@@ -100,6 +100,7 @@ const AllFeedsContent = () => {
         return (
           <>
             <Card
+              key={feed?.id}
               sx={{
                 display: "flex",
                 flexDirection: "column",
@@ -149,8 +150,12 @@ const AllFeedsContent = () => {
                       </Button>
                       <Menu {...bindMenu(popupState)}>
                         <MenuItem
-                          onClick={() => navigate(`/pup-feeds/modify/${feed?.post_type}/${feed?.id}`)}
-                          >
+                          onClick={() =>
+                            navigate(
+                              `/pup-feeds/modify/${feed?.post_type}/${feed?.id}`
+                            )
+                          }
+                        >
                           <ListItemIcon>
                             <Edit fontSize="small" />
                           </ListItemIcon>
@@ -158,7 +163,12 @@ const AllFeedsContent = () => {
                         </MenuItem>
                         <MenuItem
                           onClick={() =>
-                            handleModalOpen("deleteModal", feed?.id,  load?.offset, load?.placing)
+                            handleModalOpen(
+                              "deleteModal",
+                              feed?.id,
+                              load?.offset,
+                              load?.placing
+                            )
                           }
                         >
                           <ListItemIcon>
@@ -172,6 +182,7 @@ const AllFeedsContent = () => {
                 </PopupState>
               </Box>
               <CardActionArea
+                onClick={() => navigate(`/pup-feeds/view-post/${feed?.id}`)}
                 sx={{
                   position: "relative", // Ensure the parent has a relative position
                   padding: 2,
