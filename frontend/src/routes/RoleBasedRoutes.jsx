@@ -335,6 +335,14 @@ const RoleBasedRoutes = () => {
         }
       />
       <Route
+        path="pup-feeds/modify/:type/:postID/:redirect"
+        element={
+          <MainLayout mode="admin">
+            <ModifyPost />
+          </MainLayout>
+        }
+      />
+      <Route
         path="pup-feeds/view-post/:postID"
         element={
           <MainLayout mode="admin">

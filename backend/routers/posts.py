@@ -75,17 +75,17 @@ async def create_post(title: str = Form(...), content: str = Form(...), content_
     post.img_link = result.get("url")
     db.commit()
 
-@router.get('/fetch-post/{offset}/{placing}')
-def fetch_posts(offset: int = 0, placing: int = 1, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+@router.get('/fetch-post/{offset}')
+def fetch_posts(offset: int, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
   limit = 10
-  start = offset * placing
-  end = start + limit
 
   posts = db.query(models.Post)\
-  .join(models.User, models.User.id == models.Post.uploader_id)\
-  .filter(models.Post.deleted_at.is_(None))\
-  .slice(start, end)\
-  .all()
+    .join(models.User, models.User.id == models.Post.uploader_id)\
+    .filter(models.Post.deleted_at.is_(None))\
+    .order_by(models.Post.updated_at.desc())\
+    .slice(offset, offset + limit)\
+    .all()
+
   if not posts:
       raise HTTPException(status_code=404, detail="No posts found")
   
@@ -158,7 +158,7 @@ async def delete_post(post_id: UUID, db: Session = Depends(get_db), user: UserRe
     db.commit()
 
 
-@router.get('/fetch-post/{post_id}')
+@router.get('/fetch-post/view/{post_id}')
 def fetch_posts(post_id: UUID, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
   post = db.query(models.Post)\
   .join(models.User, models.User.id == models.Post.uploader_id)\

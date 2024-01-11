@@ -10,10 +10,13 @@ import {
 } from "@mui/material";
 import useAll from "../../hooks/utilities/useAll";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import { useNavigate } from "react-router-dom";
 
 
-const DeletePostModal = ({ open, onClose, feedID, offset, placing }) => {
+const DeletePostModal = ({ open, onClose, feedID, exit = false}) => {
   const axiosPrivate = useAxiosPrivate();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const {
     setMessage,
     setSeverity,
@@ -21,10 +24,6 @@ const DeletePostModal = ({ open, onClose, feedID, offset, placing }) => {
     setLinearLoading,
     linearLoading,
   } = useAll();
-
-  console.log(offset, placing, feedID);
-
-  const queryClient = useQueryClient();
 
   const mutation = useMutation(
     async () => {
@@ -44,15 +43,16 @@ const DeletePostModal = ({ open, onClose, feedID, offset, placing }) => {
         setSeverity("error");
       },
       onSuccess: () => {
-        queryClient.invalidateQueries(["fetch-all-posts", offset, placing]);
+        queryClient.invalidateQueries(["fetch-all-posts"]);
+        queryClient.invalidateQueries(['post-specific']);
         setMessage("Post Deleted Successfully");
-        console.log(["fetch-all-posts", offset, placing]);
         setSeverity("success");
+        if(exit) navigate("/pup-feeds")
+        onClose();
       },
       onSettled: () => {
         setLinearLoading(false);
         setOpenSnackbar(true);
-        onClose();
       },
     }
   );

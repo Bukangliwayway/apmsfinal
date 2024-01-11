@@ -35,7 +35,7 @@ import ContentTextFieldControls from "./ContentTextFieldControls";
 import useExtensions from "./useExtensions";
 import { useNavigate, useParams } from "react-router-dom";
 import useAll from "../../hooks/utilities/useAll";
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import useGetSpecificFeed from "../../hooks/feeds/useGetSpecificFeed";
 import LoadingCircular from "../status_display/LoadingCircular";
@@ -44,7 +44,8 @@ import dayjs from "dayjs";
 const ModifyPost = () => {
   const navigate = useNavigate();
   const axiosPrivate = useAxiosPrivate();
-  const { type, postID } = useParams();
+  const { type, postID, redirect } = useParams();
+  const queryClient = useQueryClient();
   const { data: postData, isLoading: isLoadingData } =
     useGetSpecificFeed(postID);
   const extensions = useExtensions({
@@ -61,8 +62,8 @@ const ModifyPost = () => {
   const [photo, setPhoto] = useState({});
   const [postType, setPostType] = useState(type || "announcement");
   const [video, setVideo] = useState("");
-  const { setMessage, setSeverity, setOpenSnackbar, setLinearLoading } =
-    useAll();
+  const { setMessage, setSeverity, setOpenSnackbar, setLinearLoading} = useAll();
+
 
   useEffect(() => {
     if (postData && !isLoadingData) {
@@ -75,7 +76,7 @@ const ModifyPost = () => {
       setDate(dayjs(postData.data.content_date) || null);
       setEndDate(dayjs(postData.data.end_date) || null);
     }
-  }, [postData, isLoadingData]);
+  }, [postData, isLoadingData, type]);
 
   const typeToValueMap = {
     announcement: 0,
@@ -114,11 +115,9 @@ const ModifyPost = () => {
 
         setMessage(`${capitalizedPostType} Updated Successfully`);
         setSeverity("success");
-        navigate("/pup-feeds", {
-          state: {
-            reload: true,
-          },
-        });
+        queryClient.invalidateQueries(["fetch-all-posts"])
+        queryClient.invalidateQueries(['post-specific']);
+        redirect ? navigate(`/pup-feeds/view-post/${postID}`) : navigate('/pup-feeds');
       },
       onSettled: () => {
         setLinearLoading(false);
@@ -172,6 +171,9 @@ const ModifyPost = () => {
   };
 
   if (isLoadingData) return <LoadingCircular />;
+
+  const {isLoading } = PostMutation;
+
 
   return (
     <Grid
@@ -431,14 +433,15 @@ const ModifyPost = () => {
         </Tooltip>
       </Grid>
       <Grid xs={12} pt={2} pb={4}>
-        <Button
+      <Button
           type="submit"
           variant="contained"
           color="primary"
           fullWidth
+          disabled={isLoading}
           onClick={handleSubmit}
         >
-          Update
+          Post
         </Button>
       </Grid>
     </Grid>

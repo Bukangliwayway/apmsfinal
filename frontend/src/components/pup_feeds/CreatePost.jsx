@@ -35,7 +35,7 @@ import ContentTextFieldControls from "./ContentTextFieldControls";
 import useExtensions from "./useExtensions";
 import { useNavigate, useParams } from "react-router-dom";
 import useAll from "../../hooks/utilities/useAll";
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
 const CreatePost = () => {
@@ -45,6 +45,8 @@ const CreatePost = () => {
   const extensions = useExtensions({
     placeholder: "Add your own content here...",
   });
+  const queryClient = useQueryClient();
+
   const rteRef = useRef(null);
   const [showMenuBar, setShowMenuBar] = useState(true);
   const [isEditable, setIsEditable] = useState(true);
@@ -97,6 +99,9 @@ const CreatePost = () => {
 
         setMessage(`${capitalizedPostType} Posted Successfully`);
         setSeverity("success");
+        queryClient.invalidateQueries(["fetch-all-posts"])
+        queryClient.invalidateQueries(['post-specific']);
+
         navigate("/pup-feeds");
       },
       onSettled: () => {
@@ -149,6 +154,8 @@ const CreatePost = () => {
     setLinearLoading(true);
     await PostMutation.mutateAsync(payload);
   };
+
+  const {isLoading } = PostMutation;
 
   return (
     <Grid
@@ -408,6 +415,7 @@ const CreatePost = () => {
           variant="contained"
           color="primary"
           fullWidth
+          disabled={isLoading}
           onClick={handleSubmit}
         >
           Post

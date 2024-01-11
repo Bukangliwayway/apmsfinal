@@ -21,11 +21,11 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import useGetSpecificFeed from "../../hooks/feeds/useGetSpecificFeed";
 
 const ViewPost = () => {
+  const navigate = useNavigate();
+
   const { postID } = useParams();
 
   const { data: feed, isLoading: isLoadingFeed } = useGetSpecificFeed(postID);
-
-  const { mode } = useAll();
 
   const [feedID, setFeedID] = useState(null);
 
@@ -41,12 +41,8 @@ const ViewPost = () => {
     setFeedID("");
   };
 
-  const handleModalOpen = (type, id, offset, placing) => {
+  const handleModalOpen = (type, id) => {
     setFeedID(id);
-    setUseLoad({
-      offset: offset,
-      placing: placing,
-    });
     setModalOpen((prev) => ({ ...prev, [type]: true }));
   };
 
@@ -87,6 +83,7 @@ const ViewPost = () => {
           flexDirection: "column",
           backgroundColor: (theme) => theme.palette.common.main,
           maxHeight: feed?.data?.img_link ? "" : "25vh",
+          width: "100%"
         }}
       >
         <Box
@@ -113,6 +110,46 @@ const ViewPost = () => {
           {feed?.data?.updated_at != feed?.data?.created_at && (
             <Typography variant="caption">Edited</Typography>
           )}
+                            <PopupState variant="popover" popupId="demo-popup-menu">
+                    {(popupState) => (
+                      <React.Fragment>
+                        <Button
+                          {...bindTrigger(popupState)}
+                          size="small"
+                          sx={{
+                            position: "absolute",
+                            right: "1rem",
+                          }}
+                        >
+                          <MoreHoriz color="primary" />
+                        </Button>
+                        <Menu {...bindMenu(popupState)}>
+                          <MenuItem
+                            onClick={() =>
+                              navigate(
+                                `/pup-feeds/modify/${feed?.data?.post_type}/${feed?.data?.id}/true`
+                              )
+                            }
+                          >
+                            <ListItemIcon>
+                              <Edit fontSize="small" />
+                            </ListItemIcon>
+                            edit
+                          </MenuItem>
+                          <MenuItem
+                            onClick={() =>
+                              handleModalOpen("deleteModal", feed?.data?.id)
+                            }
+                          >
+                            <ListItemIcon>
+                              <Delete fontSize="small" />
+                            </ListItemIcon>
+                            delete
+                          </MenuItem>
+                        </Menu>
+                      </React.Fragment>
+                    )}
+                  </PopupState>
         </Box>
         <Box p={2}>
           <Box mb={"1rem"}>
@@ -139,6 +176,7 @@ const ViewPost = () => {
           open={isModalOpen.deleteModal}
           onClose={() => handleCloseModal("deleteModal")}
           feedID={feedID}
+          exit={true}
         />
       ) : null}
     </Grid>

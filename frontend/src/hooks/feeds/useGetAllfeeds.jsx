@@ -1,20 +1,26 @@
 import useAxiosPrivate from "../useAxiosPrivate";
-import { useQuery } from "react-query";
+import { useInfiniteQuery } from "react-query";
 
-const useGetAllFeeds = (offset, placing) => {
+const useGetAllFeeds = () => {
   const axiosPrivate = useAxiosPrivate();
-  const getData = async (offset, placing) => {
-    return await axiosPrivate.get(
-      `/posts/fetch-post/${offset}/${placing}`
+  const fetchFeeds = async ({ pageParam = { offset: 0, placing: 0 } }) => {
+    const { data } = await axiosPrivate.get(
+      `/posts/fetch-post/${pageParam.offset}`
     );
+    return data;
   };
-  return useQuery(
-    ["fetch-all-posts", offset, placing],
-    () => getData(offset, placing),
-    {
-      staleTime: Infinity,
-    }
-  );
+
+  return useInfiniteQuery(["fetch-all-posts"], fetchFeeds, {
+    getNextPageParam: (lastPage, allPages) => {
+      if (lastPage && lastPage.length > 0) {
+        const nextPlacing = allPages.length;
+        return { offset: nextPlacing * 10, placing: nextPlacing };
+      }
+      // If the last page is empty, there are no more pages to fetch
+      return undefined;
+    },
+    staleTime: Infinity,
+  });
 };
 
 export default useGetAllFeeds;
