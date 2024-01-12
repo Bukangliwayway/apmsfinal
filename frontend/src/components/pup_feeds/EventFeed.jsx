@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import AllFeedsContent from "./AllFeedsContent";
 
 const EventFeed = () => {
   const navigate = useNavigate();
@@ -30,9 +31,7 @@ const EventFeed = () => {
       >
         <Card sx={{ display: "flex", flexDirection: "row" }}>
           <ListItem>
-            <ListItemButton
-              onClick={() => navigate("/pup-feeds/create/event")}
-            >
+            <ListItemButton onClick={() => navigate("/pup-feeds/create/event")}>
               <ListItemIcon>
                 <Announcement />
               </ListItemIcon>
@@ -40,6 +39,9 @@ const EventFeed = () => {
             </ListItemButton>
           </ListItem>
         </Card>
+      </Grid>
+      <Grid item xs={12}>
+        <AllFeedsContent type={"event"} />
       </Grid>
     </Grid>
   );

@@ -213,7 +213,7 @@ function AdminSidebar({ mode }) {
                     <ListItemText
                       primary={
                         <Typography variant="body1" fontWeight={"bold"}>
-                          Bulletins
+                          Announcements
                         </Typography>
                       }
                     />

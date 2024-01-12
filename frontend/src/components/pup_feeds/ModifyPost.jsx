@@ -21,7 +21,6 @@ import {
   Lock,
   LockOpen,
   TextFields,
-  VideoLibrary,
   Photo,
 } from "@mui/icons-material";
 import { useEffect, useRef, useState } from "react";
@@ -61,16 +60,14 @@ const ModifyPost = () => {
   const [endDate, setEndDate] = useState(dayjs());
   const [photo, setPhoto] = useState({});
   const [postType, setPostType] = useState(type || "announcement");
-  const [video, setVideo] = useState("");
-  const { setMessage, setSeverity, setOpenSnackbar, setLinearLoading} = useAll();
-
+  const { setMessage, setSeverity, setOpenSnackbar, setLinearLoading } =
+    useAll();
 
   useEffect(() => {
     if (postData && !isLoadingData) {
       setContent(postData.data.content || "");
       setTitle(postData.data.title || "");
       setGoalAmount(postData.data.goal_amount || "");
-      setVideo(postData.data.video_link || "");
       setPhoto({ url: postData.data.img_link || "" });
       setPostType(type || "announcement");
       setDate(dayjs(postData.data.content_date) || null);
@@ -115,9 +112,15 @@ const ModifyPost = () => {
 
         setMessage(`${capitalizedPostType} Updated Successfully`);
         setSeverity("success");
-        queryClient.invalidateQueries(["fetch-all-posts"])
-        queryClient.invalidateQueries(['post-specific']);
-        redirect ? navigate(`/pup-feeds/view-post/${postID}`) : navigate('/pup-feeds');
+        queryClient.invalidateQueries(["fetch-all-posts", "all"]);
+        queryClient.invalidateQueries(["fetch-all-posts", "event"]);
+        queryClient.invalidateQueries(["fetch-all-posts", "announcement"]);
+        queryClient.invalidateQueries(["fetch-all-posts", "event"]);
+        queryClient.invalidateQueries(["fetch-all-posts", "news"]);
+        queryClient.invalidateQueries(["post-specific", postID]);
+        redirect
+          ? navigate(`/pup-feeds/view-post/${postID}`)
+          : navigate("/pup-feeds");
       },
       onSettled: () => {
         setLinearLoading(false);
@@ -132,11 +135,14 @@ const ModifyPost = () => {
     if (
       !postType ||
       (postType == "fundraising" && !goalAmount) ||
+      (postType == "event" && !date) ||
+      (endDate && date >= endDate) ||
       !title ||
-      !content ||
-      !date
+      !content
     ) {
-      setMessage("please fill out all of the required fields.");
+      setMessage(
+        "please fill out all of the required fields and ensure that the data are right."
+      );
       setSeverity("error");
       setOpenSnackbar(true);
       return;
@@ -146,13 +152,6 @@ const ModifyPost = () => {
     payload.append("title", title);
     payload.append("content", content);
     payload.append("post_type", postType);
-    if (date) {
-      payload.append("content_date", date.format("YYYY-MM-DD") || null);
-    }
-
-    if (video) {
-      payload.append("video_link", video);
-    }
 
     if (photo?.file) {
       payload.append("img", photo.file);
@@ -162,8 +161,14 @@ const ModifyPost = () => {
       payload.append("goal_amount", goalAmount);
     }
 
-    if (endDate && endDate.isValid()) {
-      payload.append("end_date", endDate.format("YYYY-MM-DD"));
+    if (postType == "event") {
+      if (date) {
+        payload.append("content_date", date.format("YYYY-MM-DD") || null);
+      }
+
+      if (endDate) {
+        payload.append("end_date", endDate.format("YYYY-MM-DD") || null);
+      }
     }
 
     setLinearLoading(true);
@@ -172,8 +177,7 @@ const ModifyPost = () => {
 
   if (isLoadingData) return <LoadingCircular />;
 
-  const {isLoading } = PostMutation;
-
+  const { isLoading } = PostMutation;
 
   return (
     <Grid
@@ -224,6 +228,57 @@ const ModifyPost = () => {
           value={title || ""}
         />
       </Grid>
+      {postType == "event" && (
+        <>
+          <Grid item xs={6}>
+            <DatePicker
+              slotProps={{ textField: { size: "small" } }}
+              label={"Event Start Date"}
+              placeholder="Input the Date to be highlighted here"
+              value={date}
+              onChange={(date) => setDate(date)}
+              renderInput={(params) => <TextField {...params} fullWidth />}
+              required
+            />
+          </Grid>
+          <Tooltip title="Leave this one blank if Event is just 1 Day">
+            <Grid item xs={5}>
+              <DatePicker
+                slotProps={{ textField: { size: "small" } }}
+                label="Event End Date"
+                name="End Date"
+                placeholder="Input the Date to be highlighted here"
+                value={endDate}
+                onChange={(endDate) => setEndDate(endDate)}
+                renderInput={(params) => <TextField {...params} fullWidth />}
+              />
+            </Grid>
+          </Tooltip>
+        </>
+      )}
+
+      {postType == "fundraising" && (
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Goal Amount"
+            value={goalAmount || 0}
+            onChange={(e) => {
+              const sanitizedValue = event.target.value.replace(/\D/g, "");
+              setGoalAmount(sanitizedValue);
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <IconButton>
+                    <MonetizationOn />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Grid>
+      )}
       <Grid item xs={12}>
         <Box
           sx={{
@@ -302,80 +357,7 @@ const ModifyPost = () => {
           )}
         </Box>
       </Grid>
-      <Grid item xs={postType == "event" ? 6 : 12}>
-        <DatePicker
-          slotProps={{ textField: { size: "small" } }}
-          label={postType == "event" ? "Event Start Date" : "Content Date"}
-          placeholder="Input the Date to be highlighted here"
-          value={date}
-          onChange={(date) => setDate(date)}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              fullWidth
-              helperText="Leave this one blank if event is just 1 day"
-            />
-          )}
-          required
-        />
-      </Grid>
-      {postType == "event" && (
-        <Tooltip title="Leave this one blank if Event is just 1 Day">
-          <Grid item xs={5}>
-            <DatePicker
-              slotProps={{ textField: { size: "small" } }}
-              label="Event End Date"
-              name="End Date"
-              placeholder="Input the Date to be highlighted here"
-              value={endDate}
-              onChange={(endDate) => setEndDate(endDate)}
-              renderInput={(params) => <TextField {...params} fullWidth />}
-            />
-          </Grid>
-        </Tooltip>
-      )}
 
-      {postType == "fundraising" && (
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Goal Amount"
-            value={goalAmount || 0}
-            onChange={(e) => {
-              const sanitizedValue = event.target.value.replace(/\D/g, "");
-              setGoalAmount(sanitizedValue);
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <IconButton>
-                    <MonetizationOn />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-        </Grid>
-      )}
-      <Grid item xs={12}>
-        <TextField
-          fullWidth
-          label="Video Link "
-          onChange={(event) => {
-            setVideo(event.target.value);
-          }}
-          value={video || ""}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <IconButton>
-                  <VideoLibrary />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
-      </Grid>
       <Grid item xs={12}>
         <Tooltip title="Click to Upload an Image">
           <CardActionArea component="label" htmlFor="image-upload-input">
@@ -433,7 +415,7 @@ const ModifyPost = () => {
         </Tooltip>
       </Grid>
       <Grid xs={12} pt={2} pb={4}>
-      <Button
+        <Button
           type="submit"
           variant="contained"
           color="primary"
@@ -441,7 +423,7 @@ const ModifyPost = () => {
           disabled={isLoading}
           onClick={handleSubmit}
         >
-          Post
+          Save
         </Button>
       </Grid>
     </Grid>

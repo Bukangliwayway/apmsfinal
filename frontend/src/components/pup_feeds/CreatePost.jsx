@@ -21,7 +21,6 @@ import {
   Lock,
   LockOpen,
   TextFields,
-  VideoLibrary,
   Photo,
 } from "@mui/icons-material";
 import { useRef, useState } from "react";
@@ -57,13 +56,8 @@ const CreatePost = () => {
   const [endDate, setEndDate] = useState();
   const [photo, setPhoto] = useState({});
   const [postType, setPostType] = useState(type || "announcement");
-  const [video, setVideo] = useState("");
-  const {
-    setMessage,
-    setSeverity,
-    setOpenSnackbar,
-    setLinearLoading,
-  } = useAll();
+  const { setMessage, setSeverity, setOpenSnackbar, setLinearLoading } =
+    useAll();
 
   const typeToValueMap = {
     announcement: 0,
@@ -74,7 +68,6 @@ const CreatePost = () => {
   const [value, setValue] = useState(
     type !== null && type !== undefined ? typeToValueMap[type] : -1
   );
-
 
   const PostMutation = useMutation(
     async (postProfile) => {
@@ -99,8 +92,11 @@ const CreatePost = () => {
 
         setMessage(`${capitalizedPostType} Posted Successfully`);
         setSeverity("success");
-        queryClient.invalidateQueries(["fetch-all-posts"])
-        queryClient.invalidateQueries(['post-specific']);
+        queryClient.invalidateQueries(["fetch-all-posts", "all"]);
+        queryClient.invalidateQueries(["fetch-all-posts", "event"]);
+        queryClient.invalidateQueries(["fetch-all-posts", "announcement"]);
+        queryClient.invalidateQueries(["fetch-all-posts", "event"]);
+        queryClient.invalidateQueries(["fetch-all-posts", "news"]);
 
         navigate("/pup-feeds");
       },
@@ -117,11 +113,14 @@ const CreatePost = () => {
     if (
       !postType ||
       (postType == "fundraising" && !goalAmount) ||
+      (postType == "event" && !date) ||
+      date >= endDate ||
       !title ||
-      !content ||
-      !date
+      !content
     ) {
-      setMessage("please fill out all of the required fields.");
+      setMessage(
+        "please fill out all of the required fields and ensure that the data are right."
+      );
       setSeverity("error");
       setOpenSnackbar(true);
       return;
@@ -131,13 +130,6 @@ const CreatePost = () => {
     payload.append("title", title);
     payload.append("content", content);
     payload.append("post_type", postType);
-    if (date) {
-      payload.append("content_date", date.format("YYYY-MM-DD"));
-    }
-
-    if (video) {
-      payload.append("video_link", video);
-    }
 
     if (photo?.file) {
       payload.append("img", photo.file);
@@ -147,15 +139,21 @@ const CreatePost = () => {
       payload.append("goal_amount", goalAmount);
     }
 
-    if (endDate) {
-      payload.append("end_date", endDate.format("YYYY-MM-DD"));
+    if (postType == "event") {
+      if (date) {
+        payload.append("content_date", date.format("YYYY-MM-DD") || null);
+      }
+
+      if (endDate) {
+        payload.append("end_date", endDate.format("YYYY-MM-DD") || null);
+      }
     }
 
     setLinearLoading(true);
     await PostMutation.mutateAsync(payload);
   };
 
-  const {isLoading } = PostMutation;
+  const { isLoading } = PostMutation;
 
   return (
     <Grid
@@ -205,6 +203,57 @@ const CreatePost = () => {
           onChange={(event) => setTitle(event.target.value)}
         />
       </Grid>
+      {postType == "event" && (
+        <>
+          <Grid item xs={6}>
+            <DatePicker
+              slotProps={{ textField: { size: "small" } }}
+              label={"Event Start Date"}
+              placeholder="Input the Date to be highlighted here"
+              value={date}
+              onChange={(date) => setDate(date)}
+              renderInput={(params) => <TextField {...params} fullWidth />}
+              required
+            />
+          </Grid>
+          <Tooltip title="Leave this one blank if Event is just 1 Day">
+            <Grid item xs={5}>
+              <DatePicker
+                slotProps={{ textField: { size: "small" } }}
+                label="Event End Date"
+                name="End Date"
+                placeholder="Input the Date to be highlighted here"
+                value={endDate}
+                onChange={(endDate) => setEndDate(endDate)}
+                renderInput={(params) => <TextField {...params} fullWidth />}
+              />
+            </Grid>
+          </Tooltip>
+        </>
+      )}
+
+      {postType == "fundraising" && (
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label="Goal Amount"
+            value={goalAmount}
+            onChange={(e) => {
+              const sanitizedValue = event.target.value.replace(/\D/g, "");
+              setGoalAmount(sanitizedValue);
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <IconButton>
+                    <MonetizationOn />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Grid>
+      )}
       <Grid item xs={12}>
         <Box
           sx={{
@@ -280,79 +329,7 @@ const CreatePost = () => {
           </RichTextEditor>
         </Box>
       </Grid>
-      <Grid item xs={postType == "event" ? 6 : 12}>
-        <DatePicker
-          slotProps={{ textField: { size: "small" } }}
-          label={postType == "event" ? "Event Start Date" : "Content Date"}
-          placeholder="Input the Date to be highlighted here"
-          value={date}
-          onChange={(date) => setDate(date)}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              fullWidth
-              helperText="Leave this one blank if event is just 1 day"
-            />
-          )}
-          required
-        />
-      </Grid>
-      {postType == "event" && (
-        <Tooltip title="Leave this one blank if Event is just 1 Day">
-          <Grid item xs={5}>
-            <DatePicker
-              slotProps={{ textField: { size: "small" } }}
-              label="Event End Date"
-              name="End Date"
-              placeholder="Input the Date to be highlighted here"
-              value={endDate}
-              onChange={(endDate) => setEndDate(endDate)}
-              renderInput={(params) => <TextField {...params} fullWidth />}
-            />
-          </Grid>
-        </Tooltip>
-      )}
 
-      {postType == "fundraising" && (
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Goal Amount"
-            value={goalAmount}
-            onChange={(e) => {
-              const sanitizedValue = event.target.value.replace(/\D/g, "");
-              setGoalAmount(sanitizedValue);
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <IconButton>
-                    <MonetizationOn />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-        </Grid>
-      )}
-      <Grid item xs={12}>
-        <TextField
-          fullWidth
-          label="Video Link "
-          onChange={(event) => {
-            setVideo(event.target.value);
-          }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <IconButton>
-                  <VideoLibrary />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
-      </Grid>
       <Grid item xs={12}>
         <Tooltip title="Click to Upload an Image">
           <CardActionArea component="label" htmlFor="image-upload-input">

@@ -268,10 +268,8 @@ class Post(Base):
     deleted_at = Column(TIMESTAMP(timezone=True))  # Deletion timestamp (null if not deleted)
     title = Column(String)
     content = Column(Text)
-    content_date = Column(Date)
     post_type = Column(String)  # Discriminator column
     img_link = Column(String)
-    video_link = Column(String)
     uploader_id = Column(UUID(as_uuid=True), ForeignKey('user.id', ondelete="CASCADE"))
     uploader = relationship("User", back_populates="post")
     __mapper_args__ = {
@@ -292,7 +290,7 @@ class News(Post):
 class Event(Post):
     __tablename__ = 'event'
     id = Column(UUID(as_uuid=True), ForeignKey('post.id', ondelete="CASCADE"), primary_key=True)
-    event_date = Column(Date)
+    content_date = Column(Date)
     end_date = Column(Date) # if event is longer than a day
     interested_count = Column(Integer,server_default='0')
     interested_users = relationship("UserInterestEvent", back_populates="event")

@@ -20,48 +20,39 @@ router = APIRouter()
 user_dependency = Annotated[dict, Depends(get_current_user)]
 
 @router.post('/create-post')
-async def create_post(title: str = Form(...), content: str = Form(...), content_date: Optional[date] = Form(None), post_type: str = Form(...), video_link: Optional[str] = Form(None), img: Optional[UploadFile] = File(None), goal_amount: Optional[int] = Form(None), end_date: Optional[date] = Form(None), db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+async def create_post(title: str = Form(...), content: str = Form(...), content_date: Optional[date] = Form(None), post_type: str = Form(...), img: Optional[UploadFile] = File(None), goal_amount: Optional[int] = Form(None), end_date: Optional[date] = Form(None), db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
   if post_type == "event" and content_date is not None:
     post = models.Event(
-            title=title,
-            content=content,
-            content_date=content_date,
-            post_type=post_type,
-            video_link = video_link or '',
-            uploader_id = user.id,
-            event_date=content_date,
-            end_date=end_date,
-          )
+        title=title,
+        content=content,
+        post_type=post_type,
+        uploader_id = user.id,
+        content_date=content_date,
+        end_date=end_date,
+      )
   elif post_type == "fundraising" and goal_amount is not None:
     post = models.Fundraising(
-            title=title,
-            content=content,
-            content_date=content_date,
-            post_type=post_type,
-            video_link = video_link or '',
-            uploader_id = user.id,
-            goal_amount=goal_amount,
-          )
+        title=title,
+        content=content,
+        post_type=post_type,
+        uploader_id = user.id,
+        goal_amount=goal_amount,
+      )
   elif post_type == 'news':
     post = models.News(
       title=title,
       content=content,
-      content_date=content_date,
       post_type=post_type,
-      video_link = video_link or '',
       uploader_id = user.id,
     )
   elif post_type == 'announcement':
     post = models.Announcement(
       title=title,
       content=content,
-      content_date=content_date,
       post_type=post_type,
-      video_link = video_link or '',
       uploader_id = user.id,
     )
   else:
-    print(post_type)
     raise HTTPException(status_code=400, detail='Invalid Post')
   
   db.add(post)
@@ -75,19 +66,22 @@ async def create_post(title: str = Form(...), content: str = Form(...), content_
     post.img_link = result.get("url")
     db.commit()
 
-@router.get('/fetch-post/{offset}')
-def fetch_posts(offset: int, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+@router.get('/fetch-post/{offset}/{type}')
+def fetch_posts(*, offset: int, type: str = '', db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
   limit = 10
 
-  posts = db.query(models.Post)\
+  posts_query = db.query(models.Post)\
     .join(models.User, models.User.id == models.Post.uploader_id)\
-    .filter(models.Post.deleted_at.is_(None))\
-    .order_by(models.Post.updated_at.desc())\
-    .slice(offset, offset + limit)\
-    .all()
+    .order_by(models.Post.updated_at.desc())
+
+  if type != 'all':
+    posts_query = posts_query.filter(models.Post.post_type == type)
+
+  posts = posts_query.slice(offset, offset + limit).all()
+
 
   if not posts:
-      raise HTTPException(status_code=404, detail="No posts found")
+      raise HTTPException(status_code=200, detail="No Post to Show")
   
   result = []
 
@@ -98,10 +92,8 @@ def fetch_posts(offset: int, db: Session = Depends(get_db), user: UserResponse =
       'updated_at': post.updated_at,
       'title': post.title,
       'content': post.content,
-      'content_date': post.content_date,
       'post_type': post.post_type,
       'img_link': post.img_link,
-      'video_link': post.video_link,
       'uploader': {
         'id': post.uploader_id,
         'last_name': post.uploader.last_name,
@@ -109,7 +101,7 @@ def fetch_posts(offset: int, db: Session = Depends(get_db), user: UserResponse =
         'username': post.uploader.username,
         'profile_picture': post.uploader.profile_picture,
       },
-      'event_date': post.event_date if isinstance(post, models.Event) else None,
+      'content_date': post.content_date if isinstance(post, models.Event) else None,
       'end_date': post.end_date if isinstance(post, models.Event) else None,
       'interested_count': post.interested_count if isinstance(post, models.Event) else None,
       'goal_amount': post.goal_amount if isinstance(post, models.Fundraising) else None,
@@ -122,7 +114,7 @@ def fetch_posts(offset: int, db: Session = Depends(get_db), user: UserResponse =
   return result
 
 @router.put("/edit-post/{post_id}")
-async def edit_post(post_id: UUID, title: Optional[str] = Form(None), content: Optional[str] = Form(None), content_date: Optional[date] = Form(None), post_type: Optional[str] = Form(None), video_link: Optional[str] = Form(None), img: Optional[UploadFile] = File(None), goal_amount: Optional[int] = Form(None), event_date: Optional[date] = Form(None), end_date: Optional[date] = Form(None), db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+async def edit_post(post_id: UUID, title: Optional[str] = Form(None), content: Optional[str] = Form(None), content_date: Optional[date] = Form(None), post_type: Optional[str] = Form(None), img: Optional[UploadFile] = File(None), goal_amount: Optional[int] = Form(None), end_date: Optional[date] = Form(None), db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
     post = db.query(models.Post).filter(models.Post.id == post_id).first()
 
     if not post:
@@ -136,6 +128,9 @@ async def edit_post(post_id: UUID, title: Optional[str] = Form(None), content: O
     updates = {k: v for k, v in locals().items() if v is not None and k not in ["post", "db", "user", "post_id", "img"]}
     for attr, value in updates.items():
         setattr(post, attr, value)
+    
+    # Explicitly set end_date to None if it's passed as None
+    post.end_date = end_date
 
     if img:
         contents = await img.read()
@@ -158,8 +153,8 @@ async def delete_post(post_id: UUID, db: Session = Depends(get_db), user: UserRe
     db.commit()
 
 
-@router.get('/fetch-post/view/{post_id}')
-def fetch_posts(post_id: UUID, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+@router.get('/view-post/{post_id}')
+def fetch_specific_post(post_id: UUID, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
   post = db.query(models.Post)\
   .join(models.User, models.User.id == models.Post.uploader_id)\
   .filter(models.Post.id == post_id)\
@@ -173,10 +168,8 @@ def fetch_posts(post_id: UUID, db: Session = Depends(get_db), user: UserResponse
     'updated_at': post.updated_at,
     'title': post.title,
     'content': post.content,
-    'content_date': post.content_date,
     'post_type': post.post_type,
     'img_link': post.img_link,
-    'video_link': post.video_link,
     'uploader': {
       'id': post.uploader_id,
       'last_name': post.uploader.last_name,
@@ -184,7 +177,7 @@ def fetch_posts(post_id: UUID, db: Session = Depends(get_db), user: UserResponse
       'username': post.uploader.username,
       'profile_picture': post.uploader.profile_picture,
     },
-    'event_date': post.event_date if isinstance(post, models.Event) else None,
+    'content_date': post.content_date if isinstance(post, models.Event) else None,
     'end_date': post.end_date if isinstance(post, models.Event) else None,
     'interested_count': post.interested_count if isinstance(post, models.Event) else None,
     'goal_amount': post.goal_amount if isinstance(post, models.Fundraising) else None,

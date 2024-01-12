@@ -62,7 +62,7 @@ const MainFeed = () => {
         item
         xs={12}
       >
-        <AllFeedsContent/>
+        <AllFeedsContent type={'all'}/>
       </Grid>
     </Grid>
   );

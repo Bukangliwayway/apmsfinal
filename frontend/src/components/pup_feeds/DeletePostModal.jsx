@@ -43,8 +43,12 @@ const DeletePostModal = ({ open, onClose, feedID, exit = false}) => {
         setSeverity("error");
       },
       onSuccess: () => {
-        queryClient.invalidateQueries(["fetch-all-posts"]);
-        queryClient.invalidateQueries(['post-specific']);
+        queryClient.invalidateQueries(["fetch-all-posts", 'all']);
+        queryClient.invalidateQueries(["fetch-all-posts", 'event']);
+        queryClient.invalidateQueries(["fetch-all-posts", 'announcement']);
+        queryClient.invalidateQueries(["fetch-all-posts", 'event']);
+        queryClient.invalidateQueries(["fetch-all-posts", 'news']);
+        queryClient.invalidateQueries(["post-specific", feedID]);
         setMessage("Post Deleted Successfully");
         setSeverity("success");
         if(exit) navigate("/pup-feeds")

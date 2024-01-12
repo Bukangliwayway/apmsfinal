@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import AllFeedsContent from "./AllFeedsContent";
 
 const AnnouncementFeed = () => {
   const navigate = useNavigate();
@@ -40,6 +41,9 @@ const AnnouncementFeed = () => {
             </ListItemButton>
           </ListItem>
         </Card>
+      </Grid>
+      <Grid item xs={12}>
+        <AllFeedsContent type={"announcement"} />
       </Grid>
     </Grid>
   );

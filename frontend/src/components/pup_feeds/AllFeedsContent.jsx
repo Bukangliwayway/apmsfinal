@@ -4,9 +4,11 @@ import {
   Button,
   Card,
   CardActionArea,
+  Chip,
   ListItemIcon,
   Menu,
   MenuItem,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -17,8 +19,18 @@ import PopupState, { bindTrigger, bindMenu } from "material-ui-popup-state";
 import useAll from "../../hooks/utilities/useAll";
 import DeletePostModal from "./DeletePostModal";
 import { useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
 
-const AllFeedsContent = () => {
+const AllFeedsContent = ({ type }) => {
+  const Chiptip = ({ icon, label, additional = "", actual = "" }) => (
+    <Tooltip
+      title={actual !== "" ? actual : additional + label}
+      sx={{ padding: "0.5rem" }}
+    >
+      <Chip icon={icon} label={label} />
+    </Tooltip>
+  );
+
   const navigate = useNavigate();
 
   const {
@@ -28,15 +40,15 @@ const AllFeedsContent = () => {
     fetchNextPage,
     isFetchingNextPage,
     isError,
-    refetch
-  } = useGetAllFeeds();
+    error,
+    refetch,
+  } = useGetAllFeeds(type);
 
   const observer = useRef();
 
-
   const lastFeedElementRef = useCallback(
     (node) => {
-      if (isFetchingNextPage || isError) return; 
+      if (isFetchingNextPage || isError) return;
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && hasNextPage && !isError) {
@@ -78,12 +90,19 @@ const AllFeedsContent = () => {
 
   if (isLoadingFeeds) return <LoadingCircular />;
 
-
+  if (feeds.pages[0].detail == "No Post to Show")
+    return (
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <Typography variant="subtitle1" align="center" mx="auto" py={"2rem"}>
+          There's no Post Yet!
+        </Typography>
+      </Box>
+    );
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      {feeds?.pages.map((page, pageIndex) =>
-        page.map((feed, feedIndex) => {
+      {feeds?.pages?.map((page, pageIndex) =>
+        page?.map((feed, feedIndex) => {
           let created_date;
           const isLastElement =
             pageIndex === feeds.pages.length - 1 &&
@@ -94,28 +113,49 @@ const AllFeedsContent = () => {
           // Calculate the difference in milliseconds
           const timeDifference = currentDate - dateObject;
 
-          // Calculate the difference in days
-          const daysDifference = Math.floor(
-            timeDifference / (1000 * 60 * 60 * 24)
-          );
+          // Calculate the difference in minutes, hours, days, months, and years
+          const minutesDifference = Math.floor(timeDifference / (1000 * 60));
+          const hoursDifference = Math.floor(minutesDifference / 60);
+          const daysDifference = Math.floor(hoursDifference / 24);
+          const monthsDifference = Math.floor(daysDifference / 30);
+          const yearsDifference = Math.floor(monthsDifference / 12);
 
-          // Check if it's less than a month
-          if (daysDifference < 30) {
-            // Display days ago
-            created_date = `${daysDifference} day${
-              daysDifference !== 1 ? "s" : ""
-            } ago`;
-          } else {
-            // Display months ago
-            const monthsDifference = Math.floor(daysDifference / 30);
-            created_date = `${monthsDifference} month${
-              monthsDifference !== 1 ? "s" : ""
-            } ago`;
+          // Switch statement to determine the appropriate time difference
+          switch (true) {
+            case yearsDifference >= 1:
+              created_date = `${yearsDifference} year${
+                yearsDifference !== 1 ? "s" : ""
+              } ago`;
+              break;
+            case monthsDifference >= 1:
+              created_date = `${monthsDifference} month${
+                monthsDifference !== 1 ? "s" : ""
+              } ago`;
+              break;
+            case daysDifference >= 1:
+              created_date = `${daysDifference} day${
+                daysDifference !== 1 ? "s" : ""
+              } ago`;
+              break;
+            case hoursDifference >= 1:
+              created_date = `${hoursDifference} hour${
+                hoursDifference !== 1 ? "s" : ""
+              } ago`;
+              break;
+            default:
+              created_date = `${minutesDifference} minute${
+                minutesDifference !== 1 ? "s" : ""
+              } ago`;
           }
 
           const title = feed?.title;
           const capitalizedTitle = title
             ? title.charAt(0).toUpperCase() + title.slice(1)
+            : null;
+
+          const post_type = feed?.post_type;
+          const capitalizedType = post_type
+            ? post_type.charAt(0).toUpperCase() + post_type.slice(1)
             : null;
 
           return (
@@ -158,6 +198,12 @@ const AllFeedsContent = () => {
                   {feed?.updated_at != feed?.created_at && (
                     <Typography variant="caption">Edited</Typography>
                   )}
+                  <Box
+                    sx={{ cursor: "pointer" }}
+                    onClick={() => navigate(`/pup-feeds/${feed?.post_type}`)}
+                  >
+                    <Chiptip label={capitalizedType} />
+                  </Box>
                   <PopupState variant="popover" popupId="demo-popup-menu">
                     {(popupState) => (
                       <React.Fragment>
@@ -223,8 +269,26 @@ const AllFeedsContent = () => {
                       }),
                   }}
                 >
-                  <Box mb={"1rem"}>
+                  <Box mb={"1rem"} sx={{ display: "flex", gap: 3 }}>
                     <Typography variant="h6">{capitalizedTitle}</Typography>
+                    <Box
+                      mb={"1rem"}
+                      sx={{ display: "flex", gap: 1, alignItems: "center" }}
+                    >
+                      {feed?.content_date && (
+                        <Chiptip
+                          label={dayjs(feed?.content_date).format("MM/DD/YYYY")}
+                        />
+                      )}
+                      {feed?.end_date && (
+                        <>
+                          to
+                          <Chiptip
+                            label={dayjs(feed?.end_date).format("MM/DD/YYYY")}
+                          />
+                        </>
+                      )}
+                    </Box>
                   </Box>
                   {!feed?.img_link && (
                     <Box
@@ -246,7 +310,29 @@ const AllFeedsContent = () => {
                   </Box>
                 </CardActionArea>
               </Card>
-              {isLastElement && isFetchingNextPage && !isError ? "Loading more..." : null}
+              {isLastElement &&
+              isFetchingNextPage &&
+              hasNextPage &&
+              !(isError && !error?.response?.status === 404) ? (
+                <Typography
+                  variant="subtitle1"
+                  align="center"
+                  mx="auto"
+                  py={"2rem"}
+                >
+                  Loading More
+                </Typography>
+              ) : null}
+              {isLastElement && !hasNextPage && (
+                <Typography
+                  variant="subtitle1"
+                  align="center"
+                  mx="auto"
+                  py={"2rem"}
+                >
+                  You've reached the end!
+                </Typography>
+              )}
             </>
           );
         })

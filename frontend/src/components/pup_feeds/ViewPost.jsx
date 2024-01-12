@@ -4,14 +4,15 @@ import {
   Button,
   Card,
   CardActionArea,
+  Chip,
   Grid,
   ListItemIcon,
   Menu,
   MenuItem,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
-import useGetAllFeeds from "../../hooks/feeds/useGetAllfeeds";
 import LoadingCircular from "../status_display/LoadingCircular";
 import { Delete, Edit, MoreHoriz } from "@mui/icons-material";
 import PopupState, { bindTrigger, bindMenu } from "material-ui-popup-state";
@@ -19,8 +20,18 @@ import useAll from "../../hooks/utilities/useAll";
 import DeletePostModal from "./DeletePostModal";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import useGetSpecificFeed from "../../hooks/feeds/useGetSpecificFeed";
+import dayjs from "dayjs";
 
 const ViewPost = () => {
+  const Chiptip = ({ icon, label, additional = "", actual = "" }) => (
+    <Tooltip
+      title={actual !== "" ? actual : additional + label}
+      sx={{ padding: "0.5rem" }}
+    >
+      <Chip icon={icon} label={label} />
+    </Tooltip>
+  );
+
   const navigate = useNavigate();
 
   const { postID } = useParams();
@@ -74,6 +85,10 @@ const ViewPost = () => {
   const capitalizedTitle = title
     ? title.charAt(0).toUpperCase() + title.slice(1)
     : null;
+  const post_type = feed?.data?.post_type;
+  const capitalizedType = post_type
+    ? post_type.charAt(0).toUpperCase() + post_type.slice(1)
+    : null;
 
   return (
     <Grid container width={"50%"} mx={"auto"} sx={{ display: "flex", gap: 2 }}>
@@ -83,7 +98,7 @@ const ViewPost = () => {
           flexDirection: "column",
           backgroundColor: (theme) => theme.palette.common.main,
           maxHeight: feed?.data?.img_link ? "" : "25vh",
-          width: "100%"
+          width: "100%",
         }}
       >
         <Box
@@ -110,57 +125,81 @@ const ViewPost = () => {
           {feed?.data?.updated_at != feed?.data?.created_at && (
             <Typography variant="caption">Edited</Typography>
           )}
-                            <PopupState variant="popover" popupId="demo-popup-menu">
-                    {(popupState) => (
-                      <React.Fragment>
-                        <Button
-                          {...bindTrigger(popupState)}
-                          size="small"
-                          sx={{
-                            position: "absolute",
-                            right: "1rem",
-                          }}
-                        >
-                          <MoreHoriz color="primary" />
-                        </Button>
-                        <Menu {...bindMenu(popupState)}>
-                          <MenuItem
-                            onClick={() =>
-                              navigate(
-                                `/pup-feeds/modify/${feed?.data?.post_type}/${feed?.data?.id}/true`
-                              )
-                            }
-                          >
-                            <ListItemIcon>
-                              <Edit fontSize="small" />
-                            </ListItemIcon>
-                            edit
-                          </MenuItem>
-                          <MenuItem
-                            onClick={() =>
-                              handleModalOpen("deleteModal", feed?.data?.id)
-                            }
-                          >
-                            <ListItemIcon>
-                              <Delete fontSize="small" />
-                            </ListItemIcon>
-                            delete
-                          </MenuItem>
-                        </Menu>
-                      </React.Fragment>
-                    )}
-                  </PopupState>
+          <Box
+            sx={{ cursor: "pointer" }}
+            onClick={() => navigate(`/pup-feeds/${feed?.data?.post_type}`)}
+          >
+            <Chiptip label={capitalizedType} />
+          </Box>
+          <PopupState variant="popover" popupId="demo-popup-menu">
+            {(popupState) => (
+              <React.Fragment>
+                <Button
+                  {...bindTrigger(popupState)}
+                  size="small"
+                  sx={{
+                    position: "absolute",
+                    right: "1rem",
+                  }}
+                >
+                  <MoreHoriz color="primary" />
+                </Button>
+                <Menu {...bindMenu(popupState)}>
+                  <MenuItem
+                    onClick={() =>
+                      navigate(
+                        `/pup-feeds/modify/${feed?.data?.post_type}/${feed?.data?.id}/true`
+                      )
+                    }
+                  >
+                    <ListItemIcon>
+                      <Edit fontSize="small" />
+                    </ListItemIcon>
+                    edit
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() =>
+                      handleModalOpen("deleteModal", feed?.data?.id)
+                    }
+                  >
+                    <ListItemIcon>
+                      <Delete fontSize="small" />
+                    </ListItemIcon>
+                    delete
+                  </MenuItem>
+                </Menu>
+              </React.Fragment>
+            )}
+          </PopupState>
         </Box>
         <Box p={2}>
-          <Box mb={"1rem"}>
+          <Box mb={"1rem"} sx={{ display: "flex", gap: 3 }}>
             <Typography variant="h6">{capitalizedTitle}</Typography>
-          </Box>
-        
             <Box
-              dangerouslySetInnerHTML={{ __html: feed?.data?.content }}
-              my={"2rem"}
-            />
-    
+              mb={"1rem"}
+              sx={{ display: "flex", gap: 1, alignItems: "center" }}
+            >
+              {feed?.data?.content_date && (
+                <Chiptip
+                  label={dayjs(feed?.data?.content_date).format("MM/DD/YYYY")}
+                />
+              )}
+              {feed?.data?.end_date && (
+                <>
+                  to
+                  <Chiptip
+                    label={dayjs(feed?.data?.end_date).format("MM/DD/YYYY")}
+                  />
+                </>
+              )}
+            </Box>
+          </Box>
+
+          <Box
+            dangerouslySetInnerHTML={{ __html: feed?.data?.content }}
+            my={"2rem"}
+          />
+
           <Box sx={{ display: "flex", justifyContent: "center" }}>
             <img
               src={feed?.data?.img_link || ""}
