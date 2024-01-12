@@ -69,7 +69,7 @@ const AllFeedsContent = ({ type }) => {
     };
   }, []);
 
-  const { mode } = useAll();
+  const { mode, auth } = useAll();
 
   const [feedID, setFeedID] = useState(null);
 
@@ -204,46 +204,48 @@ const AllFeedsContent = ({ type }) => {
                   >
                     <Chiptip label={capitalizedType} />
                   </Box>
-                  <PopupState variant="popover" popupId="demo-popup-menu">
-                    {(popupState) => (
-                      <React.Fragment>
-                        <Button
-                          {...bindTrigger(popupState)}
-                          size="small"
-                          sx={{
-                            position: "absolute",
-                            right: "1rem",
-                          }}
-                        >
-                          <MoreHoriz color="primary" />
-                        </Button>
-                        <Menu {...bindMenu(popupState)}>
-                          <MenuItem
-                            onClick={() =>
-                              navigate(
-                                `/pup-feeds/modify/${feed?.post_type}/${feed?.id}`
-                              )
-                            }
+                  {auth?.role == "admin" && (
+                    <PopupState variant="popover" popupId="demo-popup-menu">
+                      {(popupState) => (
+                        <React.Fragment>
+                          <Button
+                            {...bindTrigger(popupState)}
+                            size="small"
+                            sx={{
+                              position: "absolute",
+                              right: "1rem",
+                            }}
                           >
-                            <ListItemIcon>
-                              <Edit fontSize="small" />
-                            </ListItemIcon>
-                            edit
-                          </MenuItem>
-                          <MenuItem
-                            onClick={() =>
-                              handleModalOpen("deleteModal", feed?.id)
-                            }
-                          >
-                            <ListItemIcon>
-                              <Delete fontSize="small" />
-                            </ListItemIcon>
-                            delete
-                          </MenuItem>
-                        </Menu>
-                      </React.Fragment>
-                    )}
-                  </PopupState>
+                            <MoreHoriz color="primary" />
+                          </Button>
+                          <Menu {...bindMenu(popupState)}>
+                            <MenuItem
+                              onClick={() =>
+                                navigate(
+                                  `/pup-feeds/modify/${feed?.post_type}/${feed?.id}`
+                                )
+                              }
+                            >
+                              <ListItemIcon>
+                                <Edit fontSize="small" />
+                              </ListItemIcon>
+                              edit
+                            </MenuItem>
+                            <MenuItem
+                              onClick={() =>
+                                handleModalOpen("deleteModal", feed?.id)
+                              }
+                            >
+                              <ListItemIcon>
+                                <Delete fontSize="small" />
+                              </ListItemIcon>
+                              delete
+                            </MenuItem>
+                          </Menu>
+                        </React.Fragment>
+                      )}
+                    </PopupState>
+                  )}
                 </Box>
                 <CardActionArea
                   onClick={() => navigate(`/pup-feeds/view-post/${feed?.id}`)}

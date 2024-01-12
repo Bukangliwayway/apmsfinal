@@ -50,7 +50,6 @@ const PendingProfilesDataGrid = () => {
       onSettled: () => {
         setLinearLoading(false);
         setOpenSnackbar(true);
-        onClose();
       },
     }
   );

@@ -35,18 +35,11 @@ import EventFeed from "../components/pup_feeds/EventFeed";
 import FundraisingFeed from "../components/pup_feeds/FundraisingFeed";
 import ModifyPost from "../components/pup_feeds/ModifyPost";
 import ViewPost from "../components/pup_feeds/ViewPost";
+import { useState } from "react";
 const RoleBasedRoutes = () => {
   const { auth } = useAll();
   const profileRoutes = (
     <>
-      <Route
-        path="feed"
-        element={
-          <MainLayout mode="profile">
-            <Feed />
-          </MainLayout>
-        }
-      />
       <Route
         path="explore"
         element={
@@ -60,14 +53,6 @@ const RoleBasedRoutes = () => {
         element={
           <MainLayout mode="profile">
             <DisplayProfile />
-          </MainLayout>
-        }
-      />
-      <Route
-        path="alumni-nexus"
-        element={
-          <MainLayout mode="profile">
-            <Feed />
           </MainLayout>
         }
       />
@@ -100,14 +85,6 @@ const RoleBasedRoutes = () => {
         element={
           <MainLayout mode="profile">
             <EditableAchievementModal />
-          </MainLayout>
-        }
-      />
-      <Route
-        path="fundraise"
-        element={
-          <MainLayout mode="public">
-            <Fundraise />
           </MainLayout>
         }
       />
@@ -376,7 +353,67 @@ const RoleBasedRoutes = () => {
       </Routes>
     );
   } else if (auth?.role === "alumni") {
-    return <Routes>{profileRoutes}</Routes>;
+    return (
+      <Routes>
+        <Route
+          path="home"
+          element={
+            <MainLayout mode="profile">
+              <MainFeed />
+            </MainLayout>
+          }
+        />
+        {profileRoutes}
+        <Route
+          path="pup-feeds/announcement"
+          element={
+            <MainLayout mode="profile" noquote={true}>
+              <AnnouncementFeed />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="pup-feeds/news"
+          element={
+            <MainLayout mode="profile" noquote={true}>
+              <NewsFeed />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="pup-feeds/event"
+          element={
+            <MainLayout mode="profile" noquote={true}>
+              <EventFeed />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="pup-feeds/fundraising"
+          element={
+            <MainLayout mode="profile" noquote={true}>
+              <FundraisingFeed />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="pup-feeds/view-post/:postID"
+          element={
+            <MainLayout mode="profile" noquote={true}>
+              <ViewPost />
+            </MainLayout>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <MainLayout mode="alumni">
+              <Missing />
+            </MainLayout>
+          }
+        />
+      </Routes>
+    );
   } else if (auth?.role === "officer") {
     return <Routes>{profileRoutes}</Routes>;
   } else if (auth?.role === "admin") {
@@ -401,7 +438,6 @@ const RoleBasedRoutes = () => {
             </MainLayout>
           }
         />
-        ;
       </Routes>
     );
   } else {

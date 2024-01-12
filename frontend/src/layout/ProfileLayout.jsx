@@ -3,7 +3,7 @@ import Sidebar from "../components/navigator/Sidebar";
 import Navbar from "../components/navigator/Navbar";
 import { Box, Grid } from "@mui/material";
 import Rightbar from "../components/navigator/Rightbar";
-function ProfileLayout({ children }) {
+function ProfileLayout({ children, noquote }) {
   const sidebarWidth = 25; // Update as needed
   const rightbarWidth = 30; // Update as needed
 
@@ -21,9 +21,10 @@ function ProfileLayout({ children }) {
         >
           <Sidebar />
         </Grid>
-        <Grid item xs={6} mx={"auto"}>
+        <Grid item xs={12} mx={"auto"}>
           <Box sx={{ minHeight: "100vh" }}>{children}</Box>
         </Grid>
+
         <Grid
           item
           position="fixed"

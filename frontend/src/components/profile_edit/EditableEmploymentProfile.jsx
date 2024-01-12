@@ -395,6 +395,8 @@ export const EditableEmploymentProfile = () => {
       <Grid
         item
         sx={{
+          width: "50%",
+          marginX: "auto",
           backgroundColor: (theme) => theme.palette.common.main,
           padding: "1rem",
           position: "relative",

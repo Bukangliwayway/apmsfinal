@@ -12,7 +12,7 @@ import {
   Snackbar,
 } from "@mui/material";
 
-export const MainLayout = ({ mode, children }) => {
+export const MainLayout = ({ mode, noquote, children }) => {
   const {
     backdropLoading,
     linearLoading,
@@ -74,7 +74,7 @@ export const MainLayout = ({ mode, children }) => {
           {message}
         </Alert>
       </Snackbar>
-      <Layout>{children}</Layout>
+      <Layout noquote={noquote}>{children}</Layout>
     </>
   );
 };

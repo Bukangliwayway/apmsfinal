@@ -32,6 +32,8 @@ const ViewPost = () => {
     </Tooltip>
   );
 
+  const { auth } = useAll();
+
   const navigate = useNavigate();
 
   const { postID } = useParams();
@@ -131,46 +133,48 @@ const ViewPost = () => {
           >
             <Chiptip label={capitalizedType} />
           </Box>
-          <PopupState variant="popover" popupId="demo-popup-menu">
-            {(popupState) => (
-              <React.Fragment>
-                <Button
-                  {...bindTrigger(popupState)}
-                  size="small"
-                  sx={{
-                    position: "absolute",
-                    right: "1rem",
-                  }}
-                >
-                  <MoreHoriz color="primary" />
-                </Button>
-                <Menu {...bindMenu(popupState)}>
-                  <MenuItem
-                    onClick={() =>
-                      navigate(
-                        `/pup-feeds/modify/${feed?.data?.post_type}/${feed?.data?.id}/true`
-                      )
-                    }
+          {auth?.role == "admin" && (
+            <PopupState variant="popover" popupId="demo-popup-menu">
+              {(popupState) => (
+                <React.Fragment>
+                  <Button
+                    {...bindTrigger(popupState)}
+                    size="small"
+                    sx={{
+                      position: "absolute",
+                      right: "1rem",
+                    }}
                   >
-                    <ListItemIcon>
-                      <Edit fontSize="small" />
-                    </ListItemIcon>
-                    edit
-                  </MenuItem>
-                  <MenuItem
-                    onClick={() =>
-                      handleModalOpen("deleteModal", feed?.data?.id)
-                    }
-                  >
-                    <ListItemIcon>
-                      <Delete fontSize="small" />
-                    </ListItemIcon>
-                    delete
-                  </MenuItem>
-                </Menu>
-              </React.Fragment>
-            )}
-          </PopupState>
+                    <MoreHoriz color="primary" />
+                  </Button>
+                  <Menu {...bindMenu(popupState)}>
+                    <MenuItem
+                      onClick={() =>
+                        navigate(
+                          `/pup-feeds/modify/${feed?.data?.post_type}/${feed?.data?.id}/true`
+                        )
+                      }
+                    >
+                      <ListItemIcon>
+                        <Edit fontSize="small" />
+                      </ListItemIcon>
+                      edit
+                    </MenuItem>
+                    <MenuItem
+                      onClick={() =>
+                        handleModalOpen("deleteModal", feed?.data?.id)
+                      }
+                    >
+                      <ListItemIcon>
+                        <Delete fontSize="small" />
+                      </ListItemIcon>
+                      delete
+                    </MenuItem>
+                  </Menu>
+                </React.Fragment>
+              )}
+            </PopupState>
+          )}
         </Box>
         <Box p={2}>
           <Box mb={"1rem"} sx={{ display: "flex", gap: 3 }}>

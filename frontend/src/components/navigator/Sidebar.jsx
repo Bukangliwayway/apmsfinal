@@ -1,4 +1,4 @@
-import { Dashboard, Explore, Home, Hub } from "@mui/icons-material";
+import { Announcement, Article, Dashboard, Event, Explore, Home, Hub, MonetizationOn } from "@mui/icons-material";
 import {
   Box,
   List,
@@ -41,7 +41,7 @@ function Sidebar() {
           </ListItem>
         </RouterLink>
         <RouterLink
-          to="/alumni-nexus"
+          to="/home"
           style={{ textDecoration: "none", color: "inherit" }}
         >
           <ListItem disablePadding>
@@ -60,32 +60,6 @@ function Sidebar() {
                 primary={
                   <Typography variant="body1" fontWeight={"bold"}>
                     Home
-                  </Typography>
-                }
-              />
-            </ListItemButton>
-          </ListItem>
-        </RouterLink>
-        <RouterLink
-          to="/alumni-nexus"
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          <ListItem disablePadding>
-            <ListItemButton
-              onClick={(event) => handleListItemClick(event, 1)}
-              sx={centerFlex}
-            >
-              <ListItemIcon sx={centerFlex}>
-                <Hub
-                  sx={{
-                    textAlign: "center",
-                  }}
-                />
-              </ListItemIcon>
-              <ListItemText
-                primary={
-                  <Typography variant="body1" fontWeight={"bold"}>
-                    Alumni Nexus
                   </Typography>
                 }
               />
@@ -118,38 +92,111 @@ function Sidebar() {
             </ListItemButton>
           </ListItem>
         </RouterLink>
-      </List>
-
-      {auth?.role == "admin" ? (
-        <List component="Box">
-          <RouterLink
-            to="/home"
-            style={{ textDecoration: "none", color: "inherit" }}
-          >
-            <ListItem disablePadding>
-              <ListItemButton
-                onClick={(event) => handleListItemClick(event, 9)}
-                sx={centerFlex}
-              >
-                <ListItemIcon sx={centerFlex}>
-                  <Dashboard
-                    sx={{
-                      textAlign: "center",
-                    }}
-                  />
-                </ListItemIcon>
-                <ListItemText
-                  primary={
-                    <Typography variant="body1" fontWeight={"bold"}>
-                      Admin Dashboard
-                    </Typography>
-                  }
+        <RouterLink
+          to="/pup-feeds/announcement"
+          style={{ textDecoration: "none", color: "inherit" }}
+        >
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={(event) => handleListItemClick(event, 1)}
+              sx={centerFlex}
+            >
+              <ListItemIcon sx={centerFlex}>
+                <Announcement
+                  sx={{
+                    textAlign: "center",
+                  }}
                 />
-              </ListItemButton>
-            </ListItem>
-          </RouterLink>
-        </List>
-      ) : null}
+              </ListItemIcon>
+              <ListItemText
+                primary={
+                  <Typography variant="body1" fontWeight={"bold"}>
+                    Announcements
+                  </Typography>
+                }
+              />
+            </ListItemButton>
+          </ListItem>
+        </RouterLink>
+        <RouterLink
+          to="/pup-feeds/news"
+          style={{ textDecoration: "none", color: "inherit" }}
+        >
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={(event) => handleListItemClick(event, 1)}
+              sx={centerFlex}
+            >
+              <ListItemIcon sx={centerFlex}>
+                <Article
+                  sx={{
+                    textAlign: "center",
+                  }}
+                />
+              </ListItemIcon>
+              <ListItemText
+                primary={
+                  <Typography variant="body1" fontWeight={"bold"}>
+                    News
+                  </Typography>
+                }
+              />
+            </ListItemButton>
+          </ListItem>
+        </RouterLink>
+        <RouterLink
+          to="/pup-feeds/event"
+          style={{ textDecoration: "none", color: "inherit" }}
+        >
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={(event) => handleListItemClick(event, 1)}
+              sx={centerFlex}
+            >
+              <ListItemIcon sx={centerFlex}>
+                <Event
+                  sx={{
+                    textAlign: "center",
+                  }}
+                />
+              </ListItemIcon>
+              <ListItemText
+                primary={
+                  <Typography variant="body1" fontWeight={"bold"}>
+                    Events
+                  </Typography>
+                }
+              />
+            </ListItemButton>
+          </ListItem>
+        </RouterLink>
+        <RouterLink
+          to="/pup-feeds/fundraising"
+          style={{ textDecoration: "none", color: "inherit" }}
+        >
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={(event) => handleListItemClick(event, 1)}
+              sx={centerFlex}
+            >
+              <ListItemIcon sx={centerFlex}>
+                <MonetizationOn
+                  sx={{
+                    textAlign: "center",
+                  }}
+                />
+              </ListItemIcon>
+              <ListItemText
+                primary={
+                  <Typography variant="body1" fontWeight={"bold"}>
+                    Fundraising
+                  </Typography>
+                }
+              />
+            </ListItemButton>
+          </ListItem>
+        </RouterLink>
+      </List>
     </Box>
   );
 }
