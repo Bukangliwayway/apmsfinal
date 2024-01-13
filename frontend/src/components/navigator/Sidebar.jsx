@@ -35,7 +35,7 @@ function Sidebar() {
           style={{ textDecoration: "none", color: "inherit" }}
         >
           <ListItem disablePadding>
-            <ListItemButton sx={centerFlex}>
+            <ListItemButton sx={{display:"flex", alignItems: "center"}}>
               <ProfileCard />
             </ListItemButton>
           </ListItem>

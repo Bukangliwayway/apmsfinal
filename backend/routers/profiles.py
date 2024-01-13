@@ -1,5 +1,6 @@
 from datetime import date, datetime
 from uuid import UUID
+from sqlalchemy import func, or_
 from fastapi import Body, Query, APIRouter, File, Form, status, Depends, HTTPException, UploadFile
 from backend.database import get_db
 from sqlalchemy.orm import Session, joinedload
@@ -11,6 +12,7 @@ from backend.schemas import UserResponse
 from backend import models
 import cloudinary.uploader
 import pandas as pd
+from fuzzywuzzy import fuzz
 import os
 
 router = APIRouter()
@@ -90,6 +92,72 @@ async def check_username(
     user: UserResponse = Depends(get_current_user)
 ):
     return bool(db.query(models.User).filter(models.User.username == username).first()) 
+
+@router.get("/search/initial")
+async def search_profile(
+    db: Session = Depends(get_db),
+    user: UserResponse = Depends(get_current_user),
+):
+    limit = 10  # The limit is declared within the function
+    
+    user_profile = db.query(models.User).filter(models.User.id == user.id).first()
+    matches = (
+        db.query(models.User.first_name, models.User.last_name, models.User.batch_year, models.User.profile_picture, models.Course.code, models.User.username).filter(
+            models.User.is_completed == True,
+            or_(
+                models.User.batch_year == user_profile.batch_year,
+                models.Course.code == user_profile.course.code
+            )
+        )
+        .join(models.Course, models.User.course_id == models.Course.id)
+        .distinct(models.User.id)
+        .order_by(models.User.id, func.random())  # Use random order
+        .limit(limit)
+        .all()
+    )
+    return matches
+
+@router.get("/search/{name}/{offset}")
+async def search_profile(
+    name: str,
+    offset: int,
+    db: Session = Depends(get_db),
+    user: UserResponse = Depends(get_current_user),
+):
+    limit = 20  # The limit is declared within the function
+    fuzzy_match_threshold = 40
+
+    if name:
+        users = db.query(models.User).filter(models.User.is_completed == True).all()
+
+        # Perform fuzzy matching in Python
+        matched_users = []
+        for user in users:
+            first_name_ratio = fuzz.token_set_ratio(user.first_name, name)
+            last_name_ratio = fuzz.token_set_ratio(user.last_name, name)
+            course_ratio = fuzz.token_set_ratio(user.course.code, name)
+            if first_name_ratio > fuzzy_match_threshold or last_name_ratio > fuzzy_match_threshold or course_ratio > fuzzy_match_threshold:
+                matched_users.append((user, first_name_ratio + last_name_ratio + course_ratio))
+
+        # Sort the results by the sum of the token set ratios for the first and last name
+        matched_users.sort(key=lambda x: x[1], reverse=True)
+
+        # Apply offset and limit
+        matched_users = matched_users[offset:offset+limit]
+
+        # Format the results for the response
+        matches = [
+            {
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "batch_year": user.batch_year,
+                "profile_picture": user.profile_picture,
+                "username": user.username,
+                "code": user.course.code,
+            }
+            for user, _ in matched_users
+        ]    
+    return matches
 
 @router.put("/change_role/")
 async def update_role(

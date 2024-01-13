@@ -105,168 +105,173 @@ function DisplayProfile() {
   };
 
   return (
-    <Box
-      flex={4}
-      p={{ sm: 4, md: 2 }}
-      sx={{
-        display: "flex",
-        gap: 2,
-        flexDirection: "column",
-      }}
-    >
+    <Grid container width={"50%"} mx={"auto"}>
       <Box
-        position="sticky"
-        top={63}
-        zIndex={1000}
-        bgcolor="inherit"
-        borderBottom="1px solid rgba(0, 0, 0, 0.12)"
+        flex={4}
+        p={{ sm: 4, md: 2 }}
         sx={{
-          backgroundColor: (theme) => theme.palette.common.main,
-        }}
-      >
-        <Tabs value={value} onChange={handleChange} variant="fullWidth">
-          <Tab
-            icon={<PersonPin />}
-            label="Profile"
-            onClick={() => setActiveTab("profile_background")}
-          />
-          <Tab
-            icon={<School />}
-            label="Education"
-            onClick={() => setActiveTab("educational_background")}
-          />
-          <Tab
-            icon={<Star />}
-            label="Achievement"
-            onClick={() => setActiveTab("achievement_background")}
-          />
-          <Tab
-            icon={<Work />}
-            label="Experience"
-            onClick={() => setActiveTab("employment_history")}
-          />
-        </Tabs>
-      </Box>
-
-      <Grid
-        container
-        sx={{
+          display: "flex",
           gap: 2,
-          justifyContent: { sm: "stretch" },
-          display: { sm: "flex" },
           flexDirection: "column",
         }}
       >
-        {activeTab === "profile_background" && (
-          <Grid
-            item
-            sx={{
-              backgroundColor: (theme) => theme.palette.common.main,
-              padding: "1rem",
-              position: "relative",
-            }}
-          >
-            <Typography
-              variant="h5"
-              fontWeight={800}
-              sx={{
-                padding: "10px",
-                borderBottom: "2px solid",
-                color: "primary",
-                display: { sm: "flex" },
-              }}
-            >
-              Profile
-            </Typography>
-            <DemographicProfile
-              data={demographicData}
-              isLoading={isLoadingDemographicData}
+        <Box
+          position="sticky"
+          top={63}
+          zIndex={1000}
+          bgcolor="inherit"
+          borderBottom="1px solid rgba(0, 0, 0, 0.12)"
+          sx={{
+            backgroundColor: (theme) => theme.palette.common.main,
+          }}
+        >
+          <Tabs value={value} onChange={handleChange} variant="fullWidth">
+            <Tab
+              icon={<PersonPin />}
+              label="Profile"
+              onClick={() => setActiveTab("profile_background")}
             />
-          </Grid>
-        )}
-
-        {activeTab === "educational_background" && (
-          <Grid
-            item
-            sx={{
-              backgroundColor: (theme) => theme.palette.common.main,
-              padding: "1rem",
-              position: "relative",
-            }}
-          >
-            <Typography
-              variant="h5"
-              fontWeight={800}
-              sx={{
-                padding: "10px",
-                borderBottom: "2px solid",
-                marginBottom: "10px",
-                color: "primary",
-              }}
-            >
-              Education
-            </Typography>
-            <CareerProfile data={careerData} isLoading={isLoadingCareerData} />
-          </Grid>
-        )}
-
-        {activeTab === "achievement_background" && (
-          <Grid
-            item
-            sx={{
-              backgroundColor: (theme) => theme.palette.common.main,
-              padding: "1rem",
-              position: "relative",
-            }}
-          >
-            <Typography
-              variant="h5"
-              fontWeight={800}
-              sx={{
-                padding: "10px",
-                borderBottom: "2px solid",
-                marginBottom: "10px",
-                color: "primary",
-              }}
-            >
-              Achievements
-            </Typography>
-            <AchievementProfile
-              data={achievementData}
-              isLoading={isLoadingAchievementData}
+            <Tab
+              icon={<School />}
+              label="Education"
+              onClick={() => setActiveTab("educational_background")}
             />
-          </Grid>
-        )}
+            <Tab
+              icon={<Star />}
+              label="Achievement"
+              onClick={() => setActiveTab("achievement_background")}
+            />
+            <Tab
+              icon={<Work />}
+              label="Experience"
+              onClick={() => setActiveTab("employment_history")}
+            />
+          </Tabs>
+        </Box>
 
-        {activeTab === "employment_history" && (
-          <Grid
-            item
-            sx={{
-              backgroundColor: (theme) => theme.palette.common.main,
-              padding: "1rem",
-              position: "relative",
-            }}
-          >
-            <Typography
-              variant="h5"
-              fontWeight={800}
+        <Grid
+          container
+          sx={{
+            gap: 2,
+            justifyContent: { sm: "stretch" },
+            display: { sm: "flex" },
+            flexDirection: "column",
+          }}
+        >
+          {activeTab === "profile_background" && (
+            <Grid
+              item
               sx={{
-                padding: "10px",
-                borderBottom: "2px solid",
-                marginBottom: "10px",
-                color: "primary",
+                backgroundColor: (theme) => theme.palette.common.main,
+                padding: "1rem",
+                position: "relative",
               }}
             >
-              Experience
-            </Typography>
-            <EmploymentProfile
-              data={employmentData}
-              isLoading={isLoadingEmploymentData}
-            />
-          </Grid>
-        )}
-      </Grid>
-    </Box>
+              <Typography
+                variant="h5"
+                fontWeight={800}
+                sx={{
+                  padding: "10px",
+                  borderBottom: "2px solid",
+                  color: "primary",
+                  display: { sm: "flex" },
+                }}
+              >
+                Profile
+              </Typography>
+              <DemographicProfile
+                data={demographicData}
+                isLoading={isLoadingDemographicData}
+              />
+            </Grid>
+          )}
+
+          {activeTab === "educational_background" && (
+            <Grid
+              item
+              sx={{
+                backgroundColor: (theme) => theme.palette.common.main,
+                padding: "1rem",
+                position: "relative",
+              }}
+            >
+              <Typography
+                variant="h5"
+                fontWeight={800}
+                sx={{
+                  padding: "10px",
+                  borderBottom: "2px solid",
+                  marginBottom: "10px",
+                  color: "primary",
+                }}
+              >
+                Education
+              </Typography>
+              <CareerProfile
+                data={careerData}
+                isLoading={isLoadingCareerData}
+              />
+            </Grid>
+          )}
+
+          {activeTab === "achievement_background" && (
+            <Grid
+              item
+              sx={{
+                backgroundColor: (theme) => theme.palette.common.main,
+                padding: "1rem",
+                position: "relative",
+              }}
+            >
+              <Typography
+                variant="h5"
+                fontWeight={800}
+                sx={{
+                  padding: "10px",
+                  borderBottom: "2px solid",
+                  marginBottom: "10px",
+                  color: "primary",
+                }}
+              >
+                Achievements
+              </Typography>
+              <AchievementProfile
+                data={achievementData}
+                isLoading={isLoadingAchievementData}
+              />
+            </Grid>
+          )}
+
+          {activeTab === "employment_history" && (
+            <Grid
+              item
+              sx={{
+                backgroundColor: (theme) => theme.palette.common.main,
+                padding: "1rem",
+                position: "relative",
+              }}
+            >
+              <Typography
+                variant="h5"
+                fontWeight={800}
+                sx={{
+                  padding: "10px",
+                  borderBottom: "2px solid",
+                  marginBottom: "10px",
+                  color: "primary",
+                }}
+              >
+                Experience
+              </Typography>
+              <EmploymentProfile
+                data={employmentData}
+                isLoading={isLoadingEmploymentData}
+              />
+            </Grid>
+          )}
+        </Grid>
+      </Box>
+    </Grid>
   );
 }
 
