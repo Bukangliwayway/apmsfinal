@@ -56,7 +56,7 @@ const careerProfileEditModal = ({ open, onClose }) => {
     if (cachedData) {
       setCareerProfile({
         ...cachedData.data,
-        date_graduated: cachedData?.data?.date_graduated || null,
+        batch_year: cachedData?.data?.batch_year || null,
         course: cachedData?.data?.course || "",
         course_name: cachedData?.data?.course || "",
         post_grad_act: cachedData?.data?.post_grad_act || [],
@@ -105,17 +105,17 @@ const careerProfileEditModal = ({ open, onClose }) => {
   const handleDateChange = (date) => {
     setCareerProfile((prevProfile) => ({
       ...prevProfile,
-      date_graduated: date,
+      batch_year: date,
     }));
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = {
-      date_graduated:
-        careerProfile?.date_graduated === cachedData?.data?.date_graduated
+      batch_year:
+        careerProfile?.batch_year === cachedData?.data?.batch_year
           ? null
-          : careerProfile?.date_graduated.format("YYYY-MM-DD"),
+          : careerProfile?.batch_year,
 
       course:
         careerProfile?.course === cachedData?.data?.course
@@ -276,21 +276,19 @@ const careerProfileEditModal = ({ open, onClose }) => {
               }
             />
           </Grid>
-          {auth?.role == "public" && (
-            <Grid item xs={12}>
-              <DatePicker
-                views={["year"]}
-                label="Batch Year"
-                value={
-                  careerProfile?.date_graduated
-                    ? dayjs(careerProfile.date_graduated)
-                    : null
-                }
-                onChange={handleDateChange}
-                renderInput={(params) => <TextField {...params} />}
-              />
-            </Grid>
-          )}
+          <Grid item xs={12}>
+            <DatePicker
+              views={["year"]}
+              label="Batch Year"
+              value={
+                careerProfile?.batch_year
+                  ? dayjs(careerProfile.batch_year)
+                  : null
+              }
+              onChange={handleDateChange}
+              renderInput={(params) => <TextField {...params} />}
+            />
+          </Grid>
           <Grid item xs={12}>
             <FormControl sx={{ width: "100%" }}>
               <InputLabel id="post-grad-act-label">

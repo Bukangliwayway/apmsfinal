@@ -231,10 +231,10 @@ export const CareerProfile = ({ isLoading, data }) => {
           {data?.data?.course ? data?.data?.course : "No Background in PUPQC"}
         </Typography>
         <Box sx={{ display: "flex", gap: 1 }}>
-          {data?.data?.date_graduated && (
+          {data?.data?.batch_year && (
             <Chiptip
               icon={<School color="primary" />}
-              label={dayjs(data?.data?.date_graduated).format("YYYY")}
+              label={data?.data?.batch_year}
               additional="year graduated: "
             />
           )}

@@ -42,12 +42,9 @@ async def afterEmploymentPostRoutine(user_id, db: Session):
 
 async def isProfileCompleted(user_id, db: Session):
     user = db.query(models.User).filter(models.User.id == user_id).first()
-
-    if user and user.present_employment_status.lower() == 'never been employed' and user.unemployment_reason is not None:
-        return True
-    
     employments = db.query(models.Employment).filter(models.Employment.user_id == user_id).all()
-    if user and employments and user.present_employment_status != 'unanswered':
+
+    if user and not employments and user.present_employment_status != 'unanswered':
         # Check if any of the specified columns is null or blank
         required_demo_columns = [
             'username',
@@ -63,6 +60,16 @@ async def isProfileCompleted(user_id, db: Session):
             'course_id',
             'batch_year',
         ]
+
+        for column_name in required_demo_columns:
+            column_value = getattr(user, column_name)
+            if column_value is None or (isinstance(column_value, str) and column_value.strip() == ''):  
+                return False
+
+    if user and user.present_employment_status.lower() == 'never been employed' and user.unemployment_reason is not None:
+        return True
+            
+    if user and employments and user.present_employment_status != 'unanswered':
         required_employment_columns = [
             'date_hired', 
             'gross_monthly_income', 
@@ -71,11 +78,7 @@ async def isProfileCompleted(user_id, db: Session):
             'employer_type', 
             'company_name',
         ]
-
-        for column_name in required_demo_columns:
-            column_value = getattr(user, column_name)
-            if column_value is None or (isinstance(column_value, str) and column_value.strip() == ''):  
-                return False
+       
         for employment in employments:
             for column_name in required_employment_columns:
                 column_value = getattr(employment, column_name)
@@ -459,6 +462,7 @@ async def get_career_profiles(
         "id": user_data.id,
         "role": user_data.role,
         "date_graduated": user_data.date_graduated,          
+        "batch_year": user_data.batch_year,          
         "course": user_data.course.name if user_data.course else '',          
         "post_grad_act": user_data.post_grad_act,          
         "achievement": achievements if achievements else None,          
@@ -487,6 +491,7 @@ async def get_career_profiles(
         "id": user_data.id,
         "role": user_data.role,
         "date_graduated": user_data.date_graduated,          
+        "batch_year": user_data.batch_year,          
         "course": user_data.course.name if user_data.course else '',          
         "post_grad_act": user_data.post_grad_act,          
         "achievement": achievements if achievements else None,          
@@ -623,6 +628,7 @@ async def get_career_profiles(
             "id": user.id,
             "role": user.role,
             "date_graduated": user.date_graduated,          
+            "batch_year": user.batch_year,          
             "course": user.course.name if user.course else '',          
             "post_grad_act": user.post_grad_act,          
             "achievement": achievements if achievements else None,          
