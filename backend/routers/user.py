@@ -30,11 +30,11 @@ async def login_user(*, username: str, password: str="", hashed_pass: str="", re
         refresh_token = utils.create_token(user, True)
     
         response.set_cookie('access_token', access_token, settings.ACCESS_TOKEN_EXPIRES_IN * 60,
-                            settings.ACCESS_TOKEN_EXPIRES_IN * 60, '/', None, False, True, 'lax')
+                            settings.ACCESS_TOKEN_EXPIRES_IN * 60, '/', None, False, True, 'none')
         response.set_cookie('refresh_token', refresh_token,
-                            settings.REFRESH_TOKEN_EXPIRES_IN * 60, settings.REFRESH_TOKEN_EXPIRES_IN * 60, '/', None, False, True, 'lax')
+                            settings.REFRESH_TOKEN_EXPIRES_IN * 60, settings.REFRESH_TOKEN_EXPIRES_IN * 60, '/', None, False, True, 'none')
         response.set_cookie('logged_in', 'True', settings.ACCESS_TOKEN_EXPIRES_IN * 60,
-                            settings.ACCESS_TOKEN_EXPIRES_IN * 60, '/', None, False, False, 'lax')
+                            settings.ACCESS_TOKEN_EXPIRES_IN * 60, '/', None, False, False, 'none')
 
         return access_token
     except OperationalError as e:

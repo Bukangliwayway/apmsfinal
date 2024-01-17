@@ -289,9 +289,9 @@ def refresh_token(response: Response, request: Request, db: Session = Depends(ge
 
 
     response.set_cookie('access_token', access_token, settings.ACCESS_TOKEN_EXPIRES_IN * 60,
-                        settings.ACCESS_TOKEN_EXPIRES_IN * 60, '/', None, False, True, 'lax')
+                        settings.ACCESS_TOKEN_EXPIRES_IN * 60, '/', None, False, True, 'none')
     response.set_cookie('logged_in', 'True', settings.ACCESS_TOKEN_EXPIRES_IN * 60,
-                        settings.ACCESS_TOKEN_EXPIRES_IN * 60, '/', None, False, False, 'lax')
+                        settings.ACCESS_TOKEN_EXPIRES_IN * 60, '/', None, False, False, 'none')
     return utils.token_return(token=access_token, role=user.role)
 
 @router.post("/linkedin-token")
