@@ -134,7 +134,6 @@ class Course(Base):
     in_pupqc = Column('IsValidPUPQCCourses', Boolean, nullable=False, server_default='True')
     created_at = Column('created_at', DateTime, nullable=False, server_default='now()')
     updated_at = Column('updated_at', DateTime, nullable=False, server_default='now()')
-    deleted_at = Column('deleted_at', DateTime)
     user = relationship("User", back_populates="course")
     education = relationship("Education", back_populates="course")
     classifications = relationship("Classification", secondary="APMSCourseClassification", back_populates="courses", overlaps="course_classifications")

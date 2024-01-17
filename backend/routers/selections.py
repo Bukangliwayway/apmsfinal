@@ -202,7 +202,7 @@ async def create_course(
 @router.put("/courses/{course_id}")
 async def edit_course(
     *,
-    course_id: UUID,
+    course_id: int,
     name: str = Body(None),
     code: str = Body(None),
     in_pupqc: bool = Body(False),
@@ -263,11 +263,11 @@ async def edit_course(
 
 @router.get("/courses/")
 async def get_courses(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
-    courses = db.query(models.Course).filter(models.Course.deleted_at.is_(None)).all()
+    courses = db.query(models.Course).all()
     return courses
 
 @router.get("/courses/{course_id}")
-async def get_courses(course_id: UUID, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+async def get_courses(course_id: int, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
     course = db.query(models.Course).filter(models.Course.id == course_id).first()
     classifications = db.query(models.CourseClassification.classification_id).filter(models.CourseClassification.course_id == course_id).all()
 
@@ -471,7 +471,7 @@ async def delete_classification(
 @router.delete("/courses/{course_id}")
 async def delete_course(
     *,
-    course_id: UUID,
+    course_id: int,
     db: Session = Depends(get_db),
     user: UserResponse = Depends(get_current_user)
 ):

@@ -544,7 +544,7 @@ async def get_employment_status(
 async def put_career_profiles(
     *,
     date_graduated: Optional[date] = Body(None),
-    course: Optional[UUID] = Body(None),
+    course: Optional[int] = Body(None),
     post_grad_act: Optional[List[str]] = Body(None),
     db: Session = Depends(get_db),
     user: UserResponse = Depends(get_current_user)
@@ -1234,7 +1234,7 @@ async def put_achievement(
 @router.post("/education/")
 async def post_education(
     *,
-    course: Optional[UUID] = Body(None),
+    course: Optional[int] = Body(None),
     level: str = Body(...),
     school_name: str = Body(...),
     is_international: bool = Body(...),
@@ -1409,7 +1409,7 @@ async def delete_education(
 async def put_achievement(
     education_id: UUID,
     level: Optional[str] = Body(None),
-    course: Optional[UUID] = Body(None),
+    course: Optional[int] = Body(None),
     school_name: Optional[str] = Body(None),
     is_international: Optional[bool] = Body(None),
     country: Optional[str] = Body(None),
