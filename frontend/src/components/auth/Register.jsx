@@ -262,9 +262,6 @@ const Register = () => {
   const { isLoading } = mutation;
   const { isLoading: isPublicUserLoading } = publicUserMutation;
 
-  console.log("tanginamo: ", isPublicUserLoading);
-  console.log("tanginaka: ", isLoading);
-
   return (
     <>
       <Dialog

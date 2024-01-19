@@ -55,13 +55,13 @@ async def isProfileCompleted(user_id, db: Session):
             'civil_status',
             'gender',
             'email',
-            'date_graduated',
             'present_employment_status',
             'course_id',
             'batch_year',
         ]
 
         for column_name in required_demo_columns:
+            print(column_name)
             column_value = getattr(user, column_name)
             if column_value is None or (isinstance(column_value, str) and column_value.strip() == ''):  
                 return False
@@ -81,6 +81,7 @@ async def isProfileCompleted(user_id, db: Session):
        
         for employment in employments:
             for column_name in required_employment_columns:
+                print(column_name)
                 column_value = getattr(employment, column_name)
                 if column_value is None or (isinstance(column_value, str) and column_value.strip() == ''):                
                     return False
@@ -545,6 +546,7 @@ async def put_career_profiles(
     *,
     date_graduated: Optional[date] = Body(None),
     course: Optional[int] = Body(None),
+    batch_year: Optional[int] = Body(None),
     post_grad_act: Optional[List[str]] = Body(None),
     db: Session = Depends(get_db),
     user: UserResponse = Depends(get_current_user)
@@ -580,11 +582,11 @@ async def put_career_profiles(
         
 
     try:
-        
         profile = {
             'date_graduated': date_graduated,
             'course': course_instance,
             'post_grad_act': post_grad_act,
+            'batch_year': batch_year,
         }
 
         # Iterate through the profile dictionary and populate saved_profile
@@ -593,7 +595,6 @@ async def put_career_profiles(
                 setattr(saved_profile, key, value)
         
         saved_profile.is_completed = await isProfileCompleted(user.id, db)
-
 
         db.commit()
         return {"message": "Career Profile updated successfully"}
@@ -1480,9 +1481,8 @@ async def approve_user(username: str, db: Session = Depends(get_db), user: UserR
     if not actual_user:
         raise HTTPException(status_code=404, detail="User not found")
     
+    await afterEmploymentPostRoutine(actual_user.id, db)
     check = await isProfileCompleted(actual_user.id, db)
-
-    print(check)
 
     if not check:
         raise HTTPException(status_code=400, detail=" The User is not yet complete")

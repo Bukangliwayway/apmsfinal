@@ -765,11 +765,13 @@ async def employment_upload(file: UploadFile = File(...), db: Session = Depends(
     for _, row in df.iterrows():
         # Check if required columns do have value
         if any(not row[field] for field in required_fields):
+            print(row)
             incomplete_column.append(row)
             continue
 
         actual_user = db.query(models.User).filter(models.User.student_number == row['student_number']).first()
         actual_job = db.query(models.Job).filter(models.Job.name == row['job_name']).first()
+
 
         # Check if there a valid user
         if not actual_user or not actual_job:

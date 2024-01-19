@@ -78,6 +78,7 @@ export const AchievementProfile = ({ data, isLoading }) => {
   const [expanded, setExpanded] = React.useState({});
 
   const handleExpandClick = (achievementId) => {
+    const { auth } = useAll();
     setExpanded((prevExpanded) => ({
       ...prevExpanded,
       [achievementId]: !prevExpanded[achievementId],

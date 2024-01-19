@@ -220,6 +220,7 @@ async def create_public_user(student_number: str = Form(...), email: str = Form(
                     username=username,
                     student_number=student_number,
                     email=email,
+                    birthdate=birthdate,
                     first_name=first_name,
                     last_name=last_name,
                     role="public",
@@ -233,7 +234,6 @@ async def create_public_user(student_number: str = Form(...), email: str = Form(
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=400, detail="Account Registration failed")
-
 
     subject = "APMS Login Credentials"
     content = f"""

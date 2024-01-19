@@ -56,7 +56,7 @@ const careerProfileEditModal = ({ open, onClose }) => {
     if (cachedData) {
       setCareerProfile({
         ...cachedData.data,
-        batch_year: cachedData?.data?.batch_year || null,
+        date_graduated: cachedData?.data?.date_graduated || null,
         course: cachedData?.data?.course || "",
         course_name: cachedData?.data?.course || "",
         post_grad_act: cachedData?.data?.post_grad_act || [],
@@ -105,6 +105,7 @@ const careerProfileEditModal = ({ open, onClose }) => {
   const handleDateChange = (date) => {
     setCareerProfile((prevProfile) => ({
       ...prevProfile,
+      date_graduated: date,
       batch_year: date,
     }));
   };
@@ -112,11 +113,16 @@ const careerProfileEditModal = ({ open, onClose }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = {
+      date_graduated:
+        careerProfile?.date_graduated === cachedData?.data?.date_graduated
+          ? null
+          : careerProfile?.date_graduated.format("YYYY-MM-DD"),
       batch_year:
         careerProfile?.batch_year === cachedData?.data?.batch_year
           ? null
-          : careerProfile?.batch_year,
-
+          : careerProfile?.batch_year
+          ? dayjs(careerProfile.batch_year).year()
+          : null,
       course:
         careerProfile?.course === cachedData?.data?.course
           ? null
@@ -282,7 +288,7 @@ const careerProfileEditModal = ({ open, onClose }) => {
               label="Batch Year"
               value={
                 careerProfile?.batch_year
-                  ? dayjs(careerProfile.batch_year)
+                  ? dayjs(`${careerProfile.batch_year}-01-01`, "YYYY-MM-DD")
                   : null
               }
               onChange={handleDateChange}
