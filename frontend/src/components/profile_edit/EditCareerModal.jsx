@@ -106,7 +106,7 @@ const careerProfileEditModal = ({ open, onClose }) => {
     setCareerProfile((prevProfile) => ({
       ...prevProfile,
       date_graduated: date,
-      batch_year: date ? dayjs(date).format("YY") : null,
+      batch_year: date ? dayjs(date).format("YYYY") : null,
     }));
   };
 

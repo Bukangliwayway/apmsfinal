@@ -168,7 +168,7 @@ const AllFeedsContent = ({ type }) => {
                   display: "flex",
                   flexDirection: "column",
                   backgroundColor: (theme) => theme.palette.common.main,
-                  maxHeight: feed?.img_link ? "" : "25vh",
+                  maxHeight: feed?.img_link ? "" : "30vh",
                 }}
               >
                 <Box

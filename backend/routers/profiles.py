@@ -1,6 +1,7 @@
 from datetime import date, datetime
 from uuid import UUID
 from sqlalchemy import func, or_
+from sqlalchemy.sql import text
 from fastapi import Body, Query, APIRouter, File, Form, status, Depends, HTTPException, UploadFile
 from backend.database import get_db
 from sqlalchemy.orm import Session, joinedload
@@ -61,9 +62,9 @@ async def isProfileCompleted(user_id, db: Session):
         ]
 
         for column_name in required_demo_columns:
-            print(column_name)
             column_value = getattr(user, column_name)
             if column_value is None or (isinstance(column_value, str) and column_value.strip() == ''):  
+                print(column_name)
                 return False
 
     if user and user.present_employment_status.lower() == 'never been employed' and user.unemployment_reason is not None:
@@ -81,9 +82,9 @@ async def isProfileCompleted(user_id, db: Session):
        
         for employment in employments:
             for column_name in required_employment_columns:
-                print(column_name)
                 column_value = getattr(employment, column_name)
                 if column_value is None or (isinstance(column_value, str) and column_value.strip() == ''):                
+                    print(column_name)
                     return False
         return True
 
@@ -110,7 +111,7 @@ async def search_profile(
             models.User.is_completed == True,
             or_(
                 models.User.batch_year == user_profile.batch_year,
-                models.Course.code == user_profile.course.code
+                models.Course.code == user_profile.course.code if user_profile.course else text("")
             )
         )
         .join(models.Course, models.User.course_id == models.Course.id)
@@ -128,8 +129,8 @@ async def search_profile(
     db: Session = Depends(get_db),
     user: UserResponse = Depends(get_current_user),
 ):
-    limit = 20  # The limit is declared within the function
-    fuzzy_match_threshold = 40
+    limit = 10  # The limit is declared within the function
+    fuzzy_match_threshold = 30
 
     if name:
         users = db.query(models.User).filter(models.User.is_completed == True).all()

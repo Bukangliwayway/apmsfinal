@@ -11,6 +11,8 @@ from backend import models
 from typing import Annotated, Dict, List, Optional, Union
 from starlette import status
 from backend.schemas import UserResponse
+from sqlalchemy import not_, and_, func, desc, case
+
 from backend import models
 
 
@@ -145,8 +147,8 @@ async def create_course(
     user: UserResponse = Depends(get_current_user)
 ):
     #make sure that every input is in lowercase
-    name=name.lower()
-    code=code.lower() if code else ''
+    name=name
+    code=code.upper() if code else ''
 
     # Check if the specified name is not yet saved in the db
     existing_course_name = db.query(models.Course).filter(models.Course.name == name).first()
@@ -172,9 +174,14 @@ async def create_course(
     # Verify that the number of existing classifications matches the number of specified classification_ids
     if len(existing_classifications) != len(classification_ids):
         raise HTTPException(status_code=400, detail="Some classification ID do not exist.")
+    
+    max_id_result = db.query(func.max(models.Course.id)).scalar()
+    new_id = max_id_result + 1 if max_id_result else 1
+
 
     # Create new course instance
     new_course = models.Course(
+        id=new_id,
         name=name,
         code=code,
         in_pupqc=in_pupqc,
@@ -211,8 +218,8 @@ async def edit_course(
     user: UserResponse = Depends(get_current_user)
 ):
     #make sure that every input is in lowercase
-    name=name.lower()
-    code=code.lower() if code else '' 
+    name=name
+    code=code.upper() if code else '' 
 
     # Check if the specified name is not yet saved in the db
     course = db.query(models.Course).filter(models.Course.id == course_id).first()
@@ -349,7 +356,7 @@ async def create_classifications(
     #check for existing classification instances
     for classification_data in classifications:
         name = classification_data.get("name").lower()
-        code = classification_data.get("code").lower()
+        code = classification_data.get("code").upper()
 
         existing_classification = (
             db.query(models.Classification)

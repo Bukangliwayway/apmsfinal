@@ -504,12 +504,18 @@ async def profile_upload(file: UploadFile = File(...), db: Session = Depends(get
     try:
         for _, row in df.iterrows():
             if any(not row[field] for field in required_fields):
+                missing_fields = [field for field in required_fields if not row[field]]
+                print(f"Missing fields for row: {missing_fields}")
                 incomplete_column.append(row)
                 continue
 
-            actual_course = db.query(models.Course).filter(models.Course.code == row['course_code'].lower()).first()
+            actual_course = db.query(models.Course).filter(models.Course.code == row['course_code'].upper()).first()
 
             if row['student_number'] in existing_studnums or row['email'] in existing_emails or not actual_course:
+                if row['student_number'] in existing_studnums:
+                    print(row['student_number'])
+                if row['email'] in existing_emails:    
+                    print(row['email'])
                 not_inserted.append(row)
                 continue
 
@@ -528,7 +534,10 @@ async def profile_upload(file: UploadFile = File(...), db: Session = Depends(get
             db.add(new_user)
             db.commit() 
             db.refresh(new_user)
-            await isProfileCompleted(new_user.id, db)
+            complete = await isProfileCompleted(new_user.id, db)
+            if complete:
+                new_user.is_completed =  True
+                db.commit()
 
             inserted.append(row)
     except Exception as e:
@@ -765,7 +774,8 @@ async def employment_upload(file: UploadFile = File(...), db: Session = Depends(
     for _, row in df.iterrows():
         # Check if required columns do have value
         if any(not row[field] for field in required_fields):
-            print(row)
+            missing_fields = [field for field in required_fields if not row[field]]
+            print(f"Missing fields for row: {missing_fields}")
             incomplete_column.append(row)
             continue
 
@@ -775,6 +785,10 @@ async def employment_upload(file: UploadFile = File(...), db: Session = Depends(
 
         # Check if there a valid user
         if not actual_user or not actual_job:
+            if not actual_job:
+                print(row['job_name'])
+            if not actual_user:
+                print(row['student_number'])
             not_inserted.append(row)
             continue
 
@@ -815,7 +829,7 @@ async def employment_upload(file: UploadFile = File(...), db: Session = Depends(
             db.commit()
 
         await afterEmploymentPostRoutine(actual_user.id, db)
-        complete = await isProfileCompleted(user.id, db)
+        complete = await isProfileCompleted(actual_user.id, db)
         if complete:
             actual_user.is_completed =  True
             db.commit()
@@ -882,7 +896,7 @@ async def unclaimed_upload(file: UploadFile = File(...), db: Session = Depends(g
                 continue
 
             actual_user = db.query(models.User).filter(models.User.student_number == row['student_number']).first()
-            actual_course = db.query(models.Course).filter(models.Course.code == row['course_code'].lower()).first()
+            actual_course = db.query(models.Course).filter(models.Course.code == row['course_code'].upper()).first()
 
             # Check if there is an existing user already
             if actual_user or not actual_course:
