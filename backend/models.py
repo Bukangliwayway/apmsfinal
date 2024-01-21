@@ -6,13 +6,12 @@ from fastapi import Depends
 from sqlalchemy.event import listens_for
 from backend.database import get_db, Base
 import uuid
-from sqlalchemy import TIMESTAMP, Column, String, Boolean, text, Boolean, ForeignKey, Integer, Date, Text, DateTime
+from sqlalchemy import TIMESTAMP, Column, String, Boolean, text, Boolean, ForeignKey, Integer, Date, Text, DateTime, Float
 from sqlalchemy.dialects.postgresql import UUID, ARRAY
 from sqlalchemy.orm import relationship, Session, sessionmaker
 
 class User(Base):
     __tablename__ = 'APMSUser'
-
     id = Column('id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     created_at = Column('created_at', TIMESTAMP(timezone=True), nullable=False, server_default=text("now()"))
     updated_at = Column('updated_at', TIMESTAMP(timezone=True), nullable=False, server_default=text("now()"))
@@ -86,7 +85,6 @@ class Student(Base):
     __tablename__ = 'SPSStudent'
 
     StudentId = Column(Integer, primary_key=True, autoincrement=True)
-    UserId = Column(UUID(as_uuid=True), ForeignKey('APMSUser.id'), nullable=False)
     StudentNumber = Column(String(30), unique=True, nullable=False)
     FirstName = Column(String(50), nullable=False)
     LastName = Column(String(50), nullable=False)
@@ -98,11 +96,6 @@ class Student(Base):
     PlaceOfBirth = Column(String(50))
     ResidentialAddress = Column(String(50))
     MobileNumber = Column(String(11))
-    IsOfficer = Column(Boolean, default=False)
-    Token = Column(String(128))
-    TokenExpiration = Column(DateTime)
-    created_at = Column(DateTime, default=datetime.now)
-    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     enrollment = relationship("CourseEnrolled", back_populates="student")  # Add this line
 
 class UniversityAdmin(Base):
@@ -152,7 +145,6 @@ class CourseEnrolled(Base):
     updated_at = Column('updated_at', DateTime, nullable=False, server_default='now()')
     student = relationship("Student", back_populates="enrollment")
     course = relationship("Course", back_populates="enrollment") 
-
 
 # Metadata containing the details of class such as Year, Semester, Batch and Course
 class Metadata(Base):
@@ -406,6 +398,42 @@ class UserInterestEvent(Base):
     user = relationship("User", back_populates="interests_in_events")
     event = relationship("Event", back_populates="interested_users")
 
+
+class ClassSubject(Base):
+    __tablename__ = 'SPSClassSubject'
+
+    ClassSubjectId = Column(Integer, primary_key=True, autoincrement=True) 
+    ClassId = Column(Integer, ForeignKey('SPSClass.ClassId', ondelete="CASCADE")) # Referencing to the Class
+    Schedule = Column(String(100), nullable=True) # Schedule of Subjects
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+
+
+
+# Student Class Grade contains the average grade of student in class
+class StudentClassSubjectGrade(Base):
+    __tablename__ = 'SPSStudentClassSubjectGrade'
+
+    # StudentClassSubjectGradeId = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    ClassSubjectId = Column(Integer, ForeignKey('SPSClassSubject.ClassSubjectId', ondelete="CASCADE"), primary_key=True) # Reference to the class subject
+    StudentId = Column(Integer, ForeignKey('SPSStudent.StudentId', ondelete="CASCADE"), primary_key=True) # Referencing to the student in subject taken
+    Grade = Column(Float) # Students Grade
+    DateEnrolled = Column(Date) # Date enrolled in the subject
+    AcademicStatus = Column(Integer) # (1 - Passed, 2 - Failed, 3 - Incomplete or INC,  4 - Withdrawn, 5 - ReEnroll )
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+
+class Class(Base):
+    __tablename__ = 'SPSClass'
+
+    ClassId = Column(Integer, primary_key=True, autoincrement=True)
+    MetadataId = Column(Integer, ForeignKey('SPSMetadata.MetadataId', ondelete="CASCADE")) # Metadata containing details of class year, semester, batch, course
+    Section = Column(Integer) # Section of the class
+    IsGradeFinalized = Column(Boolean, default=False) # Checker if the grade is Finalized
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 @listens_for(CourseEnrolled, 'after_update')
@@ -418,13 +446,6 @@ def create_two_way_link(mapper, connection, target):
         # Fetch the corresponding student and course information
         student = db.query(Student).get(target.StudentId)
         course = db.query(Course).get(target.CourseId)
-        metadata = (
-            db.query(Metadata)
-            .filter_by(CourseId=course.id)
-            .order_by(Metadata.updated_at.desc())
-            .first()
-        )
-
         email = student.email
         #Ensure email is unique
         existing_email_user = db.query(User).filter_by(email=student.Email).first()
@@ -443,6 +464,21 @@ def create_two_way_link(mapper, connection, target):
             username = f"{base_username}{random_suffix}"
             existing_user = db.query(User).filter_by(username=username).first()
 
+        result = (
+            db.query(Metadata.Batch)
+            .join(CourseEnrolled, Metadata.CourseId == CourseEnrolled.CourseId)
+            .filter(CourseEnrolled.StudentId == target.StudentId)
+            .join(StudentClassSubjectGrade, StudentClassSubjectGrade.StudentId == CourseEnrolled.StudentId)
+            .join(ClassSubject, StudentClassSubjectGrade.ClassSubjectId == ClassSubject.ClassSubjectId)
+            .join(Class, ClassSubject.ClassId == Class.ClassId)
+            .first()
+        )
+
+        if result:
+            batch = result[0]
+            print(f"The batch for StudentId {target.StudentId} is: {batch}")
+        return
+
         # Create a new User instance
         new_user = User(
             student_number=student.StudentNumber,
@@ -457,14 +493,13 @@ def create_two_way_link(mapper, connection, target):
             address=student.ResidentialAddress,
             mobile_number=student.MobileNumber,
             course_id=course.CourseId,
-            batch_year=metadata.Batch,
+            batch_year=batch,
             role='unclaimed',
         )
 
         # Add the new user to the session and commit the changes
         db.add(new_user)
         db.commit()
-
 
 @listens_for(UniversityAdmin, 'after_insert')
 def create_user_for_univadmin(mapper, connection, target):
@@ -483,6 +518,7 @@ def create_user_for_univadmin(mapper, connection, target):
         username = f"{base_username}{random_suffix}"
         existing_user = db.query(User).filter_by(username=username).first()
 
+    return
     # Create a new User instance for UniversityAdmin
     new_user = User(
         first_name=target.FirstName,

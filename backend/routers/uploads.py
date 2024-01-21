@@ -1,3 +1,4 @@
+import random
 import numpy as np
 import secrets
 import xlsxwriter
@@ -470,6 +471,64 @@ def generate_excel(data, titles):
     os.remove(xlsx_name)
 
     return upload_result
+
+@router.get("/fetch_user")
+async def fetch_user(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+        sample = db.query(models.CourseEnrolled).first()
+
+        # Fetch the corresponding student and course information
+        student = db.query(models.Student).get(sample.StudentId)
+        course = db.query(models.Course).get(sample.CourseId)
+        email = student.Email
+        #Ensure email is unique
+        existing_email_user = db.query(models.User).filter_by(email=student.Email).first()
+        if existing_email_user:
+            email = ""
+
+        #Generate Username
+        base_username = student.LastName.lower()
+        random_suffix = ''.join(str(random.randint(0, 9)) for _ in range(4))
+        username = f"{base_username}{random_suffix}"
+
+        # Check if the username already exists
+        existing_user = db.query(models.User).filter_by(username=username).first()
+        while existing_user:
+            random_suffix = ''.join(str(random.randint(0, 9)) for _ in range(4))
+            username = f"{base_username}{random_suffix}"
+            existing_user = db.query(models.User).filter_by(username=username).first()
+
+        result = (
+            db.query(models.Metadata.Batch)
+            .join(models.CourseEnrolled, models.Metadata.CourseId == models.CourseEnrolled.CourseId)
+            .filter(models.CourseEnrolled.StudentId == sample.StudentId)
+            .join(models.StudentClassSubjectGrade, models.StudentClassSubjectGrade.StudentId == models.CourseEnrolled.StudentId)
+            .join(models.ClassSubject, models.StudentClassSubjectGrade.ClassSubjectId == models.ClassSubject.ClassSubjectId)
+            .join(models.Class, models.ClassSubject.ClassId == models.Class.ClassId)
+            .first()
+        )
+
+        if result:
+            batch = result[0]
+            print(f"The batch for StudentId {sample.StudentId} is: {batch}")
+
+        return  {
+            'student_number': student.StudentNumber,
+            'first_name': student.FirstName,
+            'last_name': student.LastName,
+            'email': email,
+            'password': student.Password,
+            'gender': "male" if student.Gender == 1 else "female", 
+            'username':  username,
+            'birthdate': student.DateOfBirth,
+            'origin_address': student.PlaceOfBirth,
+            'address': student.ResidentialAddress,
+            'mobile_number': student.MobileNumber,
+            'course_id': course.id,
+            'batch_year': batch,
+            'role': 'unclaimed',
+        }
+
+
 
 @router.post("/upload_demo_profile/")
 async def profile_upload(file: UploadFile = File(...), db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):

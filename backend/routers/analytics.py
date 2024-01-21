@@ -649,5 +649,3 @@ async def work_alignment_over_time(db: Session = Depends(get_db), user: UserResp
 
 
   return data
-
-
