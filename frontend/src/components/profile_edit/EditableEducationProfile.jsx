@@ -290,7 +290,7 @@ export const EditableEducationProfile = () => {
           </Box>
         </Grid>
 
-        {careerData?.data?.achievement?.length != 0 && (
+        {careerData?.data?.education && (
           <Grid
             item
             xs={12}

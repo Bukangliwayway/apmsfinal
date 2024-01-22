@@ -5,18 +5,23 @@ from backend import models, schemas
 from sqlalchemy.orm import Session
 from backend.config import settings
 import json
+from passlib.hash import pbkdf2_sha256
+from werkzeug.security import check_password_hash, generate_password_hash
+
 
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def hash_password(password: str):
-    return bcrypt_context.hash(password)
+    return generate_password_hash(password)
+    # return bcrypt_context.hash(password)
 
 
 def verify_password(*, password: str="", unhashed_original: str="", hashed_password: str):
     if unhashed_original: return unhashed_original == hash_password
-    return bcrypt_context.verify(password, hashed_password)
+    return check_password_hash(hashed_password,password)
+    # return bcrypt_context.verify(password, hashed_password)
 
 def authenticate_user(*, username: str, password: str="", hashedPassword: str="", db: Session):
     user = db.query(models.User).filter(models.User.username == username).first()
@@ -25,9 +30,10 @@ def authenticate_user(*, username: str, password: str="", hashedPassword: str=""
         return False
     
     if hashedPassword:
-        if hashedPassword == user.password: return user
-
-    if not bcrypt_context.verify(password, user.password):
+        if hashedPassword == user.password:
+            return user
+    
+    if not check_password_hash(user.password, password):
         return False
     return user
 

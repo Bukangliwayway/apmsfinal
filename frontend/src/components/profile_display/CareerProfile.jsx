@@ -273,7 +273,7 @@ export const CareerProfile = ({ isLoading, data }) => {
         </Box>
       </Grid>
 
-      {data?.data?.education?.length != 0 && (
+      {data?.data?.education && (
         <Grid
           item
           xs={12}

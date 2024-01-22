@@ -10,6 +10,7 @@ from sqlalchemy import TIMESTAMP, Column, String, Boolean, text, Boolean, Foreig
 from sqlalchemy.dialects.postgresql import UUID, ARRAY
 from sqlalchemy.orm import relationship, Session, sessionmaker
 
+
 class User(Base):
     __tablename__ = 'APMSUser'
     id = Column('id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -101,7 +102,7 @@ class Student(Base):
 class UniversityAdmin(Base):
     __tablename__ = 'SPSUniversityAdmin'
 
-    UserId = Column(Integer, primary_key=True, autoincrement=True)
+    UnivAdminId = Column(Integer, primary_key=True, autoincrement=True)
     UnivAdminNumber = Column(String(30), unique=True)
     FirstName = Column(String(50), nullable=False)
     LastName = Column(String(50), nullable=False)
@@ -114,8 +115,6 @@ class UniversityAdmin(Base):
     ResidentialAddress = Column(String(50))
     MobileNumber = Column(String(11))
     IsActive = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.now)
-    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
 class Course(Base):
     __tablename__ = 'SPSCourse'
@@ -432,108 +431,3 @@ class Class(Base):
     IsGradeFinalized = Column(Boolean, default=False) # Checker if the grade is Finalized
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
-
-
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-@listens_for(CourseEnrolled, 'after_update')
-def create_two_way_link(mapper, connection, target):
-    # Check if the status has changed to 1 (graduated)
-    if 'Status' in target.__dict__ and target.Status == 1:
-        # Access the session from the target
-        db = SessionLocal()
-
-        # Fetch the corresponding student and course information
-        student = db.query(Student).get(target.StudentId)
-        course = db.query(Course).get(target.CourseId)
-        email = student.email
-        #Ensure email is unique
-        existing_email_user = db.query(User).filter_by(email=student.Email).first()
-        if existing_email_user:
-            email = ""
-
-        #Generate Username
-        base_username = student.LastName.lower()
-        random_suffix = ''.join(str(random.randint(0, 9)) for _ in range(4))
-        username = f"{base_username}{random_suffix}"
-
-        # Check if the username already exists
-        existing_user = db.query(User).filter_by(username=username).first()
-        while existing_user:
-            random_suffix = ''.join(str(random.randint(0, 9)) for _ in range(4))
-            username = f"{base_username}{random_suffix}"
-            existing_user = db.query(User).filter_by(username=username).first()
-
-        result = (
-            db.query(Metadata.Batch)
-            .join(CourseEnrolled, Metadata.CourseId == CourseEnrolled.CourseId)
-            .filter(CourseEnrolled.StudentId == target.StudentId)
-            .join(StudentClassSubjectGrade, StudentClassSubjectGrade.StudentId == CourseEnrolled.StudentId)
-            .join(ClassSubject, StudentClassSubjectGrade.ClassSubjectId == ClassSubject.ClassSubjectId)
-            .join(Class, ClassSubject.ClassId == Class.ClassId)
-            .first()
-        )
-
-        if result:
-            batch = result[0]
-            print(f"The batch for StudentId {target.StudentId} is: {batch}")
-        return
-
-        # Create a new User instance
-        new_user = User(
-            student_number=student.StudentNumber,
-            first_name=student.FirstName,
-            last_name=student.LastName,
-            email=email,
-            password=student.Password,
-            gender="male" if student.gender == 1 else "female", 
-            username = username,
-            birthdate=student.DateOfBirth,
-            origin_address=student.PlaceOfBirth,
-            address=student.ResidentialAddress,
-            mobile_number=student.MobileNumber,
-            course_id=course.CourseId,
-            batch_year=batch,
-            role='unclaimed',
-        )
-
-        # Add the new user to the session and commit the changes
-        db.add(new_user)
-        db.commit()
-
-@listens_for(UniversityAdmin, 'after_insert')
-def create_user_for_univadmin(mapper, connection, target):
-    # Access the session from the target
-    db = SessionLocal()
-
-    # Generate a unique username for UniversityAdmin
-    base_username = target.LastName.lower()
-    random_suffix = ''.join(str(random.randint(0, 9)) for _ in range(4))
-    username = f"{base_username}{random_suffix}"
-
-    # Check if the username already exists
-    existing_user = db.query(User).filter_by(username=username).first()
-    while existing_user:
-        random_suffix = ''.join(str(random.randint(0, 9)) for _ in range(4))
-        username = f"{base_username}{random_suffix}"
-        existing_user = db.query(User).filter_by(username=username).first()
-
-    return
-    # Create a new User instance for UniversityAdmin
-    new_user = User(
-        first_name=target.FirstName,
-        last_name=target.LastName,
-        email=target.Email,
-        password=target.Password,
-        gender="male" if target.Gender == 1 else "female",
-        username=username,
-        birthdate=target.DateOfBirth,
-        origin_address=target.PlaceOfBirth,
-        address=target.ResidentialAddress,
-        mobile_number=target.MobileNumber,
-        role='unclaimed',
-    )
-
-    # Add the new user to the session and commit the changes
-    db.add(new_user)
-    db.commit()

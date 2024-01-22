@@ -472,13 +472,13 @@ def generate_excel(data, titles):
 
     return upload_result
 
-@router.get("/fetch_user")
-async def fetch_user(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
-        sample = db.query(models.CourseEnrolled).first()
-
+@router.post("/fetch_alumni")
+async def fetch_alumni(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    alumnis = db.query(models.CourseEnrolled).filter(models.CourseEnrolled.Status == 1).all()
+    for alumni in alumnis:
         # Fetch the corresponding student and course information
-        student = db.query(models.Student).get(sample.StudentId)
-        course = db.query(models.Course).get(sample.CourseId)
+        student = db.query(models.Student).get(alumni.StudentId)
+        course = db.query(models.Course).get(alumni.CourseId)
         email = student.Email
         #Ensure email is unique
         existing_email_user = db.query(models.User).filter_by(email=student.Email).first()
@@ -500,7 +500,7 @@ async def fetch_user(db: Session = Depends(get_db), user: UserResponse = Depends
         result = (
             db.query(models.Metadata.Batch)
             .join(models.CourseEnrolled, models.Metadata.CourseId == models.CourseEnrolled.CourseId)
-            .filter(models.CourseEnrolled.StudentId == sample.StudentId)
+            .filter(models.CourseEnrolled.StudentId == alumni.StudentId)
             .join(models.StudentClassSubjectGrade, models.StudentClassSubjectGrade.StudentId == models.CourseEnrolled.StudentId)
             .join(models.ClassSubject, models.StudentClassSubjectGrade.ClassSubjectId == models.ClassSubject.ClassSubjectId)
             .join(models.Class, models.ClassSubject.ClassId == models.Class.ClassId)
@@ -509,26 +509,65 @@ async def fetch_user(db: Session = Depends(get_db), user: UserResponse = Depends
 
         if result:
             batch = result[0]
-            print(f"The batch for StudentId {sample.StudentId} is: {batch}")
+            print(f"The batch for StudentId {student.StudentId} is: {batch}")
+            check = db.query(models.User).filter(models.User.student_number == student.StudentNumber).first()
+            if not check:
+                # Create a new User instance for UniversityAdmin
+                new_user = models.User(
+                    student_number=student.StudentNumber,
+                    first_name=student.FirstName,
+                    last_name=student.LastName,
+                    email=email,
+                    password=student.Password,
+                    gender="male" if student.Gender == 1 else "female",
+                    username=username,
+                    birthdate=student.DateOfBirth,
+                    origin_address=student.PlaceOfBirth,
+                    address=student.ResidentialAddress,
+                    mobile_number=student.MobileNumber,
+                    course_id=course.id,
+                    batch_year=batch,
+                    role='unclaimed',
+                )
 
-        return  {
-            'student_number': student.StudentNumber,
-            'first_name': student.FirstName,
-            'last_name': student.LastName,
-            'email': email,
-            'password': student.Password,
-            'gender': "male" if student.Gender == 1 else "female", 
-            'username':  username,
-            'birthdate': student.DateOfBirth,
-            'origin_address': student.PlaceOfBirth,
-            'address': student.ResidentialAddress,
-            'mobile_number': student.MobileNumber,
-            'course_id': course.id,
-            'batch_year': batch,
-            'role': 'unclaimed',
-        }
+                # Add the new user to the session and commit the changes
+                db.add(new_user)
+                db.commit()
 
+@router.post("/fetch_admin")
+async def fetch_admin(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    admins = db.query(models.UniversityAdmin).all()
+    for admin in admins:
+        # Generate a unique username for UniversityAdmin
+        base_username = admin.LastName.lower()
+        random_suffix = ''.join(str(random.randint(0, 9)) for _ in range(4))
+        username = f"{base_username}{random_suffix}"
 
+        # Check if the username already exists
+        existing_user = db.query(models.User).filter_by(username=username).first()
+        while existing_user:
+            random_suffix = ''.join(str(random.randint(0, 9)) for _ in range(4))
+            username = f"{base_username}{random_suffix}"
+            existing_user = db.query(models.User).filter_by(username=username).first()
+
+        # Create a new User instance for UniversityAdmin
+        new_user = models.User(
+            first_name=admin.FirstName,
+            last_name=admin.LastName,
+            email=admin.Email,
+            password=admin.Password,
+            gender="male" if admin.Gender == 1 else "female",
+            username=username,
+            birthdate=admin.DateOfBirth,
+            origin_address=admin.PlaceOfBirth,
+            address=admin.ResidentialAddress,
+            mobile_number=admin.MobileNumber,
+            role='admin',
+        )
+
+        # Add the new user to the session and commit the changes
+        db.add(new_user)
+        db.commit()
 
 @router.post("/upload_demo_profile/")
 async def profile_upload(file: UploadFile = File(...), db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):

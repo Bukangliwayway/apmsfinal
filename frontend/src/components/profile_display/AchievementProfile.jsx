@@ -114,6 +114,21 @@ export const AchievementProfile = ({ data, isLoading }) => {
             flexDirection: "column",
           }}
         >
+          {data?.data?.achievements?.length == 0 && (
+            <Typography
+              variant="h6"
+              gap={1}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                padding: "0 1rem",
+                fontWeight: "bold", // Make the text bold
+                textTransform: "capitalize",
+              }}
+            >
+              No Achievement Recorded
+            </Typography>
+          )}
           {data?.data?.achievements.map((achievement, index) => {
             const isExpanded = expanded[achievement.id];
             return (

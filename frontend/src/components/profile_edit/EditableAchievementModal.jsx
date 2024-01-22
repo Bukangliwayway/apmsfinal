@@ -151,243 +151,258 @@ export const EditableAchievementModal = () => {
 
   return (
     data?.data?.achievements && (
-        <Grid
-          item
+      <Grid
+        item
+        sx={{
+          width: "50%",
+          marginX: "auto",
+          backgroundColor: (theme) => theme.palette.common.main,
+          padding: "1rem",
+          position: "relative",
+        }}
+        id="achievement_background"
+      >
+        <Typography
+          variant="h5"
+          fontWeight={800}
           sx={{
-            width:"50%",
-            marginX: "auto",
-            backgroundColor: (theme) => theme.palette.common.main,
-            padding: "1rem",
-            position: "relative",
+            padding: "10px",
+            borderBottom: "2px solid",
+            marginBottom: "10px",
+            color: "primary",
           }}
-          id="achievement_background"
         >
-          <Typography
-            variant="h5"
-            fontWeight={800}
-            sx={{
-              padding: "10px",
-              borderBottom: "2px solid",
-              marginBottom: "10px",
-              color: "primary",
-            }}
-          >
-            Achievements
-          </Typography>
+          Achievements
+        </Typography>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "1rem",
+            right: "1rem",
+            display: "flex",
+            gap: "0.5rem",
+          }}
+        >
+          <Tooltip title="go back">
+            <Fab
+              size="small"
+              onClick={() => navigate(from, { replace: true })}
+              color="primary"
+            >
+              <ArrowBack />
+            </Fab>
+          </Tooltip>
+          <Tooltip title="add achievement">
+            <Fab
+              size="small"
+              onClick={() => handleModalOpen("addModal")}
+              color="primary"
+            >
+              <Add />
+            </Fab>
+          </Tooltip>
+        </Box>
+        <Grid
+          container
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 2,
+            justifyContent: "center",
+            position: "relative",
+            marginY: "2rem",
+          }}
+        >
           <Box
             sx={{
-              position: "absolute",
-              top: "1rem",
-              right: "1rem",
               display: "flex",
-              gap: "0.5rem",
-            }}
-          >
-            <Tooltip title="go back">
-              <Fab
-                size="small"
-                onClick={() => navigate(from, { replace: true })}
-                color="primary"
-              >
-                <ArrowBack />
-              </Fab>
-            </Tooltip>
-            <Tooltip title="add achievement">
-              <Fab
-                size="small"
-                onClick={() => handleModalOpen("addModal")}
-                color="primary"
-              >
-                <Add />
-              </Fab>
-            </Tooltip>
-          </Box>
-          <Grid
-            container
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
+              justifyContent: "stretch",
               gap: 2,
-              justifyContent: "center",
-              position: "relative",
-              marginY: "2rem",
+              flexDirection: "column",
+              width: "80%",
             }}
           >
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "stretch",
-                gap: 2,
-                flexDirection: "column",
-                width: "80%",
-              }}
-            >
-              {data?.data?.achievements.map((achievement, index) => {
-                const isExpanded = expanded[achievement.id];
-                return (
-                  <React.Fragment key={achievement.id}>
-                    <Grid
-                      container
-                      sx={{
-                        display: "flex",
-                        position: "relative",
-                      }}
-                    >
-                      <PopupState variant="popover" popupId="demo-popup-menu">
-                        {(popupState) => (
-                          <React.Fragment>
-                            <Button
-                              {...bindTrigger(popupState)}
-                              size="small"
-                              sx={{
-                                position: "absolute",
-                                right: "0rem",
-                              }}
-                            >
-                              <MoreHoriz color="primary" />
-                            </Button>
-                            <Menu {...bindMenu(popupState)}>
-                              <MenuItem
-                                onClick={() =>
-                                  handleModalOpen("editModal", achievement.id)
-                                } // Trigger the profile edit modal
-                              >
-                                <ListItemIcon>
-                                  <Edit fontSize="small" />
-                                </ListItemIcon>
-                                edit
-                              </MenuItem>
-                              <MenuItem
-                                onClick={() =>
-                                  handleModalOpen("deleteModal", achievement.id)
-                                }
-                              >
-                                <ListItemIcon>
-                                  <Delete fontSize="small" />
-                                </ListItemIcon>
-                                delete
-                              </MenuItem>
-                            </Menu>
-                          </React.Fragment>
-                        )}
-                      </PopupState>
-                      <Grid
-                        item
-                        xs={12}
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "1rem",
-                        }}
-                      >
-                        <Typography
-                          variant="subtitle1"
-                          sx={{
-                            fontWeight: "bold",
-                          }}
-                        >
-                          {achievement?.type_of_achievement}
-                        </Typography>
-                        <Typography variant="subtitle2">
-                          <Chiptip
-                            label={dayjs(
-                              achievement?.date_of_attainment
-                            ).format("YYYY")}
-                          />
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <Box
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            width: "100%",
-                          }}
-                        >
-                          <Typography variant="body2">
-                            {achievement?.description}
-                          </Typography>
-                        </Box>
-                      </Grid>
-
-                      {achievement?.story || achievement?.link_reference ? (
-                        <>
-                          <CardActions
+            {data?.data?.achievements?.length == 0 && (
+              <Typography
+                variant="h6"
+                gap={1}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "0 1rem",
+                  fontWeight: "bold", // Make the text bold
+                  marginX: "auto",
+                  textTransform: "capitalize",
+                }}
+              >
+                No Achievement Recorded
+              </Typography>
+            )}
+            {data?.data?.achievements.map((achievement, index) => {
+              const isExpanded = expanded[achievement.id];
+              return (
+                <React.Fragment key={achievement.id}>
+                  <Grid
+                    container
+                    sx={{
+                      display: "flex",
+                      position: "relative",
+                    }}
+                  >
+                    <PopupState variant="popover" popupId="demo-popup-menu">
+                      {(popupState) => (
+                        <React.Fragment>
+                          <Button
+                            {...bindTrigger(popupState)}
+                            size="small"
                             sx={{
                               position: "absolute",
-                              bottom: "-1rem",
-                              right: "0.25rem",
+                              right: "0rem",
                             }}
                           >
-                            <ExpandMore
-                              expand={isExpanded}
-                              onClick={() => handleExpandClick(achievement.id)}
-                              aria-expanded={isExpanded}
-                              aria-label="show more"
+                            <MoreHoriz color="primary" />
+                          </Button>
+                          <Menu {...bindMenu(popupState)}>
+                            <MenuItem
+                              onClick={() =>
+                                handleModalOpen("editModal", achievement.id)
+                              } // Trigger the profile edit modal
                             >
-                              <Tooltip title="show more">
-                                <ExpandMoreIcon />
-                              </Tooltip>
-                            </ExpandMore>
-                          </CardActions>
-                          <Collapse
-                            in={expanded[achievement.id]}
-                            timeout="auto"
-                            unmountOnExit
-                          >
-                            <CardContent>
-                              {achievement?.story ? (
-                                <Typography
-                                  variant="body1"
-                                  style={{ wordBreak: "break-word" }}
-                                >
-                                  {achievement?.story}
-                                </Typography>
-                              ) : null}
-                              {achievement?.link_reference ? (
-                                <Typography variant="subtitle2">
-                                  <Link
-                                    href={achievement?.link_reference}
-                                    target="_blank"
-                                  >
-                                    click to see more about this achievement
-                                    here
-                                  </Link>
-                                </Typography>
-                              ) : null}
-                            </CardContent>
-                          </Collapse>
-                        </>
-                      ) : null}
-                      <Divider />
+                              <ListItemIcon>
+                                <Edit fontSize="small" />
+                              </ListItemIcon>
+                              edit
+                            </MenuItem>
+                            <MenuItem
+                              onClick={() =>
+                                handleModalOpen("deleteModal", achievement.id)
+                              }
+                            >
+                              <ListItemIcon>
+                                <Delete fontSize="small" />
+                              </ListItemIcon>
+                              delete
+                            </MenuItem>
+                          </Menu>
+                        </React.Fragment>
+                      )}
+                    </PopupState>
+                    <Grid
+                      item
+                      xs={12}
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "1rem",
+                      }}
+                    >
+                      <Typography
+                        variant="subtitle1"
+                        sx={{
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {achievement?.type_of_achievement}
+                      </Typography>
+                      <Typography variant="subtitle2">
+                        <Chiptip
+                          label={dayjs(achievement?.date_of_attainment).format(
+                            "YYYY"
+                          )}
+                        />
+                      </Typography>
                     </Grid>
-                  </React.Fragment>
-                );
-              })}
-            </Box>
-            {isModalOpen.addModal ? (
-              <AddAchievementModal
-                open={isModalOpen.addModal}
-                onClose={() => handleCloseModal("addModal")}
-              />
-            ) : null}
-            {achievementID && isModalOpen.editModal ? (
-              <EditAchievementModal
-                open={isModalOpen.editModal}
-                onClose={() => handleCloseModal("editModal")}
-                achievementID={achievementID}
-              />
-            ) : null}
-            {achievementID && isModalOpen.deleteModal ? (
-              <DeleteAchievementModal
-                open={isModalOpen.deleteModal}
-                onClose={() => handleCloseModal("deleteModal")}
-                achievementID={achievementID}
-              />
-            ) : null}
-          </Grid>
+                    <Grid item xs={12}>
+                      <Box
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          width: "100%",
+                        }}
+                      >
+                        <Typography variant="body2">
+                          {achievement?.description}
+                        </Typography>
+                      </Box>
+                    </Grid>
+
+                    {achievement?.story || achievement?.link_reference ? (
+                      <>
+                        <CardActions
+                          sx={{
+                            position: "absolute",
+                            bottom: "-1rem",
+                            right: "0.25rem",
+                          }}
+                        >
+                          <ExpandMore
+                            expand={isExpanded}
+                            onClick={() => handleExpandClick(achievement.id)}
+                            aria-expanded={isExpanded}
+                            aria-label="show more"
+                          >
+                            <Tooltip title="show more">
+                              <ExpandMoreIcon />
+                            </Tooltip>
+                          </ExpandMore>
+                        </CardActions>
+                        <Collapse
+                          in={expanded[achievement.id]}
+                          timeout="auto"
+                          unmountOnExit
+                        >
+                          <CardContent>
+                            {achievement?.story ? (
+                              <Typography
+                                variant="body1"
+                                style={{ wordBreak: "break-word" }}
+                              >
+                                {achievement?.story}
+                              </Typography>
+                            ) : null}
+                            {achievement?.link_reference ? (
+                              <Typography variant="subtitle2">
+                                <Link
+                                  href={achievement?.link_reference}
+                                  target="_blank"
+                                >
+                                  click to see more about this achievement here
+                                </Link>
+                              </Typography>
+                            ) : null}
+                          </CardContent>
+                        </Collapse>
+                      </>
+                    ) : null}
+                    <Divider />
+                  </Grid>
+                </React.Fragment>
+              );
+            })}
+          </Box>
+          {isModalOpen.addModal ? (
+            <AddAchievementModal
+              open={isModalOpen.addModal}
+              onClose={() => handleCloseModal("addModal")}
+            />
+          ) : null}
+          {achievementID && isModalOpen.editModal ? (
+            <EditAchievementModal
+              open={isModalOpen.editModal}
+              onClose={() => handleCloseModal("editModal")}
+              achievementID={achievementID}
+            />
+          ) : null}
+          {achievementID && isModalOpen.deleteModal ? (
+            <DeleteAchievementModal
+              open={isModalOpen.deleteModal}
+              onClose={() => handleCloseModal("deleteModal")}
+              achievementID={achievementID}
+            />
+          ) : null}
         </Grid>
+      </Grid>
     )
   );
 };
