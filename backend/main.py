@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.config import settings
 from backend.routers import posts, user, auth, profiles, selections, uploads, analytics
-
+from sqlalchemy import event
+from backend.routers.listeners import alumni_listenner, admin_listenner
 
 app = FastAPI()
 
@@ -25,3 +26,9 @@ app.include_router(selections.router, tags=['Selections'], prefix='/api/v1/selec
 app.include_router(uploads.router, tags=['Uploads'], prefix='/api/v1/uploads')
 app.include_router(analytics.router, tags=['Analytics'], prefix='/api/v1/analytics')
 app.include_router(posts.router, tags=['Posts'], prefix='/api/v1/posts')
+
+# @app.on_event("startup")
+# async def startup_event():
+#     # Attach the listeners when the application starts
+#     event.listen(models.UniversityAdmin, 'after_insert', admin_listenner)
+#     event.listen(models.CourseEnrolled, 'after_update', alumni_listenner)

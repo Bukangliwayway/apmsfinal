@@ -527,7 +527,7 @@ async def fetch_alumni(db: Session = Depends(get_db), user: UserResponse = Depen
                     mobile_number=student.MobileNumber,
                     course_id=course.id,
                     batch_year=batch,
-                    role='unclaimed',
+                    role='alumni',
                 )
 
                 # Add the new user to the session and commit the changes

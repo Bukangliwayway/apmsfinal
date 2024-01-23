@@ -9,11 +9,9 @@ from sqlalchemy.orm import relationship, Session, sessionmaker
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 @listens_for(models.CourseEnrolled, 'after_update')
-def listener(mapper, connection, target):
+def alumni_listenner(mapper, connection, target):
     # Check if the status has changed to 1 (graduated)
-    print("taena")
-    return
-    if 'Status' in target.__dict__ and target.Status == 1:
+    if target.Status == 1:
         # Access the session from the target
         db = SessionLocal()
 
@@ -41,9 +39,9 @@ def listener(mapper, connection, target):
         result = (
             db.query(models.Metadata.Batch)
             .join(models.CourseEnrolled, models.Metadata.CourseId == models.CourseEnrolled.CourseId)
-            .filter(models.CourseEnrolled.StudentId == target.StudentId)
+            .filter(models.CourseEnrolled.StudentId == student.StudentId)
             .join(models.StudentClassSubjectGrade, models.StudentClassSubjectGrade.StudentId == models.CourseEnrolled.StudentId)
-            .join(models.ClassSubject, models.Studemodels.ntClassSubjectGrade.ClassSubjectId == models.ClassSubject.ClassSubjectId)
+            .join(models.ClassSubject, models.StudentClassSubjectGrade.ClassSubjectId == models.ClassSubject.ClassSubjectId)
             .join(models.Class, models.ClassSubject.ClassId == models.Class.ClassId)
             .first()
         )
@@ -51,24 +49,24 @@ def listener(mapper, connection, target):
         if result:
             batch = result[0]
             print(f"The batch for StudentId {target.StudentId} is: {batch}")
-        return
+            print(student)
 
         # Create a new User instance
-        new_user = User(
+        new_user = models.User(
             student_number=student.StudentNumber,
             first_name=student.FirstName,
             last_name=student.LastName,
             email=email,
             password=student.Password,
-            gender="male" if student.gender == 1 else "female", 
-            username = username,
+            gender="male" if student.Gender == 1 else "female",
+            username=username,
             birthdate=student.DateOfBirth,
             origin_address=student.PlaceOfBirth,
             address=student.ResidentialAddress,
             mobile_number=student.MobileNumber,
-            course_id=course.CourseId,
+            course_id=course.id,
             batch_year=batch,
-            role='unclaimed',
+            role='alumni',
         )
 
         # Add the new user to the session and commit the changes
@@ -76,10 +74,10 @@ def listener(mapper, connection, target):
         db.commit()
 
 @listens_for(models.UniversityAdmin, 'after_insert')
-def create_user_for_univadmin(mapper, connection, target):
+def admin_listenner(mapper, connection, target):
     # Access the session from the target
     db = SessionLocal()
-
+    print('natry na ni joc hehzi')
     # Generate a unique username for UniversityAdmin
     base_username = target.LastName.lower()
     random_suffix = ''.join(str(random.randint(0, 9)) for _ in range(4))
@@ -92,7 +90,7 @@ def create_user_for_univadmin(mapper, connection, target):
         username = f"{base_username}{random_suffix}"
         existing_user = db.query(models.User).filter_by(username=username).first()
 
-     # Create a new User instance for UniversityAdmin
+    # Create a new User instance for UniversityAdmin
     new_user = models.User(
         first_name=target.FirstName,
         last_name=target.LastName,
@@ -110,3 +108,4 @@ def create_user_for_univadmin(mapper, connection, target):
     # Add the new user to the session and commit the changes
     db.add(new_user)
     db.commit()
+
