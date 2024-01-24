@@ -9,6 +9,8 @@ import uuid
 from sqlalchemy import TIMESTAMP, Column, String, Boolean, text, Boolean, ForeignKey, Integer, Date, Text, DateTime, Float
 from sqlalchemy.dialects.postgresql import UUID, ARRAY
 from sqlalchemy.orm import relationship, Session, sessionmaker
+from sqlalchemy.sql import func
+
 
 
 class User(Base):
@@ -81,6 +83,46 @@ class User(Base):
     interests_in_events = relationship("UserInterestEvent", back_populates="user")
     donations = relationship("Donation", back_populates="user", foreign_keys="Donation.user_id")
     approved_donations = relationship("Donation", back_populates="approver", foreign_keys="Donation.approver_id")
+
+class ESISAnnouncement(Base):
+    __tablename__ = 'ESISAnnouncement'
+
+    AnnouncementId = Column(Integer, primary_key=True, autoincrement=True)
+    Title = Column(String)
+    Content = Column(Text)
+    CreatorId = Column(String)
+    IsLive = Column(Boolean)
+    Slug = Column(String)
+    Created = Column(DateTime(timezone=True), server_default=func.now())
+    Updated = Column(DateTime(timezone=True), onupdate=func.now())
+    Recipient = Column(String)
+    ImageUrl = Column(Text)
+    ImageId = Column(String)
+    ProjectId = Column(Integer)
+
+class RISUsers(Base):
+    __tablename__ = 'RISUsers'
+
+    id = Column('id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    student_id = Column('student_id', Integer, ForeignKey('SPSStudent.StudentId', ondelete="CASCADE"))
+
+class RISauthors(Base):
+    __tablename__ = 'RISauthors'
+
+    id = Column('id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    research_paper_id = Column('research_paper_id',  UUID(as_uuid=True), ForeignKey('RISresearch_papers.id', ondelete="CASCADE"))
+    user_id = Column('user_id', UUID(as_uuid=True), ForeignKey('RISUsers.id', ondelete="CASCADE"))
+
+class RISresearch_papers(Base):
+    __tablename__ = 'RISresearch_papers'
+
+    id = Column('id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    title = Column('title', String)
+    research_type = Column('research_type', String)
+    status = Column('status', String)
+    file_path = Column('file_path', String)
+    research_adviser = Column('research_adviser', String)
+    extension = Column('extension', String)
 
 class Student(Base):
     __tablename__ = 'SPSStudent'

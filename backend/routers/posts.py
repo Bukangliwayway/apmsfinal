@@ -4,6 +4,7 @@ from fastapi import Body, Query, APIRouter, File, Form, status, Depends, HTTPExc
 from backend.database import get_db
 from sqlalchemy.orm import Session, joinedload
 from backend.oauth2 import get_current_user
+from typing import Union
 from backend import models
 from typing import Annotated, List, Optional
 from starlette import status
@@ -66,52 +67,82 @@ async def create_post(title: str = Form(...), content: str = Form(...), content_
     post.img_link = result.get("url")
     db.commit()
 
-@router.get('/fetch-post/{offset}/{type}')
-def fetch_posts(*, offset: int, type: str = '', db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
-  limit = 10
+@router.get('/fetch-post/{post_offset}/{esis_offset}/{type}')
+def fetch_posts(*,   post_offset: int, esis_offset: int, type: str = '', db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    post_limit = 7  # Number of posts to fetch from models.Post
+    esis_limit = 3  # Number of announcements to fetch from models.ESISAnnouncement
+    total_limit = 10  # Total items to fetch per offset
 
-  posts_query = db.query(models.Post)\
-    .join(models.User, models.User.id == models.Post.uploader_id)\
-    .order_by(models.Post.updated_at.desc())
+    posts_query = db.query(models.Post) \
+        .join(models.User, models.User.id == models.Post.uploader_id) \
+        .order_by(models.Post.updated_at.desc())
 
-  if type != 'all':
-    posts_query = posts_query.filter(models.Post.post_type == type)
+    if type != 'all':
+        posts_query = posts_query.filter(models.Post.post_type == type)
 
-  posts = posts_query.slice(offset, offset + limit).all()
+    posts = posts_query.slice(post_offset, post_offset + post_limit).all()
 
+    if type == 'announcement' or type == 'all':
+        esis_announcements = db.query(models.ESISAnnouncement) \
+            .order_by(models.ESISAnnouncement.Updated.desc()) \
+            .slice(esis_offset, esis_offset + esis_limit).all()
 
-  if not posts:
-      raise HTTPException(status_code=200, detail="No Post to Show")
-  
-  result = []
+        if not posts and not esis_announcements:
+            raise HTTPException(status_code=200, detail="No Post to Show")
+        
+    if not posts and not type == 'announcement' and not type == 'all':
+        raise HTTPException(status_code=200, detail="No Post to Show")
 
-  for post in posts:
-    post_dict = {
-      'id': post.id,
-      'created_at': post.created_at,
-      'updated_at': post.updated_at,
-      'title': post.title,
-      'content': post.content,
-      'post_type': post.post_type,
-      'img_link': post.img_link,
-      'uploader': {
-        'id': post.uploader_id,
-        'last_name': post.uploader.last_name,
-        'first_name': post.uploader.first_name,
-        'username': post.uploader.username,
-        'profile_picture': post.uploader.profile_picture,
-      },
-      'content_date': post.content_date if isinstance(post, models.Event) else None,
-      'end_date': post.end_date if isinstance(post, models.Event) else None,
-      'interested_count': post.interested_count if isinstance(post, models.Event) else None,
-      'goal_amount': post.goal_amount if isinstance(post, models.Fundraising) else None,
-      'total_collected': post.total_collected if isinstance(post, models.Fundraising) else None,
-      'fulfilled': post.fulfilled if isinstance(post, models.Fundraising) else None,
-      'donors_count': post.donors_count if isinstance(post, models.Fundraising) else None,
-    }
-    result.append(post_dict)
+    remaining_items = total_limit - len(posts)
+    result = []
+    post_count = 0
+    esis_count = 0
 
-  return result
+    while post_count + esis_count < total_limit and (posts or esis_announcements):
+        if post_count < post_limit and posts:
+            post = posts.pop(0)
+            post_dict = {
+                'id': post.id,
+                'created_at': post.created_at,
+                'updated_at': post.updated_at,
+                'title': post.title,
+                'content': post.content,
+                'post_type': post.post_type,
+                'img_link': post.img_link,
+                'is_esis': False,
+                'uploader': {
+                    'id': post.uploader_id,
+                    'last_name': post.uploader.last_name,
+                    'first_name': post.uploader.first_name,
+                    'username': post.uploader.username,
+                    'profile_picture': post.uploader.profile_picture,
+                },
+                'content_date': post.content_date if isinstance(post, models.Event) else None,
+                'end_date': post.end_date if isinstance(post, models.Event) else None,
+                'interested_count': post.interested_count if isinstance(post, models.Event) else None,
+                'goal_amount': post.goal_amount if isinstance(post, models.Fundraising) else None,
+                'total_collected': post.total_collected if isinstance(post, models.Fundraising) else None,
+                'fulfilled': post.fulfilled if isinstance(post, models.Fundraising) else None,
+                'donors_count': post.donors_count if isinstance(post, models.Fundraising) else None,
+            }
+            result.append(post_dict)
+            post_count += 1
+        elif esis_count < remaining_items and esis_announcements:
+            esis_announcement = esis_announcements.pop(0)
+            esis_dict = {
+                'id': esis_announcement.AnnouncementId,
+                'created_at': esis_announcement.Created,
+                'updated_at': esis_announcement.Updated,
+                'title': esis_announcement.Title,
+                'content': esis_announcement.Content,
+                'post_type': 'announcement',
+                'img_link': esis_announcement.ImageUrl,
+                'is_esis': True,
+            }
+            result.append(esis_dict)
+            esis_count += 1
+
+    return result
 
 @router.put("/edit-post/{post_id}")
 async def edit_post(post_id: UUID, title: Optional[str] = Form(None), content: Optional[str] = Form(None), content_date: Optional[date] = Form(None), post_type: Optional[str] = Form(None), img: Optional[UploadFile] = File(None), goal_amount: Optional[int] = Form(None), end_date: Optional[date] = Form(None), db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
@@ -152,38 +183,53 @@ async def delete_post(post_id: UUID, db: Session = Depends(get_db), user: UserRe
     db.delete(post)
     db.commit()
 
-
 @router.get('/view-post/{post_id}')
-def fetch_specific_post(post_id: UUID, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
-  post = db.query(models.Post)\
-  .join(models.User, models.User.id == models.Post.uploader_id)\
-  .filter(models.Post.id == post_id)\
-  .first()
-  if not post:
-      raise HTTPException(status_code=404, detail="No post found")
-  
-  post_dict = {
-    'id': post.id,
-    'created_at': post.created_at,
-    'updated_at': post.updated_at,
-    'title': post.title,
-    'content': post.content,
-    'post_type': post.post_type,
-    'img_link': post.img_link,
-    'uploader': {
-      'id': post.uploader_id,
-      'last_name': post.uploader.last_name,
-      'first_name': post.uploader.first_name,
-      'username': post.uploader.username,
-      'profile_picture': post.uploader.profile_picture,
-    },
-    'content_date': post.content_date if isinstance(post, models.Event) else None,
-    'end_date': post.end_date if isinstance(post, models.Event) else None,
-    'interested_count': post.interested_count if isinstance(post, models.Event) else None,
-    'goal_amount': post.goal_amount if isinstance(post, models.Fundraising) else None,
-    'total_collected': post.total_collected if isinstance(post, models.Fundraising) else None,
-    'fulfilled': post.fulfilled if isinstance(post, models.Fundraising) else None,
-    'donors_count': post.donors_count if isinstance(post, models.Fundraising) else None,
-  }
+def fetch_specific_post(post_id: Union[int, UUID], db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    if isinstance(post_id, int):
+        post = db.query(models.ESISAnnouncement).filter(models.ESISAnnouncement.AnnouncementId == post_id).first()
+        if not post:
+            raise HTTPException(status_code=404, detail="No post found")
+        
+        post_dict = {
+            'id': post.AnnouncementId,
+            'created_at': post.Created,
+            'updated_at': post.Updated,
+            'title': post.Title,
+            'content': post.Content,
+            'post_type': 'announcement',
+            'img_link': post.ImageUrl,
+            'is_esis': True,
 
-  return post_dict
+        }
+    
+    elif isinstance(post_id, UUID):
+        post = db.query(models.Post).join(models.User, models.User.id == models.Post.uploader_id).filter(models.Post.id == post_id).first()
+        if not post:
+            raise HTTPException(status_code=404, detail="No post found")
+        
+        post_dict = {
+            'id': post.id,
+            'created_at': post.created_at,
+            'updated_at': post.updated_at,
+            'title': post.title,
+            'content': post.content,
+            'post_type': post.post_type,
+            'img_link': post.img_link,
+            'is_esis': False,
+            'uploader': {
+                'id': post.uploader_id,
+                'last_name': post.uploader.last_name,
+                'first_name': post.uploader.first_name,
+                'username': post.uploader.username,
+                'profile_picture': post.uploader.profile_picture,
+            },
+            'content_date': post.content_date if isinstance(post, models.Event) else None,
+            'end_date': post.end_date if isinstance(post, models.Event) else None,
+            'interested_count': post.interested_count if isinstance(post, models.Event) else None,
+            'goal_amount': post.goal_amount if isinstance(post, models.Fundraising) else None,
+            'total_collected': post.total_collected if isinstance(post, models.Fundraising) else None,
+            'fulfilled': post.fulfilled if isinstance(post, models.Fundraising) else None,
+            'donors_count': post.donors_count if isinstance(post, models.Fundraising) else None,
+        }
+
+    return post_dict

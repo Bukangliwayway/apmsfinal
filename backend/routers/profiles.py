@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from uuid import UUID
 from sqlalchemy import func, or_
-from sqlalchemy.sql import text
+from sqlalchemy.sql import text, select
 from fastapi import Body, Query, APIRouter, File, Form, status, Depends, HTTPException, UploadFile
 from backend.database import get_db
 from sqlalchemy.orm import Session, joinedload
@@ -121,6 +121,25 @@ async def search_profile(
         .all()
     )
     return matches
+
+@router.get("/research_papers/me")
+async def research_papers(
+    db: Session = Depends(get_db),
+    user: UserResponse = Depends(get_current_user),
+):   
+    alumni = db.query(models.User).filter(models.User.id == user.id).first()
+
+    research_papers = (
+        db.query(models.RISresearch_papers)
+        .join(models.RISauthors, models.RISauthors.research_paper_id == models.RISresearch_papers.id)
+        .join(models.RISUsers, models.RISauthors.user_id == models.RISUsers.id)
+        .join(models.CourseEnrolled, models.RISUsers.student_id == models.CourseEnrolled.StudentId)
+        .join(models.Course, models.CourseEnrolled.CourseId == models.Course.id)
+        .join(models.Student, models.CourseEnrolled.StudentId == models.Student.StudentId)
+        .filter(models.Student.StudentNumber == alumni.student_number)
+        .all()
+    )
+    return research_papers
 
 @router.get("/search/{name}/{offset}")
 async def search_profile(

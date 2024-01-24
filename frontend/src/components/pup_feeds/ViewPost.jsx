@@ -99,7 +99,6 @@ const ViewPost = () => {
           display: "flex",
           flexDirection: "column",
           backgroundColor: (theme) => theme.palette.common.main,
-          maxHeight: feed?.data?.img_link ? "" : "25vh",
           width: "100%",
         }}
       >
@@ -128,12 +127,16 @@ const ViewPost = () => {
             <Typography variant="caption">Edited</Typography>
           )}
           <Box
-            sx={{ cursor: "pointer" }}
+            sx={{ cursor: "pointer", display: "flex", gap: 2 }}
             onClick={() => navigate(`/pup-feeds/${feed?.data?.post_type}`)}
+
           >
             <Chiptip label={capitalizedType} />
+            {feed?.data?.is_esis && (
+              <Chiptip label={"ESIS"} />
+            )}
           </Box>
-          {auth?.role == "admin" && (
+          {auth?.role == "admin" && !feed?.data?.is_esis && (
             <PopupState variant="popover" popupId="demo-popup-menu">
               {(popupState) => (
                 <React.Fragment>
