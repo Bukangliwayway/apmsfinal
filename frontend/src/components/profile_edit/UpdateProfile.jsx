@@ -14,15 +14,12 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import WorkIcon from "@mui/icons-material/Work";
-import PersonPinIcon from "@mui/icons-material/PersonPin";
-import SchoolIcon from "@mui/icons-material/School";
 import DemographicProfile from "../profile_display/DemographicProfile";
 import CareerProfile from "../profile_display/CareerProfile";
-import EditableEmploymentProfile from "../profile_edit/EditableEmploymentProfile";
 import {
   Add,
   AddCircleRounded,
+  Description,
   Edit,
   PersonPin,
   School,
@@ -40,6 +37,8 @@ import EmploymentProfile from "../profile_display/EmploymentProfile";
 import AchievementProfile from "../profile_display/AchievementProfile";
 import useGetEmploymentProfile from "../../hooks/useGetEmploymentProfile";
 import useGetAchievementProfiles from "../../hooks/useGetAchievementProfiles";
+import useGetResearchPapers from "../../hooks/useGetResearchPapers";
+import ResearchPapersProfile from "../profile_display/ResearchPapersProfile";
 
 function UpdateProfile() {
   const navigate = useNavigate();
@@ -83,6 +82,13 @@ function UpdateProfile() {
     isError: isErrorAchievementData,
     error: errorAchievementData,
   } = useGetAchievementProfiles();
+
+  const {
+    data: researchesData,
+    isLoading: isLoadingResearchesData,
+    isError: isErrorResearchesData,
+    error: errorResearchesData,
+  } = useGetResearchPapers();
 
   useEffect(() => {
     // Check the employment status and conditionally open the modal
@@ -136,8 +142,7 @@ function UpdateProfile() {
   };
 
   return (
-    
-    <Grid container width={auth.role == 'public' ? "100%" : "50%"} mx={"auto"}>
+    <Grid container width={auth.role == "public" ? "100%" : "50%"} mx={"auto"}>
       <Box
         flex={4}
         p={{ sm: 4, md: 2 }}
@@ -178,6 +183,13 @@ function UpdateProfile() {
               label="Experience"
               onClick={() => setActiveTab("employment_history")}
             />
+            {researchesData?.data.length != 0 && (
+              <Tab
+                icon={<Description />}
+                label="Research Papers"
+                onClick={() => setActiveTab("research_papers")}
+              />
+            )}
           </Tabs>
         </Box>
 
@@ -428,6 +440,36 @@ function UpdateProfile() {
               <EmploymentProfile
                 data={employmentData}
                 isLoading={isLoadingEmploymentData}
+              />
+            </Grid>
+          )}
+
+          {activeTab === "research_papers" && (
+            <Grid
+              item
+              sx={{
+                backgroundColor: (theme) => theme.palette.common.main,
+                padding: "1rem",
+                position: "relative",
+              }}
+              id="research_papers"
+            >
+              <Typography
+                variant="h5"
+                fontWeight={800}
+                sx={{
+                  padding: "10px",
+                  borderBottom: "2px solid",
+                  marginBottom: "10px",
+                  color: "primary",
+                }}
+              >
+                Research Papers
+              </Typography>
+
+              <ResearchPapersProfile
+                data={researchesData}
+                isLoading={isLoadingResearchesData}
               />
             </Grid>
           )}

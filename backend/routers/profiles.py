@@ -141,6 +141,26 @@ async def research_papers(
     )
     return research_papers
 
+@router.get("/research_papers/{username}")
+async def research_papers(
+    username: str,
+    db: Session = Depends(get_db),
+    user: UserResponse = Depends(get_current_user),
+):   
+    alumni = db.query(models.User).filter(models.User.username == username).first()
+
+    research_papers = (
+        db.query(models.RISresearch_papers)
+        .join(models.RISauthors, models.RISauthors.research_paper_id == models.RISresearch_papers.id)
+        .join(models.RISUsers, models.RISauthors.user_id == models.RISUsers.id)
+        .join(models.CourseEnrolled, models.RISUsers.student_id == models.CourseEnrolled.StudentId)
+        .join(models.Course, models.CourseEnrolled.CourseId == models.Course.id)
+        .join(models.Student, models.CourseEnrolled.StudentId == models.Student.StudentId)
+        .filter(models.Student.StudentNumber == alumni.student_number)
+        .all()
+    )
+    return research_papers
+
 @router.get("/search/{name}/{offset}")
 async def search_profile(
     name: str,
