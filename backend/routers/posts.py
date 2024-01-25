@@ -81,9 +81,9 @@ def fetch_posts(*,   post_offset: int, esis_offset: int, type: str = '', db: Ses
         posts_query = posts_query.filter(models.Post.post_type == type)
 
     posts = posts_query.slice(post_offset, post_offset + post_limit).all()
-
+    esis_announcements = None
     if type == 'announcement' or type == 'all':
-        esis_announcements = db.query(models.ESISAnnouncement) \
+        esis_announcements = db.query(models.ESISAnnouncement).filter(models.ESISAnnouncement.IsLive == True) \
             .order_by(models.ESISAnnouncement.Updated.desc()) \
             .slice(esis_offset, esis_offset + esis_limit).all()
 
@@ -127,7 +127,7 @@ def fetch_posts(*,   post_offset: int, esis_offset: int, type: str = '', db: Ses
             }
             result.append(post_dict)
             post_count += 1
-        elif esis_count < remaining_items and esis_announcements:
+        elif type == 'announcement' or type == 'all' and esis_count < remaining_items and esis_announcements:
             esis_announcement = esis_announcements.pop(0)
             esis_dict = {
                 'id': esis_announcement.AnnouncementId,

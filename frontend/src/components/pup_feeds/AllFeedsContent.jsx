@@ -73,8 +73,8 @@ const AllFeedsContent = ({ type }) => {
 
             fetchNextPage({
               pageParam: {
-                post_offset: postOffset,
-                esis_offset: esisOffset,
+                post_offset: postOffset || 0,
+                esis_offset: esisOffset || 0,
               },
             });
             postOffset = 0;
@@ -308,7 +308,7 @@ const AllFeedsContent = ({ type }) => {
                       }),
                     }}
                   >
-                    <Box mb={"1rem"} sx={{ display: "flex", gap: 3 }}>
+                    <Box mb={"1rem"} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
                       <Typography variant="h6">{capitalizedTitle}</Typography>
                       <Box
                         mb={"1rem"}
