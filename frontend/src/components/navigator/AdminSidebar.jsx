@@ -284,7 +284,7 @@ function AdminSidebar({ mode }) {
                 </ListItem>
               </RouterLink>
             </List>
-            <List component="Box">
+            {/* <List component="Box">
               <RouterLink
                 to="/pup-feeds/fundraising/donations"
                 style={{ textDecoration: "none", color: "inherit" }}
@@ -304,7 +304,7 @@ function AdminSidebar({ mode }) {
                   </ListItemButton>
                 </ListItem>
               </RouterLink>
-            </List>
+            </List> */}
           </Collapse>
         )}
         <RouterLink

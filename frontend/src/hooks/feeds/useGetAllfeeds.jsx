@@ -8,7 +8,7 @@ const useGetAllFeeds = (type) => {
     pageParam = { post_offset: 0, esis_offset: 0 },
   }) => {
     const { data } = await axiosPrivate.get(
-      `/posts/fetch-post/${pageParam.post_offset}/${pageParam.esis_offset}/${type}`
+      `/posts/fetch-post/${pageParam?.post_offset || 0}/${pageParam?.esis_offset || 0}/${type}`
     );
     return data;
   };
@@ -30,8 +30,8 @@ const useGetAllFeeds = (type) => {
         const postCount = lastItem.is_esis ? 0 : 1;
         const esisCount = lastItem.is_esis ? 1 : 0;
         const nextOffset = {
-          post_offset: lastPage ? lastPage.post_offset + postCount : 0,
-          esis_offset: lastPage ? lastPage.esis_offset + esisCount : 0,
+          post_offset: lastPage ? lastPage?.post_offset + postCount : 0,
+          esis_offset: lastPage ? lastPage?.esis_offset + esisCount : 0,
         };
         return nextOffset;
       }
