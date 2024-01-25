@@ -156,8 +156,8 @@ export const EditableEducationProfile = () => {
   return (
     <Grid
       item
+      width={auth.role == "public" ? "100%" : "50%"}
       sx={{
-        width: "50%",
         marginX: "auto",
         backgroundColor: (theme) => theme.palette.common.main,
         padding: "1rem",

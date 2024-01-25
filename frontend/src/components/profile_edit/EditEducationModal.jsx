@@ -101,6 +101,8 @@ const EditEducationModal = ({ open, onClose, educationID }) => {
       onSuccess: () => {
         queryClient.invalidateQueries("education-me");
         queryClient.invalidateQueries("profile-me");
+        queryClient.invalidateQueries("career-profile");
+        queryClient.invalidateQueries(["education-profile-specific", educationID]);
 
         setMessage("Education Updated Successfully");
         setSeverity("success");
@@ -143,10 +145,10 @@ const EditEducationModal = ({ open, onClose, educationID }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+
     if (
       educationProfile?.level == "" ||
       educationProfile?.school_name == "" ||
-      educationProfile?.story == "" ||
       (educationProfile?.is_international && educationProfile?.country == "") ||
       (!educationProfile?.is_international &&
         (educationProfile?.region == "" ||
@@ -274,7 +276,7 @@ const EditEducationModal = ({ open, onClose, educationID }) => {
           <Grid container spacing={5}>
             <Grid item xs={12}>
               <Typography variant="h6" my={2}>
-                Achievement Details
+                Educational Details
               </Typography>
               <Grid container spacing={2}>
                 <Grid item xs={12}>

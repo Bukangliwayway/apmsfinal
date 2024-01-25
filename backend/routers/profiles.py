@@ -927,7 +927,6 @@ async def put_employment(
         for key, value in profile.items():
             setattr(employment, key, value)
         
-            
         db.commit()
         await afterEmploymentPostRoutine(user.id, db)
         return {"message": "Employment Profile updated successfully"}
@@ -1069,6 +1068,8 @@ async def delete_employment(
         # Delete the employment record
         db.delete(employment)
         db.commit()
+        await afterEmploymentPostRoutine(user.id, db)
+
 
         return {"message": "Employment record deleted successfully"}
     except Exception as e:
@@ -1186,6 +1187,7 @@ async def get_achievement(
         .first()
     )
 
+
     achievement_dict = {
         'id': achievement.id,
         'type_of_achievement': achievement.type_of_achievement,
@@ -1237,21 +1239,25 @@ async def put_achievement(
     db: Session = Depends(get_db),
     user: UserResponse = Depends(get_current_user)
 ):
-    try:
-        # Query the achievement to be updated
-        achievement = db.query(models.Achievement).filter_by(id=achievement_id, user_id=user.id).first()        
-        if not achievement:
-            raise HTTPException(status_code=404, detail="achievement not found")
-        
-        user_instance = db.query(models.User).filter_by(id=user.id).first()
-        if user_instance is None:
-            raise HTTPException(status_code=404, detail="User not found")
+    # Query the achievement to be updated
+    achievement = db.query(models.Achievement).filter_by(id=achievement_id, user_id=user.id).first()        
+    if not achievement:
+        raise HTTPException(status_code=404, detail="achievement not found")
     
+    print(type_of_achievement)
+    
+    user_instance = db.query(models.User).filter_by(id=user.id).first()
+    if user_instance is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    national_certification_instance = None
+
+    if type_of_achievement == 'national certifications':
         national_certification_instance = db.query(models.NationalCertification).filter_by(id=national_certification_id).first()
         if not national_certification_instance:
             raise HTTPException(status_code=404, detail="National Certification not found")
 
-      
+    try:
         profile = {
             'type_of_achievement': type_of_achievement,
             'description': description,

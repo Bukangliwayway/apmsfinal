@@ -101,6 +101,8 @@ const AddNationalAchievementModal = ({ open, onClose }) => {
 
         setMessage("National Certificate Added Successfully");
         setSeverity("success");
+        
+        onClose();
       },
       onSettled: () => {
         setLinearLoading(false);

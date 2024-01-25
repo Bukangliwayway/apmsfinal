@@ -43,6 +43,7 @@ const DeleteEducationModal = ({ open, onClose, educationID }) => {
       onSuccess: (data, variables, context) => {
         queryClient.invalidateQueries("education-me");
         queryClient.invalidateQueries("profile-me");
+        queryClient.invalidateQueries("career-profile");
 
         setMessage("Education Deleted Successfully");
         setSeverity("success");
@@ -69,7 +70,9 @@ const DeleteEducationModal = ({ open, onClose, educationID }) => {
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="inherit">Cancel</Button>
+        <Button onClick={onClose} color="inherit">
+          Cancel
+        </Button>
         <Button
           onClick={handleDelete}
           variant="contained"

@@ -109,6 +109,7 @@ const EditEmploymentModal = ({ open, onClose, employmentID }) => {
 
         setMessage("Employment Profile updated successfully");
         setSeverity("success");
+        onClose();
       },
       onSettled: () => {
         setLinearLoading(false);

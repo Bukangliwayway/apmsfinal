@@ -97,12 +97,14 @@ const AddCourse = ({ open, onClose }) => {
         setSeverity("error");
       },
       onSuccess: () => {
+        queryClient.invalidateQueries("courses");
         queryClient.invalidateQueries("courses-all");
         queryClient.invalidateQueries("courses-specific");
         queryClient.invalidateQueries("profile-me");
 
         setMessage("Course Added Successfully");
         setSeverity("success");
+        onClose();
       },
       onSettled: () => {
         setLinearLoading(false);

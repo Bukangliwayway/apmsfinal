@@ -289,7 +289,7 @@ async def create_national_certificates(
     *,
     name: str = Body(...),
     issuing_body: str = Body(...),
-    link_reference: str = Body(...),
+    link_reference: str = Body(None),
     classification_ids: List[UUID] = Body(...),
     db: Session = Depends(get_db),
     user: UserResponse = Depends(get_current_user)

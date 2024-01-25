@@ -66,6 +66,7 @@ const AddEducationModal = ({ open, onClose }) => {
       },
       onSuccess: (data, variables, context) => {
         queryClient.invalidateQueries("education-me");
+        queryClient.invalidateQueries("career-profile");
         queryClient.invalidateQueries("profile-me");
 
         setMessage("Education Updated Successfully");
@@ -235,7 +236,7 @@ const AddEducationModal = ({ open, onClose }) => {
           <Grid container spacing={5}>
             <Grid item xs={12}>
               <Typography variant="h6" my={2}>
-                Achievement Details
+                Educational Details
               </Typography>
               <Grid container spacing={2}>
                 <Grid item xs={12}>

@@ -442,17 +442,13 @@ const AddEmploymentModal = ({ open, onClose }) => {
                   />
                 </Grid>
                 <Grid item xs={6}>
- 
-                        <DatePicker
-                          name="date_hired"
-                          label="Date Hired"
-                          value={employmentProfile?.date_hired}
-                          onChange={handleDateHiredChange}
-                          renderInput={(params) => (
-                            <TextField {...params} required />
-                          )}
-                        />
-                    
+                  <DatePicker
+                    name="date_hired"
+                    label="Date Hired"
+                    value={employmentProfile?.date_hired}
+                    onChange={handleDateHiredChange}
+                    renderInput={(params) => <TextField {...params} required />}
+                  />
                 </Grid>
                 <Grid
                   item
@@ -461,15 +457,13 @@ const AddEmploymentModal = ({ open, onClose }) => {
                     display: employmentProfile?.current_job ? "none" : "block",
                   }}
                 >
-                  
-                        <DatePicker
-                          name="date_end"
-                          label="Date End"
-                          value={employmentProfile?.date_end}
-                          onChange={handleDateEndChange}
-                          renderInput={(params) => <TextField {...params} />}
-                        />
-                     
+                  <DatePicker
+                    name="date_end"
+                    label="Date End"
+                    value={employmentProfile?.date_end}
+                    onChange={handleDateEndChange}
+                    renderInput={(params) => <TextField {...params} />}
+                  />
                 </Grid>
               </Grid>
             </Grid>

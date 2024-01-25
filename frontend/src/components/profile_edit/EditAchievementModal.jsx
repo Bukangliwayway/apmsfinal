@@ -27,6 +27,7 @@ import dayjs from "dayjs";
 import useGetAchievementSpecific from "../../hooks/useGetAchievementsSpecific";
 import useNationalCertificates from "../../hooks/useNationalCertificates";
 import useAll from "../../hooks/utilities/useAll";
+import AddNationalAchievementModal from "../selections/AddNationalAchievementModal";
 
 const EditAchievementModal = ({ open, onClose, achievementID }) => {
   const queryClient = useQueryClient();
@@ -160,11 +161,17 @@ const EditAchievementModal = ({ open, onClose, achievementID }) => {
       story: achievementProfile?.story,
       link_reference: achievementProfile?.link_reference,
       date_of_attainment:
-        achievementProfile?.date_of_attainment.format("YYYY-MM-DD"),
+        achievementProfile?.date_of_attainment &&
+        !/^\d{4}-\d{2}-\d{2}$/.test(achievementProfile.date_of_attainment)
+          ? achievementProfile.date_of_attainment.format("YYYY-MM-DD")
+          : achievementProfile?.date_of_attainment || "",
     };
+
+    console.log(data.date_of_attainment);
 
     // Convert the object to a JSON string
     const payload = JSON.stringify(data);
+    console.log(payload);
 
     setLinearLoading(true);
     await mutation.mutateAsync(payload);
@@ -403,7 +410,7 @@ const EditAchievementModal = ({ open, onClose, achievementID }) => {
         </DialogActions>
       </Dialog>
       {openModal && (
-        <AddNationalAchievement
+        <AddNationalAchievementModal
           open={openModal}
           onClose={() => setOpenModal(false)}
         />

@@ -93,6 +93,7 @@ export const ResearchPapersProfile = ({ data, isLoading }) => {
       Approved: theme.palette.success.main,
       Pending: theme.palette.warning.main,
       Rejected: theme.palette.error.main,
+      Revised: theme.palette.error.primary,
     };
 
     // Determine the color based on the status
@@ -152,12 +153,14 @@ export const ResearchPapersProfile = ({ data, isLoading }) => {
                     xs={12}
                     sx={{
                       display: "flex",
+                      gap: 2,
                       alignItems: "center",
                     }}
                   >
                     <Typography
                       variant="subtitle1"
                       sx={{
+                        width: "50ch",
                         fontWeight: "bold",
                         textTransform: "capitalize",
                       }}

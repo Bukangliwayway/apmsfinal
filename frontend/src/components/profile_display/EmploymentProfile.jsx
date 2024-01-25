@@ -353,8 +353,20 @@ export const EmploymentProfile = ({ data, isLoading }) => {
           <Tooltip title="Current Employment Status">
             <Work />
           </Tooltip>
-          <Tooltip title={employmentStatusOption?.tooltip || ""}>
-            {employmentStatusOption?.title || ""}
+          <Tooltip title={data?.data?.present_employment_status || ""}>
+            <Typography
+              variant="h6"
+              gap={1}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                padding: "0 1rem",
+                fontWeight: "bold", // Make the text bold
+                textTransform: "capitalize",
+              }}
+            >
+              {data?.data?.present_employment_status || ""}
+            </Typography>
           </Tooltip>
         </Typography>
         {unemployed && (

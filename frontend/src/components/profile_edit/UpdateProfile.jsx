@@ -9,6 +9,7 @@ import {
   Fab,
   Grid,
   Link,
+  Skeleton,
   Tab,
   Tabs,
   Tooltip,
@@ -140,6 +141,27 @@ function UpdateProfile() {
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
+
+  if (isLoadingResearchesData)
+    return (
+      <Grid
+        container
+        width={auth.role == "public" ? "100%" : "50%"}
+        mx={"auto"}
+      >
+        <Box
+          flex={4}
+          p={{ sm: 4, md: 2 }}
+          sx={{
+            display: "flex",
+            gap: 2,
+            flexDirection: "column",
+          }}
+        >
+          <Skeleton variant="rectangular" height={800} />
+        </Box>
+      </Grid>
+    );
 
   return (
     <Grid container width={auth.role == "public" ? "100%" : "50%"} mx={"auto"}>
