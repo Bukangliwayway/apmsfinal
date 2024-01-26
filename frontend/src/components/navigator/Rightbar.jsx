@@ -7,6 +7,7 @@ import {
   Box,
   List,
   ListItem,
+  Tooltip,
 } from "@mui/material";
 import React from "react";
 import useAll from "../../hooks/utilities/useAll";
@@ -43,7 +44,6 @@ function Rightbar() {
     error: errorMissingFields,
   } = useMissingFields();
 
-
   return (
     <Box
       width={"75%"}
@@ -51,70 +51,75 @@ function Rightbar() {
       sx={{ display: "flex", gap: 3, flexDirection: "column" }}
     >
       {auth.role == "public" && (
-        <Card sx={{ bgcolor: theme.palette.error.main }}>
-          <CardContent
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-              color: "white",
-            }}
-          >
-            <Typography
-              variant="h4"
-              marginTop="2vh"
-              textAlign={"center"}
-              px={3}
+        <Tooltip
+          title={
+            "To speed up the approval, consider enhancing your profile. Make sure all the necessary details are filled in, as an incomplete profile might prevent approval altogether."
+          }
+        >
+          <Card sx={{ bgcolor: theme.palette.error.main }}>
+            <CardContent
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+                color: (theme) => theme.palette.common.main,
+              }}
             >
-              Unverified Alumni
-            </Typography>
-            <Typography variant="subtitle2" px={3}>
-              Your alumni profile is currently pending approval from the
-              APMS-PUPQC ADMIN.
-            </Typography>
-            <Typography variant="subtitle2" px={3}>
-              To speed up the approval, consider enhancing your profile. Make
-              sure all the necessary details are filled in, as an incomplete
-              profile might prevent approval altogether.
-            </Typography>
-          </CardContent>
-        </Card>
+              <Typography
+                variant="h4"
+                marginTop="1vh"
+                textAlign={"center"}
+                fontWeight={"700"}
+                textTransform={"uppercase"}
+                px={3}
+              >
+                Unverified Alumni
+              </Typography>
+              <Typography variant="subtitle2" px={3}>
+                Your alumni profile is currently pending approval from the
+                APMS-PUPQC ADMIN.
+              </Typography>
+            </CardContent>
+          </Card>
+        </Tooltip>
       )}
       {missingFields?.data.length != 0 && (
-        <Card sx={{ bgcolor: theme.palette.error.main }}>
-          <CardContent
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-              color: "white",
-            }}
-          >
-            <Typography
-              variant="h4"
-              marginTop="2vh"
-              textAlign={"center"}
-              px={3}
+        <Tooltip
+          title="  The account is currently incomplete meaning you won't be able to
+              access our Explore Section and Other PUPQC Feeds"
+        >
+          <Card sx={{ bgcolor: theme.palette.error.main }}>
+            <CardContent
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 2,
+                color: (theme) => theme.palette.common.main,
+              }}
             >
-              Incomplete Profile
-            </Typography>
-            <Typography variant="subtitle2" px={3}>
-              The account is currently incomplete meaning you won't be able to
-              access our Explore Section and Other PUPQC Feeds
-            </Typography>
-            <Typography variant="subtitle2" px={3}>
-              Please fill these up to be considered completed:
-            </Typography>
-            <Typography px={3} variant="subtitle2" width="30ch">
-              {missingFields?.data?.map((field, index) => (
-                <React.Fragment key={index}>
-                  {field}
-                  {index < missingFields?.data?.length - 1 && ", "}
-                </React.Fragment>
-              ))}
-            </Typography>
-          </CardContent>
-        </Card>
+              <Typography
+                variant="h4"
+                marginTop="1vh"
+                textAlign={"center"}
+                px={3}
+                fontWeight={"700"}
+                textTransform={"uppercase"}
+              >
+                Incomplete Profile
+              </Typography>
+
+              <Typography variant="subtitle2" px={3}>
+                Please fill the necessary information such as <br />
+                {missingFields?.data?.map((field, index) => (
+                  <React.Fragment key={index}>
+                    {field}
+                    {index < missingFields?.data?.length - 1 && ", "}
+                  </React.Fragment>
+                ))}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Tooltip>
       )}
       {auth.role != "public" && (
         <Card>

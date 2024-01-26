@@ -320,6 +320,7 @@ def process_education_data(df):
     # Check if 'date_graduated' is just a year and modify it
     df['date_graduated'] = df['date_graduated'].astype(str)
     mask = df['date_graduated'].notna()
+    
     df.loc[mask, 'date_graduated'] = df.loc[mask, 'date_graduated'] + '-09-01'
 
     # Check if 'date_start' is just a year and modify it
@@ -342,7 +343,7 @@ def process_education_data(df):
 
 
     # Convert all other columns to string type
-    other_columns = ['student_number', 'course', 'level', 'school_name', 'story', 'country', 'region', 'city']
+    other_columns = ['student_number', 'course_code', 'level', 'school_name', 'story', 'country', 'region', 'city']
     for col in other_columns:
         df[col] = df[col].astype(str)
 
@@ -675,7 +676,7 @@ async def education_upload(file: UploadFile = File(...), db: Session = Depends(g
     else:
         raise HTTPException(status_code=400, detail="Upload failed: The file format is not supported.")
     
-    expected_columns = ['student_number', 'course', 'level', 'school_name', 'story', 'is_international', 'country', 'region', 'city', 'date_start', 'date_graduated']
+    expected_columns = ['student_number', 'course_code', 'level', 'school_name', 'story', 'is_international', 'country', 'region', 'city', 'date_start', 'date_graduated']
     
     validate_columns(df, expected_columns)
 
@@ -704,19 +705,14 @@ async def education_upload(file: UploadFile = File(...), db: Session = Depends(g
             actual_course = None
 
             #Check first if there's a course instance
-            if row['course']:
+            if row['course_code']:
                 # Check if the course exists
-                actual_course = db.query(models.Course).filter(models.Course.name == row['course'].lower()).first()
+                actual_course = db.query(models.Course).filter(models.Course.code.ilike(row['course_code'])).first()
 
-                # If not, create a new course
-                if not actual_course:
-                    actual_course = models.Course(
-                        name=row['course'],
-                    )
-                    # Add to the session
-                    db.add(actual_course)
-                    db.commit()
-                    db.refresh(actual_course)
+            # If not, create a new course
+            if not actual_course:
+                not_inserted.append(row)
+                continue
 
             # Create the new user
             new_data = models.Education(
@@ -732,8 +728,8 @@ async def education_upload(file: UploadFile = File(...), db: Session = Depends(g
                 date_start=row['date_start'],
                 date_graduated=row['date_graduated'],
                 user=actual_user,
-                course=actual_course,
             )
+
             db.add(new_data)
             inserted.append(row)
             db.commit()
