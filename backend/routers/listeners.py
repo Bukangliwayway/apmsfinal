@@ -77,7 +77,6 @@ def alumni_listenner(mapper, connection, target):
 def admin_listenner(mapper, connection, target):
     # Access the session from the target
     db = SessionLocal()
-    print('natry na ni joc hehzi')
     # Generate a unique username for UniversityAdmin
     base_username = target.LastName.lower()
     random_suffix = ''.join(str(random.randint(0, 9)) for _ in range(4))
@@ -109,3 +108,7 @@ def admin_listenner(mapper, connection, target):
     db.add(new_user)
     db.commit()
 
+@listens_for(models.SASSAddSubjects, 'after_update')
+def sass_listenner(mapper, connection, target):
+    # Check if the status has changed to 1 (graduated)
+    print("true baii")

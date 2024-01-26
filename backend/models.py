@@ -158,6 +158,8 @@ class UniversityAdmin(Base):
     MobileNumber = Column(String(11))
     IsActive = Column(Boolean, default=True)
 
+
+
 class Course(Base):
     __tablename__ = 'SPSCourse'
 
@@ -473,3 +475,20 @@ class Class(Base):
     IsGradeFinalized = Column(Boolean, default=False) # Checker if the grade is Finalized
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+
+
+class SASSAddSubjects(Base):
+    __tablename__ = 'SASSAddSubjects'
+
+    updated_at = Column(TIMESTAMP)
+    Subject = Column(String(255))
+    StudentId = Column(Integer, primary_key=True, index=True)
+    Status = Column(String(50))
+    ServiceDetails = Column(Text)
+    SenderName = Column(String(100))
+    SenderContactNo = Column(String(20))
+    Remarks = Column(Text)
+    PaymentFile = Column(String(255))
+    FacultyRole = Column(String(50))
+    created_at = Column(TIMESTAMP)
+    AddSubjectId = Column(Integer)
