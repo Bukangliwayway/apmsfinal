@@ -224,34 +224,34 @@ const RoleBasedRoutes = () => {
     </>
   );
 
-  const publicRoutes = (
-    <>
-      <Route
-        path="profile/me/employment-details"
-        element={
-          <MainLayout mode="public">
-            <EditableEmploymentProfile />
-          </MainLayout>
-        }
-      />
-      <Route
-        path="profile/me/educational-details"
-        element={
-          <MainLayout mode="public">
-            <EditableEducationProfile />
-          </MainLayout>
-        }
-      />
-      <Route
-        path="profile/me/achievements-details"
-        element={
-          <MainLayout mode="public">
-            <EditableAchievementModal />
-          </MainLayout>
-        }
-      />
-    </>
-  );
+  // const publicRoutes = (
+  //   <>
+  //     <Route
+  //       path="profile/me/employment-details"
+  //       element={
+  //         <MainLayout mode="public">
+  //           <EditableEmploymentProfile />
+  //         </MainLayout>
+  //       }
+  //     />
+  //     <Route
+  //       path="profile/me/educational-details"
+  //       element={
+  //         <MainLayout mode="public">
+  //           <EditableEducationProfile />
+  //         </MainLayout>
+  //       }
+  //     />
+  //     <Route
+  //       path="profile/me/achievements-details"
+  //       element={
+  //         <MainLayout mode="public">
+  //           <EditableAchievementModal />
+  //         </MainLayout>
+  //       }
+  //     />
+  //   </>
+  // );
 
   const postRoutes = (
     <>
@@ -330,29 +330,7 @@ const RoleBasedRoutes = () => {
     </>
   );
 
-  if (auth?.role === "public") {
-    return (
-      <Routes>
-        <Route
-          path="home"
-          element={
-            <MainLayout mode="public">
-              <UpdateProfile />
-            </MainLayout>
-          }
-        />
-        {publicRoutes}
-        <Route
-          path="*"
-          element={
-            <MainLayout mode="public">
-              <Missing />
-            </MainLayout>
-          }
-        />
-      </Routes>
-    );
-  } else if (auth?.role === "alumni") {
+  if (auth?.role === "alumni" || auth?.role === "public") {
     return (
       <Routes>
         <Route

@@ -41,6 +41,7 @@ const DeleteAchievementModal = ({ open, onClose, achievementID }) => {
         setSeverity("error");
       },
       onSuccess: (data, variables, context) => {
+        queryClient.invalidateQueries("missing-fields");
         queryClient.invalidateQueries("achievements-profile");
         queryClient.invalidateQueries("profile-me");
 

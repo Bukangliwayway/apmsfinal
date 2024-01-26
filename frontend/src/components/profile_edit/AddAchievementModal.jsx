@@ -80,6 +80,7 @@ const AddAchievementModal = ({ open, onClose }) => {
         setSeverity("error");
       },
       onSuccess: (data, variables, context) => {
+        queryClient.invalidateQueries("missing-fields");
         queryClient.invalidateQueries("achievements-profile");
         queryClient.invalidateQueries("profile-me");
         setMessage("Achievement Added Successfully");

@@ -101,6 +101,7 @@ const EditAchievementModal = ({ open, onClose, achievementID }) => {
         setSeverity("error");
       },
       onSuccess: () => {
+        queryClient.invalidateQueries("missing-fields");
         queryClient.invalidateQueries("achievements-profile");
         queryClient.invalidateQueries("profile-me");
         queryClient.invalidateQueries([

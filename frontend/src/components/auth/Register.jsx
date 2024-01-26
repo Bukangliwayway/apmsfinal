@@ -108,9 +108,10 @@ const Register = () => {
       onError: (error) => {
         setMessage(error.response ? error.response.data.detail : error.message);
         setSeverity("error");
-        console.log(error.response.data.detail);
-        console.log(error.message);
-        if (error.message =="Provided details doesn't match any PUPQC Alumni records") {
+        if (
+          error.response.data.detail ==
+          "Provided details doesn't match any PUPQC Alumni records"
+        ) {
           setOpenDialog(true);
         }
       },
@@ -181,7 +182,8 @@ const Register = () => {
           state: {
             message:
               "Successfully Registered as Public User! Now Please Check your Email for Credentials",
-            snackbar: "Successfully Registered!",
+            snackbar:
+              "Successfully Registered as Public User! Now Please Check your Email for Credentials",
           },
           replace: true,
         });

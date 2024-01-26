@@ -79,6 +79,7 @@ const EditInitialStatusModal = ({ open, onClose, prior }) => {
         setSeverity("error");
       },
       onSuccess: (data, variables, context) => {
+        queryClient.invalidateQueries("missing-fields");
         queryClient.invalidateQueries("employment-profile");
         queryClient.invalidateQueries("employment-status");
         queryClient.invalidateQueries("profile-me");
@@ -286,9 +287,7 @@ const EditInitialStatusModal = ({ open, onClose, prior }) => {
 
   return (
     <Dialog open={open} fullWidth>
-      <DialogTitle >
-        {!done && "Initially"} Set Employment Status
-      </DialogTitle>
+      <DialogTitle>{!done && "Initially"} Set Employment Status</DialogTitle>
       <DialogContent>
         <Grid container spacing={2} p={2}>
           <Grid item xs={12}>

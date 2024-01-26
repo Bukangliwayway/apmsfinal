@@ -66,6 +66,7 @@ const AddEmploymentModal = ({ open, onClose }) => {
         setSeverity("error");
       },
       onSuccess: (data, variables, context) => {
+        queryClient.invalidateQueries("missing-fields");
         queryClient.invalidateQueries("employment-profile");
         queryClient.invalidateQueries("profile-me");
 

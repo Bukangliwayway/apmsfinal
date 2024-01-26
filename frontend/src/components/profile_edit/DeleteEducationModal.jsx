@@ -41,6 +41,7 @@ const DeleteEducationModal = ({ open, onClose, educationID }) => {
         setSeverity("error");
       },
       onSuccess: (data, variables, context) => {
+        queryClient.invalidateQueries("missing-fields");
         queryClient.invalidateQueries("education-me");
         queryClient.invalidateQueries("profile-me");
         queryClient.invalidateQueries("career-profile");

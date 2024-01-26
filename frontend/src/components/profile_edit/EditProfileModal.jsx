@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, forwardRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import useLogout from "../../hooks/utilities/useLogout";
 import { IMaskInput } from "react-imask";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import {
   Box,
   Button,
@@ -34,6 +35,7 @@ import useGetDemographicProfile from "../../hooks/useGetDemographicProfile";
 import useBarangays from "../../hooks/useBarangays";
 import useCountries from "../../hooks/useCountries";
 import useAll from "../../hooks/utilities/useAll";
+import dayjs from "dayjs";
 
 const TelephoneMask = forwardRef(function TelephoneMask(props, ref) {
   const { onChange, ...other } = props;
@@ -57,6 +59,23 @@ const MobileNumberMask = forwardRef(function MobileNumberMask(props, ref) {
     <IMaskInput
       {...other}
       mask="+00 000-000-0000"
+      inputRef={ref}
+      onAccept={(value) => onChange({ target: { name: props.name, value } })}
+      overwrite
+    />
+  );
+});
+
+const StudentNumberMask = forwardRef(function StudentNumberMask(props, ref) {
+  const { onChange, ...other } = props;
+  return (
+    <IMaskInput
+      {...other}
+      mask="0000-00000-AA-0"
+      definitions={{
+        A: /[A-Z]/,
+        0: /[0-9]/,
+      }}
       inputRef={ref}
       onAccept={(value) => onChange({ target: { name: props.name, value } })}
       overwrite
@@ -107,6 +126,7 @@ const ProfileEditModal = ({ open, onClose }) => {
     if (cachedData) {
       setProfile((prevProfile) => ({
         ...cachedData.data,
+        birthdate: dayjs(cachedData.data?.birthdate) || null,
         profile_picture: prevProfile?.profile_picture || null,
         profile_picture_url: prevProfile?.profile_picture
           ? prevProfile.profile_picture_url
@@ -116,6 +136,8 @@ const ProfileEditModal = ({ open, onClose }) => {
           : cachedData?.data.username || "Upload profile picture",
       }));
     }
+
+    console.log(cachedData?.data?.birthdate);
   }, [cachedData]);
 
   const isValidEmail = (email) => {
@@ -142,6 +164,7 @@ const ProfileEditModal = ({ open, onClose }) => {
         setSeverity("error");
       },
       onSuccess: (data, variables, context) => {
+        queryClient.invalidateQueries("missing-fields");
         queryClient.invalidateQueries("demographic-profile");
         queryClient.invalidateQueries("profile-me");
 
@@ -161,7 +184,7 @@ const ProfileEditModal = ({ open, onClose }) => {
     }
   );
   const { isLoading, isError, error, isSuccess } = mutation;
-
+  const { auth } = useAll();
   const navigate = useNavigate();
   const location = useLocation();
   const axiosPrivate = useAxiosPrivate();
@@ -175,6 +198,13 @@ const ProfileEditModal = ({ open, onClose }) => {
     setProfile((prevProfile) => ({
       ...prevProfile,
       [name]: value,
+    }));
+  };
+
+  const handleDateChange = (date) => {
+    setProfile((prevProfile) => ({
+      ...prevProfile,
+      birthdate: date,
     }));
   };
 
@@ -198,6 +228,10 @@ const ProfileEditModal = ({ open, onClose }) => {
 
     let username =
       profile?.username == cachedData?.data?.username ? "" : profile?.username;
+    let student_number =
+      profile?.student_number == cachedData?.data?.student_number
+        ? ""
+        : profile?.student_number;
     let mobile_number =
       profile?.mobile_number == cachedData?.data?.mobile_number
         ? ""
@@ -287,6 +321,14 @@ const ProfileEditModal = ({ open, onClose }) => {
       profile?.civil_status == cachedData?.data?.civil_status
         ? ""
         : profile?.civil_status;
+    let birthdate =
+      profile?.birthdate == dayjs(cachedData?.data?.birthdate)
+        ? ""
+        : profile?.birthdate;
+
+    console.log(birthdate);
+    console.log(profile?.birthdate);
+    console.log(cachedData?.data?.birthdate);
 
     if (is_international && country) {
       region = "";
@@ -310,7 +352,9 @@ const ProfileEditModal = ({ open, onClose }) => {
 
     const payload = new FormData();
     payload.append("username", username);
+    payload.append("birthdate", birthdate.format("YYYY-MM-DD"));
     payload.append("telephone_number", telephone_number);
+    payload.append("student_number", student_number);
     payload.append("mobile_number", mobile_number);
     payload.append("email", email);
     payload.append("is_international", is_international);
@@ -451,15 +495,7 @@ const ProfileEditModal = ({ open, onClose }) => {
                   </Grid>
                 </Tooltip>
               </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  name="username"
-                  label="Username"
-                  value={profile?.username}
-                  onChange={handleChange}
-                  sx={{ width: "100%" }}
-                />
-              </Grid>
+
               <Grid item xs={6}>
                 <TextField
                   name="first_name"
@@ -474,6 +510,45 @@ const ProfileEditModal = ({ open, onClose }) => {
                   name="last_name"
                   label="Last Name"
                   value={profile?.last_name}
+                  onChange={handleChange}
+                  sx={{ width: "100%" }}
+                />
+              </Grid>
+              {auth?.role == "public" && (
+                <>
+                  <Grid item xs={6}>
+                    <Tooltip title="This is Optional in case you had already forgotten your student number">
+                      <TextField
+                        label="Student Number"
+                        value={profile?.student_number}
+                        onChange={handleChange}
+                        name="student_number"
+                        InputProps={{
+                          inputComponent: StudentNumberMask,
+                        }}
+                        fullWidth
+                      />
+                    </Tooltip>
+                  </Grid>
+                </>
+              )}
+              <Grid item xs={6}>
+                <DatePicker
+                  disableFuture
+                  name="birthdate"
+                  label="Birthday"
+                  placeholder="Enter birthdate"
+                  value={profile?.birthdate}
+                  onChange={handleDateChange}
+                  renderInput={(params) => <TextField {...params} fullWidth />}
+                  required
+                />
+              </Grid>
+              <Grid item xs={auth?.role == "public" ? 12 : 6}>
+                <TextField
+                  name="username"
+                  label="Username"
+                  value={profile?.username}
                   onChange={handleChange}
                   sx={{ width: "100%" }}
                 />

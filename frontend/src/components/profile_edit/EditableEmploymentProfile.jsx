@@ -156,7 +156,7 @@ export const EditableEmploymentProfile = () => {
             width: "80%",
           }}
         >
-          {[1, 2, 3].map((index) => (
+          {[1, 2, 3].map((index) => ( 
             <Card sx={{ width: "100%" }} key={index}>
               <CardContent
                 sx={{
@@ -394,7 +394,7 @@ export const EditableEmploymentProfile = () => {
     data?.data?.employments && (
       <Grid
         item
-        width={auth.role == "public" ? "100%" : "50%"}
+        width={"50%"}
         sx={{
           marginX: "auto",
           backgroundColor: (theme) => theme.palette.common.main,

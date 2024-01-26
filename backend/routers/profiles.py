@@ -16,6 +16,7 @@ import pandas as pd
 from fuzzywuzzy import fuzz
 import os
 
+
 router = APIRouter()
 
 user_dependency = Annotated[dict, Depends(get_current_user)]
@@ -45,7 +46,7 @@ async def isProfileCompleted(user_id, db: Session):
     user = db.query(models.User).filter(models.User.id == user_id).first()
     employments = db.query(models.Employment).filter(models.Employment.user_id == user_id).all()
 
-    if user and not employments and user.present_employment_status != 'unanswered':
+    if user and not employments:
         # Check if any of the specified columns is null or blank
         required_demo_columns = [
             'username',
@@ -122,6 +123,63 @@ async def search_profile(
     )
     return matches
 
+@router.get("/is_complete_check/me")
+async def complete_check(
+    db: Session = Depends(get_db),
+    user: UserResponse = Depends(get_current_user),
+):
+    alumni = db.query(models.User).filter(models.User.id == user.id).first()
+    employments = db.query(models.Employment).filter(models.Employment.user_id == user.id).all()
+
+    incompletes = []
+    if alumni.is_completed == True:
+        print(alumni.is_completed)
+        return incompletes
+
+    if alumni and not employments:
+        # Check if any of the specified columns is null or blank
+        required_demo_columns = [
+            'username',
+            'first_name',
+            'last_name',
+            'student_number',
+            'birthdate',
+            'civil_status',
+            'gender',
+            'email',
+            'present_employment_status',
+            'course_id',
+            'batch_year',
+        ]
+
+        for column_name in required_demo_columns:
+            column_value = getattr(alumni, column_name)
+            if column_value is None or (isinstance(column_value, str) and column_value.strip() == ''):  
+                incompletes.append(column_name)
+
+    if alumni.present_employment_status.lower() == 'never been employed' and alumni.unemployment_reason is not None:
+        return incompletes
+            
+    if employments and alumni.present_employment_status != 'unanswered':
+        required_employment_columns = [
+            'date_hired', 
+            'gross_monthly_income', 
+            'employment_contract', 
+            'job_position', 
+            'employer_type', 
+            'company_name',
+        ] 
+        for employment in employments:
+            for column_name in required_employment_columns:
+                column_value = getattr(employment, column_name)
+                if column_value is None or (isinstance(column_value, str) and column_value.strip() == ''):                
+                    incompletes.append(column_name)
+
+    if alumni.present_employment_status.lower() != 'unanswered' or alumni.present_employment_status.lower() != 'never been employed':
+        incompletes.append('employment record')
+    
+    return incompletes
+    
 @router.get("/research_papers/me")
 async def research_papers(
     db: Session = Depends(get_db),
@@ -238,6 +296,7 @@ async def get_demographic_profiles(
   for user in users:
       profile_dict = {
           "id": user.id,
+          "birthdate": user.birthdate,
           "gender": user.gender,
           "username": user.username,
           "first_name": user.first_name,
@@ -288,6 +347,7 @@ async def get_demographic_profile(
 
     profile_dict = {
         "gender": user_data.gender,
+        "birthdate": user_data.birthdate,
         "username": user_data.username,
         "first_name": user_data.first_name,
         "last_name": user_data.last_name,
@@ -382,6 +442,8 @@ async def get_demographic_profile(
 
 @router.put("/demographic_profiles/")
 async def put_demographic_profiles(
+        birthdate: Optional[date] = Form(None), 
+        student_number: Optional[str] = Form(None), 
         username: Optional[str] = Form(None), 
         email: Optional[str] = Form(None), 
         first_name: Optional[str] = Form(None), 
@@ -426,6 +488,12 @@ async def put_demographic_profiles(
         if check_username:
             raise HTTPException(status_code=400, detail="Username is already in use")
 
+    if student_number:
+        # Check if student_number already exists
+        check_student_number = db.query(models.User).filter(models.User.student_number == student_number.lower()).first()
+        if check_student_number:
+            raise HTTPException(status_code=400, detail="Student nUMBER is already in use")
+
     try:
         # Get the instance of that user 
         saved_profile = db.query(models.User).filter(models.User.id == user.id).first()
@@ -434,10 +502,12 @@ async def put_demographic_profiles(
             raise HTTPException(status_code=404, detail="Account doesn't exist")
         
         profile = {
+            'student_number': student_number,
             'username': username,
             'email': email, 
             'first_name': first_name, 
             'last_name': last_name, 
+            'birthdate': birthdate, 
             'gender': gender, 
             'headline': headline, 
             'mobile_number': mobile_number, 

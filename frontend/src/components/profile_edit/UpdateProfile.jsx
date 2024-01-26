@@ -146,7 +146,7 @@ function UpdateProfile() {
     return (
       <Grid
         container
-        width={auth.role == "public" ? "100%" : "50%"}
+        width={"50%"}
         mx={"auto"}
       >
         <Box
@@ -164,7 +164,7 @@ function UpdateProfile() {
     );
 
   return (
-    <Grid container width={auth.role == "public" ? "100%" : "50%"} mx={"auto"}>
+    <Grid container width={ "50%"} mx={"auto"}>
       <Box
         flex={4}
         p={{ sm: 4, md: 2 }}

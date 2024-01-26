@@ -6,8 +6,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import useAll from "../../hooks/utilities/useAll";
 import { useTheme } from "@mui/material/styles";
-
-
 import {
   Avatar,
   Box,

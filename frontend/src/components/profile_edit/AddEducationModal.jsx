@@ -65,6 +65,7 @@ const AddEducationModal = ({ open, onClose }) => {
         setSeverity("error");
       },
       onSuccess: (data, variables, context) => {
+        queryClient.invalidateQueries("missing-fields");
         queryClient.invalidateQueries("education-me");
         queryClient.invalidateQueries("career-profile");
         queryClient.invalidateQueries("profile-me");

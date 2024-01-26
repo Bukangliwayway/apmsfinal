@@ -36,7 +36,7 @@ export const MainLayout = ({ mode, noquote, children }) => {
       Layout = ProfileLayout;
       break;
     case "public":
-      Layout = PublicLayout;
+      Layout = ProfileLayout;
       break;
     case "admin":
       Layout = AdminLayout;

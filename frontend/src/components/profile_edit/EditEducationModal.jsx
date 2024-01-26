@@ -99,10 +99,14 @@ const EditEducationModal = ({ open, onClose, educationID }) => {
         setSeverity("error");
       },
       onSuccess: () => {
+        queryClient.invalidateQueries("missing-fields");
         queryClient.invalidateQueries("education-me");
         queryClient.invalidateQueries("profile-me");
         queryClient.invalidateQueries("career-profile");
-        queryClient.invalidateQueries(["education-profile-specific", educationID]);
+        queryClient.invalidateQueries([
+          "education-profile-specific",
+          educationID,
+        ]);
 
         setMessage("Education Updated Successfully");
         setSeverity("success");
@@ -144,7 +148,6 @@ const EditEducationModal = ({ open, onClose, educationID }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
 
     if (
       educationProfile?.level == "" ||

@@ -153,7 +153,7 @@ export const EditableAchievementModal = () => {
     data?.data?.achievements && (
       <Grid
         item
-        width={auth.role == "public" ? "100%" : "50%"}
+        width={ "50%"}
         sx={{
           marginX: "auto",
           backgroundColor: (theme) => theme.palette.common.main,

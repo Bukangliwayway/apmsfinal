@@ -83,6 +83,7 @@ const careerProfileEditModal = ({ open, onClose }) => {
         setSeverity("error");
       },
       onSuccess: () => {
+        queryClient.invalidateQueries("missing-fields");
         queryClient.invalidateQueries("career-profile");
         queryClient.invalidateQueries("profile-me");
 
