@@ -21,8 +21,9 @@ async def login_user(*, username: str, password: str="", hashed_pass: str="", re
     try:
         user = db.query(models.User).filter(models.User.username == username).first()
         if not user:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                detail='Incorrect Email or Password')
+            user = db.query(models.User).filter(models.User.email == username).first()
+            if not user:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Incorrect Email or Password')
         if not hashed_pass:
             if not utils.verify_password(password=password, hashed_password=user.password):
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Incorrect Email or Password')        

@@ -133,7 +133,6 @@ async def complete_check(
 
     incompletes = []
     if alumni.is_completed == True:
-        print(alumni.is_completed)
         return incompletes
 
     if alumni and not employments:
