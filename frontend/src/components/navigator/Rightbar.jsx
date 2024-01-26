@@ -43,7 +43,6 @@ function Rightbar() {
     error: errorMissingFields,
   } = useMissingFields();
 
-  console.log(missingFields?.data);
 
   return (
     <Box

@@ -1,4 +1,13 @@
-import { Announcement, Article, Dashboard, Event, Explore, Home, Hub, MonetizationOn } from "@mui/icons-material";
+import {
+  Announcement,
+  Article,
+  Dashboard,
+  Event,
+  Explore,
+  Home,
+  Hub,
+  MonetizationOn,
+} from "@mui/icons-material";
 import {
   Box,
   List,
@@ -6,12 +15,14 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { useState } from "react";
 import { Link as RouterLink } from "react-router-dom";
 import useAll from "../../hooks/utilities/useAll";
 import ProfileCard from "./ProfileCard";
+import useMissingFields from "../../hooks/useMissingFields";
 
 function Sidebar() {
   const [selectedIndex, setSelectedIndex] = useState(1);
@@ -22,6 +33,13 @@ function Sidebar() {
     alignItems: "center",
     justifyContent: "center",
   };
+
+  const {
+    data: missingFields,
+    isLoading: isLoadingMissingFields,
+    isError: isErrorMissingFields,
+    error: errorMissingFields,
+  } = useMissingFields();
 
   const handleListItemClick = (event, index) => {
     setSelectedIndex(index);
@@ -35,7 +53,7 @@ function Sidebar() {
           style={{ textDecoration: "none", color: "inherit" }}
         >
           <ListItem disablePadding>
-            <ListItemButton sx={{display:"flex", alignItems: "center"}}>
+            <ListItemButton sx={{ display: "flex", alignItems: "center" }}>
               <ProfileCard />
             </ListItemButton>
           </ListItem>
@@ -67,30 +85,44 @@ function Sidebar() {
           </ListItem>
         </RouterLink>
         <RouterLink
-          to="/explore"
+          to={
+            !(missingFields?.data?.length != 0 || auth?.role == "public") &&
+            "/explore"
+          }
           style={{ textDecoration: "none", color: "inherit" }}
         >
-          <ListItem disablePadding>
-            <ListItemButton
-              onClick={(event) => handleListItemClick(event, 1)}
-              sx={centerFlex}
-            >
-              <ListItemIcon sx={centerFlex}>
-                <Explore
-                  sx={{
-                    textAlign: "center",
-                  }}
-                />
-              </ListItemIcon>
-              <ListItemText
-                primary={
-                  <Typography variant="body1" fontWeight={"bold"}>
-                    Explore
-                  </Typography>
+          <Tooltip
+            title={
+              missingFields?.data?.length != 0 || auth?.role == "public"
+                ? "This is feature is inaccesible for incomplete and unregistered user"
+                : ""
+            }
+          >
+            <ListItem disablePadding>
+              <ListItemButton
+                disabled={
+                  missingFields?.data?.length != 0 || auth?.role == "public"
                 }
-              />
-            </ListItemButton>
-          </ListItem>
+                onClick={(event) => handleListItemClick(event, 1)}
+                sx={centerFlex}
+              >
+                <ListItemIcon sx={centerFlex}>
+                  <Explore
+                    sx={{
+                      textAlign: "center",
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    <Typography variant="body1" fontWeight={"bold"}>
+                      Explore
+                    </Typography>
+                  }
+                />
+              </ListItemButton>
+            </ListItem>
+          </Tooltip>
         </RouterLink>
         <RouterLink
           to="/pup-feeds/announcement"
@@ -145,56 +177,84 @@ function Sidebar() {
           </ListItem>
         </RouterLink>
         <RouterLink
-          to="/pup-feeds/event"
+          to={
+            !(missingFields?.data?.length != 0 || auth?.role == "public") &&
+            "/pup-feeds/event"
+          }
           style={{ textDecoration: "none", color: "inherit" }}
         >
-          <ListItem disablePadding>
-            <ListItemButton
-              onClick={(event) => handleListItemClick(event, 1)}
-              sx={centerFlex}
-            >
-              <ListItemIcon sx={centerFlex}>
-                <Event
-                  sx={{
-                    textAlign: "center",
-                  }}
-                />
-              </ListItemIcon>
-              <ListItemText
-                primary={
-                  <Typography variant="body1" fontWeight={"bold"}>
-                    Events
-                  </Typography>
+          <Tooltip
+            title={
+              missingFields?.data?.length != 0 || auth?.role == "public"
+                ? "This is feature is inaccesible for incomplete and unregistered user"
+                : ""
+            }
+          >
+            <ListItem disablePadding>
+              <ListItemButton
+                disabled={
+                  missingFields?.data?.length != 0 || auth?.role == "public"
                 }
-              />
-            </ListItemButton>
-          </ListItem>
+                onClick={(event) => handleListItemClick(event, 1)}
+                sx={centerFlex}
+              >
+                <ListItemIcon sx={centerFlex}>
+                  <Event
+                    sx={{
+                      textAlign: "center",
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    <Typography variant="body1" fontWeight={"bold"}>
+                      Events
+                    </Typography>
+                  }
+                />
+              </ListItemButton>
+            </ListItem>
+          </Tooltip>
         </RouterLink>
         <RouterLink
-          to="/pup-feeds/fundraising"
+          to={
+            !(missingFields?.data?.length != 0 || auth?.role == "public") &&
+            "/pup-feeds/fundraising"
+          }
           style={{ textDecoration: "none", color: "inherit" }}
         >
-          <ListItem disablePadding>
-            <ListItemButton
-              onClick={(event) => handleListItemClick(event, 1)}
-              sx={centerFlex}
-            >
-              <ListItemIcon sx={centerFlex}>
-                <MonetizationOn
-                  sx={{
-                    textAlign: "center",
-                  }}
-                />
-              </ListItemIcon>
-              <ListItemText
-                primary={
-                  <Typography variant="body1" fontWeight={"bold"}>
-                    Fundraising
-                  </Typography>
+          <Tooltip
+            title={
+              missingFields?.data?.length != 0 || auth?.role == "public"
+                ? "This is feature is inaccesible for incomplete and unregistered user"
+                : ""
+            }
+          >
+            <ListItem disablePadding>
+              <ListItemButton
+                disabled={
+                  missingFields?.data?.length != 0 || auth?.role == "public"
                 }
-              />
-            </ListItemButton>
-          </ListItem>
+                onClick={(event) => handleListItemClick(event, 1)}
+                sx={centerFlex}
+              >
+                <ListItemIcon sx={centerFlex}>
+                  <MonetizationOn
+                    sx={{
+                      textAlign: "center",
+                    }}
+                  />
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    <Typography variant="body1" fontWeight={"bold"}>
+                      Fundraising
+                    </Typography>
+                  }
+                />
+              </ListItemButton>
+            </ListItem>
+          </Tooltip>
         </RouterLink>
       </List>
     </Box>
