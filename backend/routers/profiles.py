@@ -478,21 +478,21 @@ async def put_demographic_profiles(
 
     if email:
         # Check if email already exists
-        check_email = db.query(models.User).filter(models.User.email == email.lower()).first()
+        check_email = db.query(models.User).filter(models.User.email.ilike(email.lower())).first()
         if check_email: 
             raise HTTPException(status_code=400, detail="Email is already in use")
 
     if username:
         # Check if username already exists
-        check_username = db.query(models.User).filter(models.User.username == username.lower()).first()
+        check_username = db.query(models.User).filter(models.User.username.ilike(username.lower())).first()
         if check_username:
             raise HTTPException(status_code=400, detail="Username is already in use")
 
     if student_number:
         # Check if student_number already exists
-        check_student_number = db.query(models.User).filter(models.User.student_number == student_number.lower()).first()
+        check_student_number = db.query(models.User).filter(models.User.student_number.ilike(student_number.lower())).first()
         if check_student_number:
-            raise HTTPException(status_code=400, detail="Student nUMBER is already in use")
+            raise HTTPException(status_code=400, detail="Student Number is already in use")
 
     try:
         # Get the instance of that user 
@@ -552,6 +552,7 @@ async def put_demographic_profiles(
         return {"message": "Profile updated successfully"}
     except Exception as e:
         db.rollback()
+        print(f"Error: {e}")
         raise HTTPException(status_code=400, detail="Profile Update Failed")
 
 @router.get("/career_profile/me")
