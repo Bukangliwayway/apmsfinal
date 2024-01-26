@@ -70,16 +70,28 @@ async def create_post(title: str = Form(...), content: str = Form(...), content_
     result = cloudinary.uploader.upload(contents, public_id=f"{folder}/{filename}", tags=[f'post_img{post.id}'])
     post.img_link = result.get("url")
     db.commit()
-
+    
 @router.get('/fetch-post/{post_offset}/{esis_offset}/{type}')
-def fetch_posts(*,   post_offset: int, esis_offset: int, type: str = '', db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+def fetch_posts(*, post_offset: int, esis_offset: int, type: str = '', db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
     post_limit = 7  # Number of posts to fetch from models.Post
     esis_limit = 3  # Number of announcements to fetch from models.ESISAnnouncement
     total_limit = 10  # Total items to fetch per offset
 
-    posts_query = db.query(models.Post) \
-        .join(models.User, models.User.id == models.Post.uploader_id) \
-        .order_by(models.Post.updated_at.desc())
+    user_session = db.query(models.User).filter(models.User.id == user.id).first()
+
+    print(user_session.is_completed)
+    print(user_session.role)
+
+    # Check if user is not completed and has a 'public' role, then filter out event and fundraising type posts
+    if not user_session.is_completed and user_session.role == 'public':
+        posts_query = db.query(models.Post) \
+            .join(models.User, models.User.id == models.Post.uploader_id) \
+            .filter(~models.Post.post_type.in_(['event', 'fundraising'])) \
+            .order_by(models.Post.updated_at.desc())
+    else:
+        posts_query = db.query(models.Post) \
+            .join(models.User, models.User.id == models.Post.uploader_id) \
+            .order_by(models.Post.updated_at.desc())
 
     if type != 'all':
         posts_query = posts_query.filter(models.Post.post_type == type)
@@ -93,7 +105,7 @@ def fetch_posts(*,   post_offset: int, esis_offset: int, type: str = '', db: Ses
 
         if not posts and not esis_announcements:
             raise HTTPException(status_code=200, detail="No Post to Show")
-        
+
     if not posts and not type == 'announcement' and not type == 'all':
         raise HTTPException(status_code=200, detail="No Post to Show")
 
