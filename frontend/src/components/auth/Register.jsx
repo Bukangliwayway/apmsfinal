@@ -108,18 +108,17 @@ const Register = () => {
       onError: (error) => {
         setMessage(error.response ? error.response.data.detail : error.message);
         setSeverity("error");
-        if (
-          error.response
-            ? error.response.data.detail
-            : error.message ==
-              "Provided details doesn't match any PUPQC Alumni records"
-        ) {
+        console.log(error.response.data.detail);
+        console.log(error.message);
+        if (error.message =="Provided details doesn't match any PUPQC Alumni records") {
           setOpenDialog(true);
         }
       },
 
       onSuccess: (data, variables, context) => {
-        setMessage("Successfully Registered!");
+        setMessage(
+          "Successfully Registered! Now please check your email for account credentials thank you!"
+        );
         setSeverity("success");
 
         setFormData({
@@ -134,8 +133,9 @@ const Register = () => {
         navigate("/login", {
           state: {
             message:
-              "successfully registered! now please check your email for credentials",
-            snackbar: "successfully registered!",
+              "Successfully Registered! Now Please Check your Email for Credentials",
+            snackbar:
+              "Successfully Registered! Now Please Check your Email for Credentials",
           },
           replace: true,
         });
@@ -163,7 +163,9 @@ const Register = () => {
       },
 
       onSuccess: (data, variables, context) => {
-        setMessage("Successfully Registered!");
+        setMessage(
+          "Successfully Registered as Public User! Now Please Check your Email for Credentials"
+        );
         setSeverity("success");
 
         setFormData({
@@ -196,6 +198,7 @@ const Register = () => {
     const allFieldsFilled = Object.entries(formData).every(
       ([fieldName, fieldValue]) =>
         fieldName === "profile_picture" ||
+        fieldName === "student_number" ||
         (fieldValue !== "" && fieldValue !== null)
     );
 
@@ -206,14 +209,14 @@ const Register = () => {
       return;
     }
 
-    const studentNumberRegex = /^\d{4}-\d{5}-[A-Z]{2}-\d$/;
+    // const studentNumberRegex = /^\d{4}-\d{5}-[A-Z]{2}-\d$/;
 
-    if (!studentNumberRegex.test(formData?.student_number)) {
-      setMessage("Please enter a valid student number like 2017-00001-CM-0");
-      setSeverity("error");
-      setOpenSnackbar(true);
-      return;
-    }
+    // if (!studentNumberRegex.test(formData?.student_number)) {
+    //   setMessage("Please enter a valid student number like 2017-00001-CM-0");
+    //   setSeverity("error");
+    //   setOpenSnackbar(true);
+    //   return;
+    // }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -381,25 +384,27 @@ const Register = () => {
                       </CardActionArea>
                     </Tooltip>
                   </Grid>
-                  <Grid item xs={12}>
-                    <Typography gutterBottom fontSize={14} fontWeight={600}>
-                      Student Number
-                    </Typography>
-                    <TextField
-                      size="small"
-                      defaultValue="Small"
-                      variant="outlined"
-                      placeholder="Student number"
-                      value={formData?.student_number}
-                      onChange={handleChange}
-                      name="student_number"
-                      required
-                      InputProps={{
-                        inputComponent: StudentNumberMask,
-                      }}
-                      fullWidth
-                    />
-                  </Grid>
+                  <Tooltip title="This is Optional in case you had already forgotten your student number">
+                    <Grid item xs={12}>
+                      <Typography gutterBottom fontSize={14} fontWeight={600}>
+                        Student Number
+                      </Typography>
+
+                      <TextField
+                        size="small"
+                        defaultValue="Small"
+                        variant="outlined"
+                        placeholder="Student number"
+                        value={formData?.student_number}
+                        onChange={handleChange}
+                        name="student_number"
+                        InputProps={{
+                          inputComponent: StudentNumberMask,
+                        }}
+                        fullWidth
+                      />
+                    </Grid>
+                  </Tooltip>
                   <Grid item xs={6}>
                     <Typography gutterBottom fontSize={14} fontWeight={600}>
                       First Name
@@ -455,18 +460,18 @@ const Register = () => {
                     <Typography gutterBottom fontSize={14} fontWeight={600}>
                       Birthdate
                     </Typography>
-                      <DatePicker
-                        disableFuture
-                        slotProps={{ textField: { size: "small" } }}
-                        name="birthdate"
-                        placeholder="Enter birthdate"
-                        value={formData?.birthdate}
-                        onChange={handleDateChange}
-                        renderInput={(params) => (
-                          <TextField {...params} fullWidth />
-                        )}
-                        required
-                      />
+                    <DatePicker
+                      disableFuture
+                      slotProps={{ textField: { size: "small" } }}
+                      name="birthdate"
+                      placeholder="Enter birthdate"
+                      value={formData?.birthdate}
+                      onChange={handleDateChange}
+                      renderInput={(params) => (
+                        <TextField {...params} fullWidth />
+                      )}
+                      required
+                    />
                   </Grid>
                   <Grid item xs={12}>
                     <ReCAPTCHA

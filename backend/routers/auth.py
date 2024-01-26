@@ -10,6 +10,7 @@ from typing import Annotated, Optional
 from backend import schemas, models, utils
 from backend.oauth2 import oauth2bearer
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from backend.database import get_db
 from backend.config import settings
 from jwt import PyJWTError 
@@ -111,10 +112,9 @@ async def create_alumni( email: str = Body(...), code: str = Body(...), password
     
 
 @router.post('/register/alumni')
-async def create_alumni(student_number: str = Form(...), email: str = Form(...), birthdate: date = Form(...), first_name: str = Form(...), 
+async def create_alumni(student_number: str = Form(None), email: str = Form(...), birthdate: date = Form(...), first_name: str = Form(...), 
                         last_name: str = Form(...), recaptcha: str = Form(...), profile_picture: Optional[UploadFile] = File(None), db: Session = Depends(get_db)):
     try:
-        
         async with httpx.AsyncClient() as client:
             response = await client.post(f"https://www.google.com/recaptcha/api/siteverify?secret={settings.RECAPTCHA_CODE_KEY}&response={recaptcha}")
 
@@ -122,12 +122,24 @@ async def create_alumni(student_number: str = Form(...), email: str = Form(...),
         raise HTTPException(status_code=400, detail=f"An error occurred while verifying the captcha: {exc}")
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {exc}")
-        
-    # Check if the credential matches the one in two way link 
+    
+    if not student_number:
+        raise HTTPException(status_code=400, detail="Provided details doesn't match any PUPQC Alumni records")
+    
+    check_student_number = db.query(models.User).filter(models.User.student_number == student_number, models.User.role != 'unclaimed').first()
+    
+    if check_student_number:
+        raise HTTPException(status_code=400, detail="The Student Number is already used in the system")
+
+    check_email = db.query(models.User).filter(models.User.email == email).first()
+
+    if check_email:
+        raise HTTPException(status_code=400, detail="Email is already in use")
+    
     unclaimed_user = db.query(models.User).filter(
-        models.User.student_number == student_number,
-        models.User.last_name == last_name,
-        models.User.first_name == first_name,
+        func.lower(models.User.student_number) == student_number.lower(),
+        func.lower(models.User.last_name) == last_name.lower(),
+        func.lower(models.User.first_name) == first_name.lower(),
         models.User.birthdate == birthdate,
         models.User.role == 'unclaimed'
     ).first()
@@ -140,7 +152,6 @@ async def create_alumni(student_number: str = Form(...), email: str = Form(...),
     password = ''.join(secrets.choice(alphabet) for _ in range(10))
 
     try:
-
         subject = "APMS Login Credentials"
         content = f"""
             <!DOCTYPE html>
@@ -167,7 +178,6 @@ async def create_alumni(student_number: str = Form(...), email: str = Form(...),
     except Exception as e:
         error_message = "Error Sending Email"
         raise HTTPException(status_code=400, detail=error_message)
-
     try:
         if profile_picture:
             contents = await profile_picture.read()
@@ -184,16 +194,18 @@ async def create_alumni(student_number: str = Form(...), email: str = Form(...),
         db.commit()
     except Exception as e:
         db.rollback()
+        print(f"Error during commit: {str(e)}")
         raise HTTPException(status_code=400, detail="Account Registration failed")
 
 @router.post('/register/public_user')
-async def create_public_user(student_number: str = Form(...), email: str = Form(...), birthdate: date = Form(...), first_name: str = Form(...), last_name: str = Form(...), profile_picture: Optional[UploadFile] = File(None), db: Session = Depends(get_db)):
+async def create_public_user(student_number: str = Form(None), email: str = Form(...), birthdate: date = Form(...), first_name: str = Form(...), last_name: str = Form(...), profile_picture: Optional[UploadFile] = File(None), db: Session = Depends(get_db)):
 
     # Check if the credential matches the one in two way link 
-    check_student_number = db.query(models.User).filter(models.User.student_number == student_number).first()
+    if student_number:
+        check_student_number = db.query(models.User).filter(models.User.student_number == student_number).first()
 
-    if check_student_number:
-        raise HTTPException(status_code=400, detail="Student Number is already in use, please try logging in or contact us")
+        if check_student_number:
+            raise HTTPException(status_code=400, detail="Student Number is already in use, please try logging in or contact us")
 
     # Check if the credential matches the one in two way link 
     check_email = db.query(models.User).filter(models.User.email == email).first()
