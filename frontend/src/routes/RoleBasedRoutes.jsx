@@ -36,15 +36,26 @@ import FundraisingFeed from "../components/pup_feeds/FundraisingFeed";
 import ModifyPost from "../components/pup_feeds/ModifyPost";
 import ViewPost from "../components/pup_feeds/ViewPost";
 import { useState } from "react";
+import useMissingFields from "../hooks/useMissingFields";
 const RoleBasedRoutes = () => {
   const { auth } = useAll();
+  const {
+    data: missingFields,
+    isLoading: isLoadingMissingFields,
+    isError: isErrorMissingFields,
+    error: errorMissingFields,
+  } = useMissingFields();
   const profileRoutes = (
     <>
       <Route
         path="explore"
         element={
           <MainLayout mode="profile">
-            <Explore />
+            {!(missingFields?.data?.length != 0 || auth?.role == "public") ? (
+              <Explore />
+            ) : (
+              <Missing />
+            )}
           </MainLayout>
         }
       />
@@ -361,17 +372,21 @@ const RoleBasedRoutes = () => {
         <Route
           path="pup-feeds/event"
           element={
-            <MainLayout mode="profile" noquote={true}>
+            !(missingFields?.data?.length != 0 || auth?.role == "public") ? (
               <EventFeed />
-            </MainLayout>
+            ) : (
+              <Missing />
+            )
           }
         />
         <Route
           path="pup-feeds/fundraising"
           element={
-            <MainLayout mode="profile" noquote={true}>
+            !(missingFields?.data?.length != 0 || auth?.role == "public") ? (
               <FundraisingFeed />
-            </MainLayout>
+            ) : (
+              <Missing />
+            )
           }
         />
         <Route
@@ -392,8 +407,6 @@ const RoleBasedRoutes = () => {
         />
       </Routes>
     );
-  } else if (auth?.role === "officer") {
-    return <Routes>{profileRoutes}</Routes>;
   } else if (auth?.role === "admin") {
     return (
       <Routes>

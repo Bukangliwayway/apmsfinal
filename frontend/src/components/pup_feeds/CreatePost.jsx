@@ -112,14 +112,13 @@ const CreatePost = () => {
 
     if (
       !postType ||
-      (postType == "fundraising" && !goalAmount) ||
       (postType == "event" && !date) ||
       date >= endDate ||
       !title ||
       !content
     ) {
       setMessage(
-        "please fill out all of the required fields and ensure that the data are right."
+        "Please fill out all the Required Fields and Ensure that the Data are Right."
       );
       setSeverity("error");
       setOpenSnackbar(true);

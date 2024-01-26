@@ -22,6 +22,10 @@ user_dependency = Annotated[dict, Depends(get_current_user)]
 
 @router.post('/create-post')
 async def create_post(title: str = Form(...), content: str = Form(...), content_date: Optional[date] = Form(None), post_type: str = Form(...), img: Optional[UploadFile] = File(None), goal_amount: Optional[int] = Form(None), end_date: Optional[date] = Form(None), db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+  admin = db.query(models.User).filter(models.User.id == user.id).first()
+  if admin.role != 'admin':
+    raise HTTPException(status_code=400, detail="Unauthorized")
+    
   if post_type == "event" and content_date is not None:
     post = models.Event(
         title=title,
@@ -31,13 +35,13 @@ async def create_post(title: str = Form(...), content: str = Form(...), content_
         content_date=content_date,
         end_date=end_date,
       )
-  elif post_type == "fundraising" and goal_amount is not None:
+  elif post_type == "fundraising":
     post = models.Fundraising(
         title=title,
         content=content,
         post_type=post_type,
         uploader_id = user.id,
-        goal_amount=goal_amount,
+        goal_amount=goal_amount if goal_amount else 0,
       )
   elif post_type == 'news':
     post = models.News(

@@ -21,6 +21,8 @@ import DeletePostModal from "./DeletePostModal";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import useGetSpecificFeed from "../../hooks/feeds/useGetSpecificFeed";
 import dayjs from "dayjs";
+import useMissingFields from "../../hooks/useMissingFields";
+import Missing from "../status_display/UserNotFound";
 
 const ViewPost = () => {
   const Chiptip = ({ icon, label, additional = "", actual = "" }) => (
@@ -31,6 +33,13 @@ const ViewPost = () => {
       <Chip icon={icon} label={label} />
     </Tooltip>
   );
+
+  const {
+    data: missingFields,
+    isLoading: isLoadingMissingFields,
+    isError: isErrorMissingFields,
+    error: errorMissingFields,
+  } = useMissingFields();
 
   const { auth } = useAll();
 
@@ -92,6 +101,13 @@ const ViewPost = () => {
     ? post_type.charAt(0).toUpperCase() + post_type.slice(1)
     : null;
 
+  if (
+    (missingFields?.data?.length != 0 || auth?.role == "public") &&
+    (feed?.data?.post_type == "event" || feed?.data?.post_type == "fundraising")
+  ) {
+    return <Missing />;
+  }
+
   return (
     <Grid container width={"50%"} mx={"auto"} sx={{ display: "flex", gap: 2 }}>
       <Card
@@ -129,12 +145,9 @@ const ViewPost = () => {
           <Box
             sx={{ cursor: "pointer", display: "flex", gap: 2 }}
             onClick={() => navigate(`/pup-feeds/${feed?.data?.post_type}`)}
-
           >
             <Chiptip label={capitalizedType} />
-            {feed?.data?.is_esis && (
-              <Chiptip label={"ESIS"} />
-            )}
+            {feed?.data?.is_esis && <Chiptip label={"ESIS"} />}
           </Box>
           {auth?.role == "admin" && !feed?.data?.is_esis && (
             <PopupState variant="popover" popupId="demo-popup-menu">

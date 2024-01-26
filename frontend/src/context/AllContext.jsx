@@ -17,7 +17,7 @@ export const AllProvider = ({ children }) => {
   );
 
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: light)");
-  const [mode, setMode] = useState(prefersDarkMode ? "dark" : "light");
+  const [mode, setMode] = useState(prefersDarkMode ? "light" : "dark");
 
   return (
     <AllContext.Provider
