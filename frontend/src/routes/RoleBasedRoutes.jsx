@@ -373,9 +373,13 @@ const RoleBasedRoutes = () => {
           path="pup-feeds/event"
           element={
             !(missingFields?.data?.length != 0 || auth?.role == "public") ? (
-              <EventFeed />
+              <MainLayout mode="profile" noquote={true}>
+                <EventFeed />
+              </MainLayout>
             ) : (
-              <Missing />
+              <MainLayout mode="profile" noquote={true}>
+                <Missing />
+              </MainLayout>
             )
           }
         />
@@ -383,9 +387,13 @@ const RoleBasedRoutes = () => {
           path="pup-feeds/fundraising"
           element={
             !(missingFields?.data?.length != 0 || auth?.role == "public") ? (
-              <FundraisingFeed />
+              <MainLayout mode="profile" noquote={true}>
+                <FundraisingFeed />
+              </MainLayout>
             ) : (
-              <Missing />
+              <MainLayout mode="profile" noquote={true}>
+                <Missing />
+              </MainLayout>
             )
           }
         />
