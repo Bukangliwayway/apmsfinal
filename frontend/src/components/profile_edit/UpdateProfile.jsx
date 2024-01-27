@@ -142,29 +142,29 @@ function UpdateProfile() {
     setValue(newValue);
   };
 
-  if (isLoadingResearchesData)
-    return (
-      <Grid
-        container
-        width={"50%"}
-        mx={"auto"}
-      >
-        <Box
-          flex={4}
-          p={{ sm: 4, md: 2 }}
-          sx={{
-            display: "flex",
-            gap: 2,
-            flexDirection: "column",
-          }}
-        >
-          <Skeleton variant="rectangular" height={800} />
-        </Box>
-      </Grid>
-    );
+  // if (isLoadingResearchesData)
+  //   return (
+  //     <Grid
+  //       container
+  //       width={"50%"}
+  //       mx={"auto"}
+  //     >
+  //       <Box
+  //         flex={4}
+  //         p={{ sm: 4, md: 2 }}
+  //         sx={{
+  //           display: "flex",
+  //           gap: 2,
+  //           flexDirection: "column",
+  //         }}
+  //       >
+  //         <Skeleton variant="rectangular" height={800} />
+  //       </Box>
+  //     </Grid>
+  //   );
 
   return (
-    <Grid container width={ "50%"} mx={"auto"}>
+    <Grid container width={"50%"} mx={"auto"}>
       <Box
         flex={4}
         p={{ sm: 4, md: 2 }}
@@ -205,13 +205,13 @@ function UpdateProfile() {
               label="Experience"
               onClick={() => setActiveTab("employment_history")}
             />
-            {researchesData?.data.length != 0 && (
+            {/* {researchesData?.data.length != 0 && (
               <Tab
                 icon={<Description />}
                 label="Research Papers"
                 onClick={() => setActiveTab("research_papers")}
               />
-            )}
+            )} */}
           </Tabs>
         </Box>
 
