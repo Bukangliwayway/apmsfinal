@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.config import settings
 from backend.routers import posts, user, auth, profiles, selections, uploads, analytics
 from sqlalchemy import event
-from backend.routers.listeners import alumni_listenner, admin_listenner, sass_listenner
 
 app = FastAPI()
 
