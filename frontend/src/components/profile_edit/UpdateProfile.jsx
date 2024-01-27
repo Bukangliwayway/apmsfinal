@@ -84,12 +84,12 @@ function UpdateProfile() {
     error: errorAchievementData,
   } = useGetAchievementProfiles();
 
-  const {
-    data: researchesData,
-    isLoading: isLoadingResearchesData,
-    isError: isErrorResearchesData,
-    error: errorResearchesData,
-  } = useGetResearchPapers();
+  // const {
+  //   data: researchesData,
+  //   isLoading: isLoadingResearchesData,
+  //   isError: isErrorResearchesData,
+  //   error: errorResearchesData,
+  // } = useGetResearchPapers();
 
   useEffect(() => {
     // Check the employment status and conditionally open the modal
