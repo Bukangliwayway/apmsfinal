@@ -20,6 +20,11 @@ import {
   Divider,
 } from "@mui/material";
 import { ForgotPass } from "./ForgotPass";
+import {
+  FormContainer,
+  PasswordElement,
+  TextFieldElement,
+} from "react-hook-form-mui";
 
 const Login = () => {
   let loginLimit = 5;
@@ -43,30 +48,11 @@ const Login = () => {
   const snackbarMessage = location.state?.snackbar || "";
 
   const userRef = useRef();
-  const [disable, setDisable] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const [forgotPass, setForgotPass] = useState(false);
 
   useEffect(() => {
     userRef.current.focus();
   }, []);
-
-  useEffect(() => {
-    const handleKeyPress = (event) => {
-      if (event.key === "Enter") {
-        handleSubmit();
-      }
-    };
-
-    // Attach the event listener when the component mounts
-    window.addEventListener("keydown", handleKeyPress);
-
-    // Clean up the event listener when the component unmounts
-    return () => {
-      window.removeEventListener("keydown", handleKeyPress);
-    };
-  }, []); // Empty dependency array ensures that the effect runs only once during mounting
 
   useEffect(() => {
     if (snackbarMessage) {
@@ -81,14 +67,21 @@ const Login = () => {
   }, [persist]);
 
   const LoginMutation = useMutation(
-    async (details) => {
+    async (data) => {
+      const dataString =
+        "grant_type=&username=" +
+        data.username +
+        "&password=" +
+        data.password +
+        "&scope=&client_id=&client_secret=";
+
       const axiosConfig = {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
         withCredentials: true, // Set this to true for cross-origin requests with credentials
       };
-      await axios.post(`/users/auth/token`, details, axiosConfig);
+      await axios.post(`/users/auth/token`, dataString, axiosConfig);
     },
     {
       onError: (error) => {
@@ -98,11 +91,7 @@ const Login = () => {
         loginLimit--;
       },
       onSuccess: (response) => {
-        const data = response?.data;
-        setAuth(username, data?.role, data?.access_token);
-        if (auth) {
-          navigate(from, { replace: true });
-        }
+        navigate(from, { replace: true });
       },
       onSettled: () => {
         setBackdropLoading(false);
@@ -110,32 +99,14 @@ const Login = () => {
     }
   );
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (loginLimit <= 0) {
-      console.log("implement some countdown here");
-      loginLimit = 5;
-    }
-    if (!username || !password) {
-      setMessage("Username and Password are Required.");
-      setSeverity("error");
-      setOpenSnackbar(true);
-      return;
-    }
-    const dataString =
-      "grant_type=&username=" +
-      username +
-      "&password=" +
-      password +
-      "&scope=&client_id=&client_secret=";
-
-    setBackdropLoading(true);
-    await LoginMutation.mutateAsync(dataString);
-  };
-
   return (
     <>
-      <form onSubmit={handleSubmit}>
+      <FormContainer
+        onSuccess={async (data) => {
+          setBackdropLoading(true);
+          await LoginMutation.mutateAsync(data);
+        }}
+      >
         <Box
           sx={{
             height: "100vh",
@@ -181,23 +152,15 @@ const Login = () => {
                       <Typography gutterBottom fontSize={14} fontWeight={600}>
                         Username
                       </Typography>
-                      <TextField
-                        InputLabelProps={{
-                          shrink: false,
-                          disableAnimation: true,
-                        }}
-                        size="small"
-                        defaultValue="Small"
+                      <TextFieldElement
                         inputRef={userRef}
-                        placeholder="Your username"
+                        placeholder="Your Username or Email"
                         variant="outlined"
+                        name="username"
                         fullWidth
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
                         required
                       />
                     </Grid>
-
                     <Grid item xs={12}>
                       <Box
                         sx={{
@@ -220,20 +183,16 @@ const Login = () => {
                           Forgot Password?
                         </Button>
                       </Box>
-                      <TextField
+                      <PasswordElement
                         InputLabelProps={{
                           shrink: false,
                           disableAnimation: true,
                         }}
-                        size="small"
-                        defaultValue="Small"
                         type="password"
                         variant="outlined"
                         placeholder="Your password"
                         fullWidth
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="input"
+                        name="password"
                         required
                       />
                       <FormControlLabel
@@ -260,7 +219,6 @@ const Login = () => {
                           variant="contained"
                           color="primary"
                           fullWidth
-                          onClick={handleSubmit}
                         >
                           login
                         </Button>
@@ -300,8 +258,7 @@ const Login = () => {
             </Box>
           </Container>
         </Box>
-      </form>
-
+      </FormContainer>
       <ForgotPass forgotPass={forgotPass} setForgotPass={setForgotPass} />
     </>
   );
