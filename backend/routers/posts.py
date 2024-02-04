@@ -70,6 +70,80 @@ async def create_post(title: str = Form(...), content: str = Form(...), content_
     result = cloudinary.uploader.upload(contents, public_id=f"{folder}/{filename}", tags=[f'post_img{post.id}'])
     post.img_link = result.get("url")
     db.commit()
+
+@router.post('/toggle-like/{post_id}')
+async def like_post(*, post_id: UUID, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    liked = db.query(models.Like).filter(models.Like.liker_id == user.id).first()
+    if liked:
+        db.delete(liked)
+    else:
+        like_instance = models.Like(
+            liker_id=user.id,
+            post_id=post_id,
+            uploader_id = user.id,
+        )
+        db.add(like_instance)
+    db.commit()
+
+@router.get('/likers/{post_id}')
+async def like_post(*, post_id: UUID, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    likers = db.query(models.Like).filter(models.Like.post_id == post_id).all()
+    return likers
+
+@router.post('/comment/{post_id}')
+async def post_comment(*, post_id: UUID, content: str, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    comment = models.Comment(
+        commenter_id=user.id,
+        post_id=post_id,
+        comment = content,
+    )
+    db.add(comment)
+    db.commit()
+
+@router.get('/comment/{comment_id}')
+async def view_comment(*, comment_id: UUID, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    comment = db.query(models.Comment).filter(models.Comment.id == comment_id).first()
+    return comment
+
+
+@router.delete('/comment/{comment_id}')
+async def delete_comment(*, comment_id: UUID, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    comment = db.query(models.Comment).filter(models.Comment.id == comment_id).first()
+
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+
+    if comment.commenter_id != user.id:
+        raise HTTPException(status_code=403, detail="You do not have permission to delete this comment")
+
+    db.delete(comment)
+    db.commit()
+
+    return {"detail": "Comment deleted successfully"}
+
+
+@router.put('/comment/{comment_id}')
+async def edit_comment(*, comment_id: UUID, content: str, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    comment = db.query(models.Comment).filter(models.Comment.id == comment_id).first()
+
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+
+    if comment.commenter_id != user.id:
+        raise HTTPException(status_code=403, detail="You do not have permission to edit this comment")
+
+    comment.comment = content
+    db.commit()
+
+    return {"detail": "Comment edited successfully"}
+
+
+@router.get('/fetch-comments/{post_id}/{offset}')
+def fetch_comments(*, post_id: UUID, offset: int = 0, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    total_limit = 10  # Total items to fetch per offset
+    comments = db.query(models.Comment).filter(models.Comment.post_id == post_id).offset(offset).limit(total_limit).all()
+    return comments
+
     
 @router.get('/fetch-post/{post_offset}/{esis_offset}/{type}')
 def fetch_posts(*, post_offset: int, esis_offset: int, type: str = '', db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
@@ -78,10 +152,6 @@ def fetch_posts(*, post_offset: int, esis_offset: int, type: str = '', db: Sessi
     total_limit = 10  # Total items to fetch per offset
 
     user_session = db.query(models.User).filter(models.User.id == user.id).first()
-
-    print(user_session.is_completed)
-    print(user_session.role)
-
     # Check if user is not completed and has a 'public' role, then filter out event and fundraising type posts
     if not user_session.is_completed and user_session.role == 'public':
         posts_query = db.query(models.Post) \

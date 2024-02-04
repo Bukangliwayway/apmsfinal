@@ -83,6 +83,10 @@ class User(Base):
     interests_in_events = relationship("UserInterestEvent", back_populates="user")
     donations = relationship("Donation", back_populates="user", foreign_keys="Donation.user_id")
     approved_donations = relationship("Donation", back_populates="approver", foreign_keys="Donation.approver_id")
+    like = relationship("Like", back_populates="liker")
+    comment = relationship("Comment", back_populates="commenter")
+
+
 
 class ESISAnnouncement(Base):
     __tablename__ = 'ESISAnnouncement'
@@ -217,6 +221,8 @@ class Achievement(Base):
     description = Column('Description', String)
     story = Column('Story', Text)
     link_reference = Column('LinkReference', String)
+    third_party = Column('ThirdParty',Boolean, nullable=False, server_default='False') 
+
     user = relationship("User", back_populates="achievements")
     national_certification = relationship("NationalCertification", back_populates="achievements")
 
@@ -304,6 +310,7 @@ class Employment(Base):
     job = relationship("Job", uselist=False, back_populates="employment")
     user = relationship("User", back_populates="employment")
 
+
 class Job(Base):
     __tablename__ = 'APMSJob'
 
@@ -379,6 +386,9 @@ class Post(Base):
     img_link = Column('ImgLink',String)
     uploader_id = Column('UploaderId',UUID(as_uuid=True), ForeignKey('APMSUser.id', ondelete="CASCADE"))
     uploader = relationship("User", back_populates="post")
+    like = relationship("Like", back_populates="post")
+    comment = relationship("Comment", back_populates="post")
+
     __mapper_args__ = {
         'polymorphic_identity': 'post',
         'polymorphic_on': post_type
@@ -403,6 +413,26 @@ class Event(Post):
     interested_users = relationship("UserInterestEvent", back_populates="event")
     __mapper_args__ = {'polymorphic_identity': 'event'}
 
+class Like(Base):
+    __tablename__ = 'APMSLike'
+
+    liker_id = Column('LikerId',UUID(as_uuid=True), ForeignKey('APMSUser.id', ondelete="CASCADE"), primary_key=True) #Uploaded by
+    post_id = Column('PostId',UUID(as_uuid=True), ForeignKey('APMSPost.id', ondelete="CASCADE"), primary_key=True) #Uploaded by
+    created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text("now()"))
+    post = relationship("Post", back_populates="like")
+    liker = relationship("User", back_populates="like")
+
+class Comment(Base):
+    __tablename__ = 'APMSComment'
+
+    id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
+    commenter_id = Column('CommenterId',UUID(as_uuid=True), ForeignKey('APMSUser.id', ondelete="CASCADE")) #Uploaded by
+    post_id = Column('PostId',UUID(as_uuid=True), ForeignKey('APMSPost.id', ondelete="CASCADE")) #Uploaded by
+    comment = Column('Comment',Text)
+    created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text("now()"))
+    updated_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text("now()"))
+    post = relationship("Post", back_populates="comment")
+    commenter = relationship("User", back_populates="comment")
 
 class Donation(Base):
     __tablename__ = 'APMSDonation'
