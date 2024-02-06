@@ -5,6 +5,7 @@ import {
   Card,
   CardActionArea,
   Chip,
+  IconButton,
   ListItemIcon,
   Menu,
   MenuItem,
@@ -14,14 +15,30 @@ import {
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import useGetAllFeeds from "../../hooks/feeds/useGetAllfeeds";
 import LoadingCircular from "../status_display/LoadingCircular";
-import { Delete, Edit, MoreHoriz } from "@mui/icons-material";
+import {
+  Comment,
+  CommentOutlined,
+  Delete,
+  Edit,
+  MoreHoriz,
+  ThumbUp,
+  ThumbUpAlt,
+  ThumbUpOffAlt,
+} from "@mui/icons-material";
 import PopupState, { bindTrigger, bindMenu } from "material-ui-popup-state";
 import useAll from "../../hooks/utilities/useAll";
 import DeletePostModal from "./DeletePostModal";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
+import useGetLikes from "../../hooks/feeds/useGetLikes";
+import LikersListModal from "./LikersListModal";
+import { useMutation, useQueryClient } from "react-query";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
 const AllFeedsContent = ({ type }) => {
+  const axiosPrivate = useAxiosPrivate();
+  const queryClient = useQueryClient();
+
   const Chiptip = ({ icon, label, additional = "", actual = "" }) => (
     <Tooltip
       title={actual !== "" ? actual : additional + label}
@@ -32,6 +49,8 @@ const AllFeedsContent = ({ type }) => {
   );
 
   const navigate = useNavigate();
+
+  const { setBackdropLoading } = useAll();
 
   const {
     data: feeds,
@@ -45,6 +64,7 @@ const AllFeedsContent = ({ type }) => {
   } = useGetAllFeeds(type);
 
   const observer = useRef();
+  const [postID, setPostID] = useState("");
 
   const lastFeedElementRef = useCallback(
     (node) => {
@@ -105,6 +125,7 @@ const AllFeedsContent = ({ type }) => {
   const [isModalOpen, setModalOpen] = useState({
     editModal: false,
     deleteModal: false,
+    likersListModal: false,
   });
 
   const handleCloseModal = (type) => {
@@ -116,6 +137,29 @@ const AllFeedsContent = ({ type }) => {
     setFeedID(id);
     setModalOpen((prev) => ({ ...prev, [type]: true }));
   };
+
+  const mutation = useMutation(
+    async (postID) => {
+      const axiosConfig = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      await axiosPrivate.post(`/posts/toggle-like/${postID}`, axiosConfig);
+    },
+    {
+      onSuccess: (data, variables, context) => {
+        queryClient.invalidateQueries(["fetch-all-posts", "all"]);
+        queryClient.invalidateQueries(["fetch-all-posts", "event"]);
+        queryClient.invalidateQueries(["fetch-all-posts", "announcement"]);
+        queryClient.invalidateQueries(["fetch-all-posts", "event"]);
+        queryClient.invalidateQueries(["fetch-all-posts", "news"]);
+      },
+      onSettled: () => {
+        setBackdropLoading(false);
+      },
+    }
+  );
 
   if (isLoadingFeeds) return <LoadingCircular />;
   if (feeds.pages[0].detail == "No Post to Show") {
@@ -308,7 +352,10 @@ const AllFeedsContent = ({ type }) => {
                       }),
                     }}
                   >
-                    <Box mb={"1rem"} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                    <Box
+                      mb={"1rem"}
+                      sx={{ display: "flex", flexDirection: "column", gap: 3 }}
+                    >
                       <Typography variant="h6">{capitalizedTitle}</Typography>
                       <Box
                         mb={"1rem"}
@@ -346,6 +393,84 @@ const AllFeedsContent = ({ type }) => {
                       />
                     </Box>
                   </CardActionArea>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      paddingX: 2,
+                      gap: 2,
+                    }}
+                  >
+                    <Button
+                      onClick={() =>
+                        handleModalOpen("likersListModal", feed?.id)
+                      }
+                    >
+                      <Box
+                        sx={{
+                          cursor: "pointer",
+                          textTransform: "none",
+                          padding: "0",
+                          display: "flex",
+                          gap: 1,
+                        }}
+                      >
+                        {feed?.liked ? <ThumbUp /> : <ThumbUpOffAlt />}
+                        {feed?.likes} Likes
+                      </Box>
+                    </Button>
+                    <Button>
+                      <Box
+                        sx={{
+                          cursor: "pointer",
+                          textTransform: "none",
+                          padding: "0",
+                          display: "flex",
+                          gap: 1,
+                        }}
+                      >
+                        <CommentOutlined />
+                        {feed?.comments} Comments
+                      </Box>
+                    </Button>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-around",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Button
+                      startIcon={feed?.liked ? <ThumbUp /> : <ThumbUpOffAlt />}
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        padding: 3,
+                        width: "100%",
+                      }}
+                      onClick={async () => {
+                        await mutation.mutateAsync(feed?.id);
+                      }}
+                    >
+                      <Typography variant="body2">
+                        {feed?.liked ? "Liked" : "Like"}
+                      </Typography>
+                    </Button>
+
+                    <Button
+                      startIcon={<CommentOutlined />}
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                        padding: 3,
+                        width: "100%",
+                      }}
+                    >
+                      <Typography variant="body2">Comment</Typography>
+                    </Button>
+                  </Box>
                 </Card>
 
                 {isLastElement &&
@@ -375,6 +500,14 @@ const AllFeedsContent = ({ type }) => {
           open={isModalOpen.deleteModal}
           onClose={() => handleCloseModal("deleteModal")}
           feedID={feedID}
+          refetch={refetch}
+        />
+      ) : null}
+      {feedID && isModalOpen.likersListModal ? (
+        <LikersListModal
+          open={isModalOpen.likersListModal}
+          onClose={() => handleCloseModal("likersListModal")}
+          postID={feedID}
           refetch={refetch}
         />
       ) : null}

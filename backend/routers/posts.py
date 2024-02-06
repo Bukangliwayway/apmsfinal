@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import Body, Query, APIRouter, File, Form, status, Depends, HTTPException, UploadFile
 from backend.database import get_db
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import func, exists, and_
 from backend.oauth2 import get_current_user
 from typing import Union
 from backend import models
@@ -80,7 +81,6 @@ async def like_post(*, post_id: UUID, db: Session = Depends(get_db), user: UserR
         like_instance = models.Like(
             liker_id=user.id,
             post_id=post_id,
-            uploader_id = user.id,
         )
         db.add(like_instance)
     db.commit()
@@ -88,7 +88,22 @@ async def like_post(*, post_id: UUID, db: Session = Depends(get_db), user: UserR
 @router.get('/likers/{post_id}')
 async def like_post(*, post_id: UUID, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
     likers = db.query(models.Like).filter(models.Like.post_id == post_id).all()
-    return likers
+    liker_profiles = []
+    for liker in likers:
+        profile = (
+            db.query(
+                models.User.last_name,
+                models.User.first_name,
+                models.User.profile_picture,
+                models.User.batch_year,
+                models.Course.code
+            )
+            .join(models.User.course)  # Use the relationship for the join
+            .filter(models.User.id == liker.liker_id)
+            .first()
+        )
+        liker_profiles.append(profile)
+    return  liker_profiles
 
 @router.post('/comment/{post_id}')
 async def post_comment(*, post_id: UUID, content: str, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
@@ -187,6 +202,9 @@ def fetch_posts(*, post_offset: int, esis_offset: int, type: str = '', db: Sessi
     while post_count + esis_count < total_limit and (posts or esis_announcements):
         if post_count < post_limit and posts:
             post = posts.pop(0)
+            liked = db.query(exists().where(models.Like.liker_id == user.id, models.Like.post_id == post.id)).scalar()
+            like_count = db.query(func.count(models.Like.liker_id)).filter(models.Like.post_id == post.id).scalar()
+            comment_count = db.query(func.count(models.Comment.commenter_id)).filter(models.Comment.post_id == post.id).scalar()
             post_dict = {
                 'id': post.id,
                 'created_at': post.created_at,
@@ -196,6 +214,9 @@ def fetch_posts(*, post_offset: int, esis_offset: int, type: str = '', db: Sessi
                 'post_type': post.post_type,
                 'img_link': post.img_link,
                 'is_esis': False,
+                'liked': liked,
+                'likes': like_count,
+                'comments': comment_count,
                 'uploader': {
                     'id': post.uploader_id,
                     'last_name': post.uploader.last_name,
