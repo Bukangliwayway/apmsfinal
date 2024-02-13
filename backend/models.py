@@ -221,7 +221,7 @@ class Achievement(Base):
     description = Column('Description', String)
     story = Column('Story', Text)
     link_reference = Column('LinkReference', String)
-    third_party = Column('ThirdParty',Boolean, nullable=False, server_default='False') 
+    editable = Column('Editable',Boolean, nullable=False, server_default='False') 
 
     user = relationship("User", back_populates="achievements")
     national_certification = relationship("NationalCertification", back_populates="achievements")
@@ -449,7 +449,6 @@ class Donation(Base):
     user = relationship("User", back_populates="donations", foreign_keys=[user_id])
     approver = relationship("User", back_populates="approved_donations", foreign_keys=[approver_id])
     fundraising = relationship("Fundraising", back_populates="donations", foreign_keys=[fundraising_id])
-
 
 class Fundraising(Post):
     __tablename__ = 'APMSFundraising'
