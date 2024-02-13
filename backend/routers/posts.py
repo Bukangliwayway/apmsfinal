@@ -116,8 +116,8 @@ async def like_post(*, post_id: UUID, db: Session = Depends(get_db), user: UserR
 
     return liker_profiles
 
-@router.post('/comment/{post_id}')
-async def post_comment(*, post_id: UUID, content: str, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+@router.post('/comment/')
+async def post_comment(*, post_id: UUID = Form(...), content: str = Form(...), db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
     comment = models.Comment(
         commenter_id=user.id,
         post_id=post_id,

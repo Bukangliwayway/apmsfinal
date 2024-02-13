@@ -23,10 +23,7 @@ import { Close, Image } from "@mui/icons-material";
 // DIKO NA KAYAA T^T ODITS RUN MO MUNA SYA SA ALLFEEDSCONTENT CREATE A SKELETON NGA PALA HERE AND THEN UNG SA PAGMAP SIEMPRE MALALAMAN MO UN OCNE NAGRUN NA UNG QUERY
 
 const LikersListModal = ({ open, onClose, postID }) => {
-  console.log(postID);
   const { data: likersData, isLoading: isLikersLoading } = useGetLikes(postID);
-  console.log(likersData?.data);
-
   return (
     <Dialog open={open} onClose={onClose} fullWidth>
       <DialogTitle>
@@ -50,7 +47,6 @@ const LikersListModal = ({ open, onClose, postID }) => {
                     src={details?.profile_picture}
                     sx={{ width: "40px", height: "40px" }}
                   />
-                  {console.log(details?.profile_picture)}
                 </ListItemAvatar>
                 <ListItemText
                   primary={details?.first_name + " " + details?.last_name}

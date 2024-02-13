@@ -34,6 +34,7 @@ import Missing from "../status_display/UserNotFound";
 import LikersListModal from "./LikersListModal";
 import { useMutation, useQueryClient } from "react-query";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import CommentModal from "./CommentModal";
 
 const ViewPost = () => {
   const Chiptip = ({ icon, label, additional = "", actual = "" }) => (
@@ -92,12 +93,17 @@ const ViewPost = () => {
     editModal: false,
     deleteModal: false,
     likersListModal: false,
+    commentModal: false,
   });
 
   if (isLoadingFeed) return <LoadingCircular />;
 
   const handleModalOpen = (type, id) => {
     setModalOpen((prev) => ({ ...prev, [type]: true }));
+  };
+
+  const handleCloseModal = (type) => {
+    setModalOpen((prev) => ({ ...prev, [type]: false }));
   };
 
   let created_date;
@@ -208,11 +214,7 @@ const ViewPost = () => {
                       </ListItemIcon>
                       edit
                     </MenuItem>
-                    <MenuItem
-                      onClick={() =>
-                        handleModalOpen("deleteModal", feed?.data?.id)
-                      }
-                    >
+                    <MenuItem onClick={() => handleModalOpen("deleteModal")}>
                       <ListItemIcon>
                         <Delete fontSize="small" />
                       </ListItemIcon>
@@ -268,9 +270,7 @@ const ViewPost = () => {
             gap: 2,
           }}
         >
-          <Button
-            onClick={() => handleModalOpen("likersListModal", feed?.data?.id)}
-          >
+          <Button onClick={() => handleModalOpen("likersListModal")}>
             <Box
               sx={{
                 cursor: "pointer",
@@ -341,6 +341,7 @@ const ViewPost = () => {
           </Button>
 
           <Button
+            onClick={() => handleModalOpen("commentModal")}
             startIcon={<CommentOutlined />}
             sx={{
               display: "flex",
@@ -366,6 +367,13 @@ const ViewPost = () => {
         <LikersListModal
           open={isModalOpen.likersListModal}
           onClose={() => handleCloseModal("likersListModal")}
+          postID={postID}
+        />
+      ) : null}
+      {isModalOpen.commentModal ? (
+        <CommentModal
+          open={isModalOpen.commentModal}
+          onClose={() => handleCloseModal("commentModal")}
           postID={postID}
         />
       ) : null}
