@@ -5,6 +5,7 @@ import {
   Card,
   CardActionArea,
   Chip,
+  CircularProgress,
   IconButton,
   ListItemIcon,
   Menu,
@@ -38,6 +39,7 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 const AllFeedsContent = ({ type }) => {
   const axiosPrivate = useAxiosPrivate();
   const queryClient = useQueryClient();
+  const [likeLoading, setLikeLoading] = useState({});
 
   const Chiptip = ({ icon, label, additional = "", actual = "" }) => (
     <Tooltip
@@ -145,6 +147,7 @@ const AllFeedsContent = ({ type }) => {
           "Content-Type": "application/json",
         },
       };
+      setLikeLoading((prev) => ({ ...prev, [postID]: true })); // Set loading state for the current feed
       await axiosPrivate.post(`/posts/toggle-like/${postID}`, axiosConfig);
     },
     {
@@ -441,7 +444,15 @@ const AllFeedsContent = ({ type }) => {
                     }}
                   >
                     <Button
-                      startIcon={feed?.liked ? <ThumbUp /> : <ThumbUpOffAlt />}
+                      startIcon={
+                        likeLoading[feed?.id] ? ( // Check loading state for the current feed
+                          <CircularProgress size={20} />
+                        ) : feed?.liked ? (
+                          <ThumbUp />
+                        ) : (
+                          <ThumbUpOffAlt />
+                        )
+                      }
                       sx={{
                         display: "flex",
                         alignItems: "center",
@@ -449,12 +460,23 @@ const AllFeedsContent = ({ type }) => {
                         padding: 3,
                         width: "100%",
                       }}
+                      disabled={likeLoading[feed?.id]} // Disable the button based on loading state for the current feed
                       onClick={async () => {
                         await mutation.mutateAsync(feed?.id);
+                        setLikeLoading((prev) => ({
+                          ...prev,
+                          [feed?.id]: false,
+                        })); // Reset loading state after the mutation
                       }}
                     >
                       <Typography variant="body2">
-                        {feed?.liked ? "Liked" : "Like"}
+                        {likeLoading[feed?.id]
+                          ? feed?.liked
+                            ? "Unliking..."
+                            : "Liking..."
+                          : feed?.liked
+                          ? "Unlike"
+                          : "Like"}
                       </Typography>
                     </Button>
 

@@ -86,24 +86,6 @@ class User(Base):
     like = relationship("Like", back_populates="liker")
     comment = relationship("Comment", back_populates="commenter")
 
-
-
-class ESISAnnouncement(Base):
-    __tablename__ = 'ESISAnnouncement'
-
-    AnnouncementId = Column(Integer, primary_key=True, autoincrement=True)
-    Title = Column(String)
-    Content = Column(Text)
-    CreatorId = Column(String)
-    IsLive = Column(Boolean)
-    Slug = Column(String)
-    Created = Column(DateTime(timezone=True), server_default=func.now())
-    Updated = Column(DateTime(timezone=True), onupdate=func.now())
-    Recipient = Column(String)
-    ImageUrl = Column(Text)
-    ImageId = Column(String)
-    ProjectId = Column(Integer)
-
 class RISUsers(Base):
     __tablename__ = 'RISUsers'
 
@@ -161,7 +143,6 @@ class UniversityAdmin(Base):
     ResidentialAddress = Column(String(50))
     MobileNumber = Column(String(11))
     IsActive = Column(Boolean, default=True)
-
 
 
 class Course(Base):
@@ -380,6 +361,7 @@ class Post(Base):
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text("now()"))
     updated_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text("now()"))
     deleted_at = Column(TIMESTAMP(timezone=True))  # Deletion timestamp (null if not deleted)
+    public = Column('Public',Boolean, nullable=False, server_default='False')
     title = Column('Title',String)
     content = Column('Content',Text)
     post_type = Column('PostType',String)  # Discriminator column
@@ -416,23 +398,47 @@ class Event(Post):
 class Like(Base):
     __tablename__ = 'APMSLike'
 
-    liker_id = Column('LikerId',UUID(as_uuid=True), ForeignKey('APMSUser.id', ondelete="CASCADE"), primary_key=True) #Uploaded by
-    post_id = Column('PostId',UUID(as_uuid=True), ForeignKey('APMSPost.id', ondelete="CASCADE"), primary_key=True) #Uploaded by
+    id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
+    liker_id = Column('LikerId', UUID(as_uuid=True), ForeignKey('APMSUser.id', ondelete="CASCADE")) #Uploaded by
+    post_id = Column('PostId', UUID(as_uuid=True), ForeignKey('APMSPost.id', ondelete="CASCADE"), nullable=True) #Uploaded by
+    esis_post_id = Column('ESISPostId',Integer, ForeignKey('ESISAnnouncement.AnnouncementId', ondelete="CASCADE"), nullable=True)
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text("now()"))
     post = relationship("Post", back_populates="like")
     liker = relationship("User", back_populates="like")
+    esis_post = relationship("ESISAnnouncement", back_populates="like")
+
 
 class Comment(Base):
     __tablename__ = 'APMSComment'
 
     id = Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    commenter_id = Column('CommenterId',UUID(as_uuid=True), ForeignKey('APMSUser.id', ondelete="CASCADE")) #Uploaded by
-    post_id = Column('PostId',UUID(as_uuid=True), ForeignKey('APMSPost.id', ondelete="CASCADE")) #Uploaded by
+    commenter_id = Column('CommenterId',UUID(as_uuid=True), ForeignKey('APMSUser.id', ondelete="CASCADE"))
+    post_id = Column('PostId',UUID(as_uuid=True), ForeignKey('APMSPost.id', ondelete="CASCADE"), nullable=True)
+    esis_post_id = Column('ESISPostId',Integer, ForeignKey('ESISAnnouncement.AnnouncementId', ondelete="CASCADE"), nullable=True)
     comment = Column('Comment',Text)
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text("now()"))
     updated_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text("now()"))
     post = relationship("Post", back_populates="comment")
+    esis_post = relationship("ESISAnnouncement", back_populates="comment")
     commenter = relationship("User", back_populates="comment")
+
+class ESISAnnouncement(Base):
+    __tablename__ = 'ESISAnnouncement'
+
+    AnnouncementId = Column(Integer, primary_key=True, autoincrement=True)
+    Title = Column(String)
+    Content = Column(Text)
+    CreatorId = Column(String)
+    IsLive = Column(Boolean)
+    Slug = Column(String)
+    Created = Column(DateTime(timezone=True), server_default=func.now())
+    Updated = Column(DateTime(timezone=True), onupdate=func.now())
+    Recipient = Column(String)
+    ImageUrl = Column(Text)
+    ImageId = Column(String)
+    ProjectId = Column(Integer)
+    like = relationship("Like", back_populates="esis_post")
+    comment = relationship("Comment", back_populates="esis_post")
 
 class Donation(Base):
     __tablename__ = 'APMSDonation'
@@ -460,7 +466,6 @@ class Fundraising(Post):
     donations = relationship("Donation", back_populates="fundraising")
     __mapper_args__ = {'polymorphic_identity': 'fundraising'}
 
-
 class UserInterestEvent(Base):
     __tablename__ = 'APMSUserInterestEvent'
 
@@ -479,8 +484,6 @@ class ClassSubject(Base):
     Schedule = Column(String(100), nullable=True) # Schedule of Subjects
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
-
-
 
 # Student Class Grade contains the average grade of student in class
 class StudentClassSubjectGrade(Base):
