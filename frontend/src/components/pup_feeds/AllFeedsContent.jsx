@@ -153,13 +153,13 @@ const AllFeedsContent = ({ type }) => {
     {
       onSuccess: (data, variables, context) => {
         queryClient.invalidateQueries(["fetch-all-posts", "all"]);
+        queryClient.invalidateQueries((queryKey, queryFn) => {
+          return queryKey.includes("post-specific");
+        });
         queryClient.invalidateQueries(["fetch-all-posts", "event"]);
         queryClient.invalidateQueries(["fetch-all-posts", "announcement"]);
         queryClient.invalidateQueries(["fetch-all-posts", "event"]);
         queryClient.invalidateQueries(["fetch-all-posts", "news"]);
-      },
-      onSettled: () => {
-        setBackdropLoading(false);
       },
     }
   );

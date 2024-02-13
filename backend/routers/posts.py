@@ -419,7 +419,6 @@ def fetch_posts(*, post_offset: int, esis_offset: int, type: str = '',  liked_po
 
 #     return result
 
-
 @router.put("/edit-post/{post_id}")
 async def edit_post(post_id: UUID, title: Optional[str] = Form(None), content: Optional[str] = Form(None), content_date: Optional[date] = Form(None), post_type: Optional[str] = Form(None), img: Optional[UploadFile] = File(None), goal_amount: Optional[int] = Form(None), end_date: Optional[date] = Form(None), db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
     post = db.query(models.Post).filter(models.Post.id == post_id).first()
@@ -458,14 +457,24 @@ async def delete_post(post_id: UUID, db: Session = Depends(get_db), user: UserRe
         raise HTTPException(status_code=404, detail="Post not found")
     db.delete(post)
     db.commit()
-
+    
 @router.get('/view-post/{post_id}')
 def fetch_specific_post(post_id: Union[int, UUID], db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
     if isinstance(post_id, int):
-        post = db.query(models.ESISAnnouncement).filter(models.ESISAnnouncement.AnnouncementId == post_id).first()
+        post = (
+            db.query(models.ESISAnnouncement)
+            .outerjoin(models.Like, models.Like.post_id == models.ESISAnnouncement.AnnouncementId)
+            .outerjoin(models.Comment, models.Comment.post_id == models.ESISAnnouncement.AnnouncementId)
+            .filter(models.ESISAnnouncement.AnnouncementId == post_id)
+            .first()
+        )
         if not post:
             raise HTTPException(status_code=404, detail="No post found")
-        
+
+        liked = any(like.liker_id == user.id for like in post.like) if post.like else False
+        like_count = len(post.like) if post.like else 0
+        comment_count = len(post.comment) if post.comment else 0
+
         post_dict = {
             'id': post.AnnouncementId,
             'created_at': post.Created,
@@ -475,14 +484,27 @@ def fetch_specific_post(post_id: Union[int, UUID], db: Session = Depends(get_db)
             'post_type': 'announcement',
             'img_link': post.ImageUrl,
             'is_esis': True,
-
+            'liked': liked,
+            'likes': like_count,
+            'comments': comment_count,
         }
-    
+
     elif isinstance(post_id, UUID):
-        post = db.query(models.Post).join(models.User, models.User.id == models.Post.uploader_id).filter(models.Post.id == post_id).first()
+        post = (
+            db.query(models.Post)
+            .outerjoin(models.Like, models.Like.post_id == models.Post.id)
+            .outerjoin(models.Comment, models.Comment.post_id == models.Post.id)
+            .join(models.User, models.User.id == models.Post.uploader_id)
+            .filter(models.Post.id == post_id)
+            .first()
+        )
         if not post:
             raise HTTPException(status_code=404, detail="No post found")
-        
+
+        liked = any(like.liker_id == user.id for like in post.like) if post.like else False
+        like_count = len(post.like) if post.like else 0
+        comment_count = len(post.comment) if post.comment else 0
+
         post_dict = {
             'id': post.id,
             'created_at': post.created_at,
@@ -506,6 +528,9 @@ def fetch_specific_post(post_id: Union[int, UUID], db: Session = Depends(get_db)
             'total_collected': post.total_collected if isinstance(post, models.Fundraising) else None,
             'fulfilled': post.fulfilled if isinstance(post, models.Fundraising) else None,
             'donors_count': post.donors_count if isinstance(post, models.Fundraising) else None,
+            'liked': liked,
+            'likes': like_count,
+            'comments': comment_count,
         }
 
     return post_dict
