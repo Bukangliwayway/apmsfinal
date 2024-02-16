@@ -35,6 +35,7 @@ import LikersListModal from "./LikersListModal";
 import { useMutation, useQueryClient } from "react-query";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import CommentModal from "./CommentModal";
+import ViewComments from "./ViewComments";
 
 const ViewPost = () => {
   const Chiptip = ({ icon, label, additional = "", actual = "" }) => (
@@ -79,12 +80,15 @@ const ViewPost = () => {
     },
     {
       onSuccess: (data, variables, context) => {
-        queryClient.invalidateQueries(["fetch-all-posts", "all"]);
-        queryClient.invalidateQueries(["post-specific", postID]);
-        queryClient.invalidateQueries(["fetch-all-posts", "event"]);
-        queryClient.invalidateQueries(["fetch-all-posts", "announcement"]);
-        queryClient.invalidateQueries(["fetch-all-posts", "event"]);
-        queryClient.invalidateQueries(["fetch-all-posts", "news"]);
+        queryClient.invalidateQueries((queryKey, queryFn) => {
+          return queryKey.includes("post-specific");
+        });
+        queryClient.invalidateQueries((queryKey, queryFn) => {
+          return queryKey.includes("likers");
+        });
+        queryClient.invalidateQueries((queryKey, queryFn) => {
+          return queryKey.includes("fetch-all-posts");
+        });
       },
     }
   );
@@ -354,6 +358,7 @@ const ViewPost = () => {
             <Typography variant="body2">Comment</Typography>
           </Button>
         </Box>
+        <ViewComments postID={postID} />
       </Card>
       {isModalOpen.deleteModal ? (
         <DeletePostModal

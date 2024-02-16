@@ -8,35 +8,31 @@ const useGetAllFeeds = (type) => {
     pageParam = { post_offset: 0, esis_offset: 0 },
   }) => {
     const { data } = await axiosPrivate.get(
-      `/posts/fetch-post/${pageParam?.post_offset || 0}/${pageParam?.esis_offset || 0}/${type}`
+      `/posts/fetch-post/${pageParam?.post_offset || 0}/${
+        pageParam?.esis_offset || 0
+      }/${type}`
     );
     return data;
   };
 
   return useInfiniteQuery(["fetch-all-posts", type], fetchFeeds, {
     getNextPageParam: (lastPage, allPages) => {
-      if (
-        lastPage?.errorStatus === 200 &&
-        lastPage?.detail === "No Post to Show"
-      ) {
-        return null; // Return null to stop fetching when no more posts
-      }
+      if (lastPage?.detail === "No Post to Show") return null;
+      let postCount = 0;
+      let esisCount = 0;
 
-      const lastItem = Array.isArray(lastPage)
-        ? lastPage[lastPage.length - 1]
-        : null;
+      allPages.map((page, index) => {
+        page.map((instance) => {
+          if (instance.is_esis) esisCount++;
+          else postCount++;
+        });
+      });
 
-      if (lastItem) {
-        const postCount = lastItem.is_esis ? 0 : 1;
-        const esisCount = lastItem.is_esis ? 1 : 0;
-        const nextOffset = {
-          post_offset: lastPage ? lastPage?.post_offset + postCount : 0,
-          esis_offset: lastPage ? lastPage?.esis_offset + esisCount : 0,
-        };
-        return nextOffset;
-      }
-
-      return null; // Return null to stop fetching when no more posts
+      const nextOffset = {
+        post_offset: postCount,
+        esis_offset: esisCount,
+      };
+      return nextOffset;
     },
     staleTime: Infinity,
     retry: (failureCount, error) => {

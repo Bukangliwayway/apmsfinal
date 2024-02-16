@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient, useQuery } from "react-query";
-import React, { useState } from "react";
+import React from "react";
 import {
-  Avatar,
   Box,
   Button,
   Dialog,
@@ -10,20 +9,24 @@ import {
   DialogContentText,
   DialogTitle,
   IconButton,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
+  Skeleton,
 } from "@mui/material";
 import useAll from "../../hooks/utilities/useAll";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import useGetLikes from "../../hooks/feeds/useGetLikes";
-import { Close, Image } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 import { FormContainer, TextFieldElement } from "react-hook-form-mui";
+import useGetCommentSpecific from "../../hooks/feeds/useGetCommentSpecific";
+import { Close } from "@mui/icons-material";
 
-const CommentModal = ({ open, onClose, postID }) => {
-  const queryClient = useQueryClient();
+const EditCommentModal = ({ open, onClose, commentID, exit = false }) => {
   const axiosPrivate = useAxiosPrivate();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  const { data: cachedData, isLoading: isLoadingComment } =
+    useGetCommentSpecific(commentID);
+
+  console.log(cachedData);
 
   const {
     setOpenSnackbar,
@@ -41,7 +44,11 @@ const CommentModal = ({ open, onClose, postID }) => {
         },
         withCredentials: true, // Set this to true for cross-origin requests with credentials
       };
-      await axiosPrivate.post(`/posts/comment/`, comment, axiosConfig);
+      await axiosPrivate.put(
+        `/posts/comment/${commentID}`,
+        comment,
+        axiosConfig
+      );
     },
     {
       onSuccess: (data, variables, context) => {
@@ -57,12 +64,9 @@ const CommentModal = ({ open, onClose, postID }) => {
         queryClient.invalidateQueries((queryKey, queryFn) => {
           return queryKey.includes("fetch-all-posts");
         });
-        const allComments = queryClient.getQueryData({queryKey:[
-          "fetch-all-comments",
-          postID,
-        ], refetchType: "all"});
-        // refetch({ refetchPage: (page, index) => index === 0 });
-
+        queryClient.invalidateQueries((queryKey, queryFn) => {
+          return queryKey.includes("comment-specific");
+        });
         onClose();
       },
       onError: (error) => {
@@ -77,12 +81,26 @@ const CommentModal = ({ open, onClose, postID }) => {
       },
     }
   );
+  if (isLoadingComment)
+    return (
+      <Dialog open={open} onClose={onClose} fullWidth>
+        <Box display="flex" alignItems="center">
+          <Skeleton variant="rectangular" width="100%" height={40} />
+        </Box>
+        <Box>
+          <Skeleton variant="rectangular" width="100%" height={200} />
+        </Box>
+        <Box marginTop={2}>
+          <Skeleton variant="rectangular" width="100%" height={50} />
+        </Box>
+      </Dialog>
+    );
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth>
       <DialogTitle>
         <Box display="flex" alignItems="center">
-          <Box flexGrow={1}>Add Comment</Box>
+          <Box flexGrow={1}>Edit Comment</Box>
           <Box>
             <IconButton onClick={onClose}>
               <Close />
@@ -92,17 +110,17 @@ const CommentModal = ({ open, onClose, postID }) => {
       </DialogTitle>
       <DialogContent>
         <FormContainer
+          defaultValues={{ comment: cachedData?.data?.comment }}
           onSuccess={async (data) => {
             setLinearLoading(true); // Set loading state for the current feed
             const payload = new FormData();
             payload.append("content", data?.comment);
-            payload.append("post_id", postID);
             await mutation.mutateAsync(payload);
           }}
         >
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <TextFieldElement
-              defaultValue=""
+              defaultValue="Default Comment" // Set your default comment value here
               variant="outlined"
               placeholder="Comment"
               name="comment"
@@ -127,4 +145,4 @@ const CommentModal = ({ open, onClose, postID }) => {
   );
 };
 
-export default CommentModal;
+export default EditCommentModal;

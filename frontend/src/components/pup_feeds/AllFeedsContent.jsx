@@ -35,6 +35,7 @@ import useGetLikes from "../../hooks/feeds/useGetLikes";
 import LikersListModal from "./LikersListModal";
 import { useMutation, useQueryClient } from "react-query";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import ViewCommentsModal from "./ViewCommentsModal";
 
 const AllFeedsContent = ({ type }) => {
   const axiosPrivate = useAxiosPrivate();
@@ -74,36 +75,7 @@ const AllFeedsContent = ({ type }) => {
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && hasNextPage && !isError) {
-          const lastPage = feeds.pages[feeds.pages.length - 1];
-          if (lastPage && lastPage.length > 0) {
-            let esisOffset = 0;
-            let postOffset = 0;
-
-            for (let i = 0; i < feeds.pages.length; i++) {
-              const page = feeds.pages[i];
-
-              for (let j = 0; j < page.length; j++) {
-                const dict = page[j];
-
-                if (dict.is_esis) {
-                  esisOffset++;
-                } else {
-                  postOffset++;
-                }
-              }
-            }
-
-            fetchNextPage({
-              pageParam: {
-                post_offset: postOffset || 0,
-                esis_offset: esisOffset || 0,
-              },
-            });
-            postOffset = 0;
-            esisOffset = 0;
-          } else {
-            fetchNextPage({ pageParam: { post_offset: 0, esis_offset: 0 } });
-          }
+          fetchNextPage();
         }
       });
       if (node) observer.current.observe(node);
@@ -128,6 +100,7 @@ const AllFeedsContent = ({ type }) => {
     editModal: false,
     deleteModal: false,
     likersListModal: false,
+    ViewCommentsModal: false,
   });
 
   const handleCloseModal = (type) => {
@@ -152,14 +125,15 @@ const AllFeedsContent = ({ type }) => {
     },
     {
       onSuccess: (data, variables, context) => {
-        queryClient.invalidateQueries(["fetch-all-posts", "all"]);
         queryClient.invalidateQueries((queryKey, queryFn) => {
           return queryKey.includes("post-specific");
         });
-        queryClient.invalidateQueries(["fetch-all-posts", "event"]);
-        queryClient.invalidateQueries(["fetch-all-posts", "announcement"]);
-        queryClient.invalidateQueries(["fetch-all-posts", "event"]);
-        queryClient.invalidateQueries(["fetch-all-posts", "news"]);
+        queryClient.invalidateQueries((queryKey, queryFn) => {
+          return queryKey.includes("likers");
+        });
+        queryClient.invalidateQueries((queryKey, queryFn) => {
+          return queryKey.includes("fetch-all-posts");
+        });
       },
     }
   );
@@ -421,7 +395,11 @@ const AllFeedsContent = ({ type }) => {
                         {feed?.likes} Likes
                       </Box>
                     </Button>
-                    <Button>
+                    <Button
+                      onClick={() => {
+                        handleModalOpen("ViewCommentsModal", feed?.id);
+                      }}
+                    >
                       <Box
                         sx={{
                           cursor: "pointer",
@@ -489,6 +467,9 @@ const AllFeedsContent = ({ type }) => {
                         padding: 3,
                         width: "100%",
                       }}
+                      onClick={() =>
+                        navigate(`/pup-feeds/view-post/${feed?.id}`)
+                      }
                     >
                       <Typography variant="body2">Comment</Typography>
                     </Button>
@@ -531,6 +512,13 @@ const AllFeedsContent = ({ type }) => {
           onClose={() => handleCloseModal("likersListModal")}
           postID={feedID}
           refetch={refetch}
+        />
+      ) : null}
+      {feedID && isModalOpen.ViewCommentsModal ? (
+        <ViewCommentsModal
+          open={isModalOpen.ViewCommentsModal}
+          postID={feedID}
+          onClose={() => handleCloseModal("ViewCommentsModal")}
         />
       ) : null}
     </Box>

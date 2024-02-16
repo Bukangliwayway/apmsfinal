@@ -99,30 +99,53 @@ async def like_post(
     db.commit()
 
 @router.get('/likers/{post_id}')
-async def like_post(*, post_id: UUID, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
-    liker_profiles = (
-        db.query(
-            models.User.last_name,
-            models.User.first_name,
-            models.User.profile_picture,
-            models.User.batch_year,
-            models.Course.code
+async def like_post(*, post_id: Union[int, UUID], db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    if isinstance(post_id, int):
+        liker_profiles = (
+            db.query(
+                models.User.last_name,
+                models.User.first_name,
+                models.User.profile_picture,
+                models.User.batch_year,
+                models.Course.code
+            )
+            .join(models.Like, models.Like.liker_id == models.User.id)
+            .join(models.User.course)
+            .filter(models.Like.esis_post_id == post_id)
+            .all()
         )
-        .join(models.Like, models.Like.liker_id == models.User.id)
-        .join(models.User.course)
-        .filter(models.Like.post_id == post_id)
-        .all()
-    )
+
+    elif isinstance(post_id, UUID):
+        liker_profiles = (
+            db.query(
+                models.User.last_name,
+                models.User.first_name,
+                models.User.profile_picture,
+                models.User.batch_year,
+                models.Course.code
+            )
+            .join(models.Like, models.Like.liker_id == models.User.id)
+            .join(models.User.course)
+            .filter(models.Like.post_id == post_id)
+            .all()
+        )
 
     return liker_profiles
 
 @router.post('/comment/')
-async def post_comment(*, post_id: UUID = Form(...), content: str = Form(...), db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
-    comment = models.Comment(
-        commenter_id=user.id,
-        post_id=post_id,
-        comment = content,
-    )
+async def post_comment(*, post_id: Union[int, UUID] = Form(...), content: str = Form(...), db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    if isinstance(post_id, int):
+        comment = models.Comment(
+            commenter_id=user.id,
+            esis_post_id=post_id,
+            comment = content,
+        )
+    elif isinstance(post_id, UUID):
+        comment = models.Comment(
+            commenter_id=user.id,
+            post_id=post_id,
+            comment = content,
+        )
     db.add(comment)
     db.commit()
 
@@ -149,7 +172,7 @@ async def delete_comment(*, comment_id: UUID, db: Session = Depends(get_db), use
 
 
 @router.put('/comment/{comment_id}')
-async def edit_comment(*, comment_id: UUID, content: str, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+async def edit_comment(*, comment_id: UUID, content: str = Form(...), db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
     comment = db.query(models.Comment).filter(models.Comment.id == comment_id).first()
 
     if not comment:
@@ -159,17 +182,146 @@ async def edit_comment(*, comment_id: UUID, content: str, db: Session = Depends(
         raise HTTPException(status_code=403, detail="You do not have permission to edit this comment")
 
     comment.comment = content
+    comment.updated_at = datetime.utcnow()
+
     db.commit()
 
-    return {"detail": "Comment edited successfully"}
+    return {"detail": "Comment Edited Successfully"}
 
 
-@router.get('/fetch-comments/{post_id}/{offset}')
-def fetch_comments(*, post_id: UUID, offset: int = 0, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
-    total_limit = 10  # Total items to fetch per offset
-    comments = db.query(models.Comment).filter(models.Comment.post_id == post_id).offset(offset).limit(total_limit).all()
+@router.get('/fetch-comments/{offset}/{post_id}')
+def fetch_comments(*, post_id: Union[int, UUID], offset: int = 0, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    total_limit = 5  # Total items to fetch per offset
+    if isinstance(post_id, int):
+        comments = (
+            db.query(
+                models.Comment.id,
+                models.Comment.comment,
+                models.Comment.created_at,
+                models.Comment.updated_at,
+                models.User.id.label("commenter_id"),
+                models.User.last_name,
+                models.User.first_name,
+                models.User.profile_picture,
+                models.User.batch_year,
+                models.Course.code,
+                (models.User.id == user.id).label("editable"),
+            )
+            .join(models.Comment.commenter)
+            .join(models.User.course)
+            .filter(models.Comment.esis_post_id == post_id)
+            .order_by(models.Comment.updated_at.desc()) 
+            .offset(offset)
+            .limit(total_limit)
+            .all()
+        )
+
+    elif isinstance(post_id, UUID):
+        comments = (
+            db.query(
+                models.Comment.id,
+                models.Comment.comment,
+                models.Comment.created_at,
+                models.Comment.updated_at,
+                models.User.id.label("commenter_id"),
+                models.User.last_name,
+                models.User.first_name,
+                models.User.profile_picture,
+                models.User.batch_year,
+                models.Course.code,
+                (models.User.id == user.id).label("editable"),
+            )
+            .join(models.Comment.commenter)
+            .join(models.User.course)
+            .filter(models.Comment.post_id == post_id)
+            .order_by(models.Comment.updated_at.desc()) 
+            .offset(offset)
+            .limit(total_limit)
+            .all()
+        )
+
+    if not comments:
+        raise HTTPException(status_code=200, detail="You've Reached the End")
+
     return comments
 
+
+@router.get('/view-post/{post_id}')
+def fetch_specific_post(post_id: Union[int, UUID], db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    if isinstance(post_id, int):
+        post = (
+            db.query(models.ESISAnnouncement)
+            .outerjoin(models.Like, models.Like.esis_post_id == models.ESISAnnouncement.AnnouncementId)
+            .outerjoin(models.Comment, models.Comment.esis_post_id == models.ESISAnnouncement.AnnouncementId)
+            .filter(models.ESISAnnouncement.AnnouncementId == post_id)
+            .first()
+        )
+        if not post:
+            raise HTTPException(status_code=404, detail="No post found")
+
+        liked = any(like.liker_id == user.id for like in post.like) if post.like else False
+        like_count = len(post.like) if post.like else 0
+        comment_count = len(post.comment) if post.comment else 0
+
+        post_dict = {
+            'id': post.AnnouncementId,
+            'created_at': post.Created,
+            'updated_at': post.Updated,
+            'title': post.Title,
+            'content': post.Content,
+            'post_type': 'announcement',
+            'img_link': post.ImageUrl,
+            'is_esis': True,
+            'liked': liked,
+            'likes': like_count,
+            'comments': comment_count,
+        }
+
+    elif isinstance(post_id, UUID):
+        post = (
+            db.query(models.Post)
+            .outerjoin(models.Like, models.Like.post_id == models.Post.id)
+            .outerjoin(models.Comment, models.Comment.post_id == models.Post.id)
+            .join(models.User, models.User.id == models.Post.uploader_id)
+            .filter(models.Post.id == post_id)
+            .first()
+        )
+        if not post:
+            raise HTTPException(status_code=404, detail="No post found")
+
+        liked = any(like.liker_id == user.id for like in post.like) if post.like else False
+        like_count = len(post.like) if post.like else 0
+        comment_count = len(post.comment) if post.comment else 0
+
+        post_dict = {
+            'id': post.id,
+            'created_at': post.created_at,
+            'updated_at': post.updated_at,
+            'title': post.title,
+            'content': post.content,
+            'post_type': post.post_type,
+            'img_link': post.img_link,
+            'is_esis': False,
+            'uploader': {
+                'id': post.uploader_id,
+                'last_name': post.uploader.last_name,
+                'first_name': post.uploader.first_name,
+                'username': post.uploader.username,
+                'profile_picture': post.uploader.profile_picture,
+            },
+            'content_date': post.content_date if isinstance(post, models.Event) else None,
+            'end_date': post.end_date if isinstance(post, models.Event) else None,
+            'interested_count': post.interested_count if isinstance(post, models.Event) else None,
+            'goal_amount': post.goal_amount if isinstance(post, models.Fundraising) else None,
+            'total_collected': post.total_collected if isinstance(post, models.Fundraising) else None,
+            'fulfilled': post.fulfilled if isinstance(post, models.Fundraising) else None,
+            'donors_count': post.donors_count if isinstance(post, models.Fundraising) else None,
+            'liked': liked,
+            'likes': like_count,
+            'comments': comment_count,
+        }
+
+    return post_dict
     
 @router.get('/fetch-post/{post_offset}/{esis_offset}/{type}')
 def fetch_posts(*, post_offset: int, esis_offset: int, type: str = '',  liked_post_id: int = None, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
@@ -250,7 +402,7 @@ def fetch_posts(*, post_offset: int, esis_offset: int, type: str = '',  liked_po
     )
 
     posts = posts_query.slice(post_offset, post_offset + post_limit).all()
-    esis_announcements = None
+    esis_announcements = None   
     if type == 'announcement' or type == 'all':
         esis_announcements = db.query(models.ESISAnnouncement).filter(models.ESISAnnouncement.IsLive == True) \
             .order_by(models.ESISAnnouncement.Updated.desc()) \
@@ -458,79 +610,3 @@ async def delete_post(post_id: UUID, db: Session = Depends(get_db), user: UserRe
     db.delete(post)
     db.commit()
     
-@router.get('/view-post/{post_id}')
-def fetch_specific_post(post_id: Union[int, UUID], db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
-    if isinstance(post_id, int):
-        post = (
-            db.query(models.ESISAnnouncement)
-            .outerjoin(models.Like, models.Like.post_id == models.ESISAnnouncement.AnnouncementId)
-            .outerjoin(models.Comment, models.Comment.post_id == models.ESISAnnouncement.AnnouncementId)
-            .filter(models.ESISAnnouncement.AnnouncementId == post_id)
-            .first()
-        )
-        if not post:
-            raise HTTPException(status_code=404, detail="No post found")
-
-        liked = any(like.liker_id == user.id for like in post.like) if post.like else False
-        like_count = len(post.like) if post.like else 0
-        comment_count = len(post.comment) if post.comment else 0
-
-        post_dict = {
-            'id': post.AnnouncementId,
-            'created_at': post.Created,
-            'updated_at': post.Updated,
-            'title': post.Title,
-            'content': post.Content,
-            'post_type': 'announcement',
-            'img_link': post.ImageUrl,
-            'is_esis': True,
-            'liked': liked,
-            'likes': like_count,
-            'comments': comment_count,
-        }
-
-    elif isinstance(post_id, UUID):
-        post = (
-            db.query(models.Post)
-            .outerjoin(models.Like, models.Like.post_id == models.Post.id)
-            .outerjoin(models.Comment, models.Comment.post_id == models.Post.id)
-            .join(models.User, models.User.id == models.Post.uploader_id)
-            .filter(models.Post.id == post_id)
-            .first()
-        )
-        if not post:
-            raise HTTPException(status_code=404, detail="No post found")
-
-        liked = any(like.liker_id == user.id for like in post.like) if post.like else False
-        like_count = len(post.like) if post.like else 0
-        comment_count = len(post.comment) if post.comment else 0
-
-        post_dict = {
-            'id': post.id,
-            'created_at': post.created_at,
-            'updated_at': post.updated_at,
-            'title': post.title,
-            'content': post.content,
-            'post_type': post.post_type,
-            'img_link': post.img_link,
-            'is_esis': False,
-            'uploader': {
-                'id': post.uploader_id,
-                'last_name': post.uploader.last_name,
-                'first_name': post.uploader.first_name,
-                'username': post.uploader.username,
-                'profile_picture': post.uploader.profile_picture,
-            },
-            'content_date': post.content_date if isinstance(post, models.Event) else None,
-            'end_date': post.end_date if isinstance(post, models.Event) else None,
-            'interested_count': post.interested_count if isinstance(post, models.Event) else None,
-            'goal_amount': post.goal_amount if isinstance(post, models.Fundraising) else None,
-            'total_collected': post.total_collected if isinstance(post, models.Fundraising) else None,
-            'fulfilled': post.fulfilled if isinstance(post, models.Fundraising) else None,
-            'donors_count': post.donors_count if isinstance(post, models.Fundraising) else None,
-            'liked': liked,
-            'likes': like_count,
-            'comments': comment_count,
-        }
-
-    return post_dict

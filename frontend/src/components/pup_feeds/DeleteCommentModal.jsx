@@ -12,7 +12,7 @@ import useAll from "../../hooks/utilities/useAll";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { useNavigate } from "react-router-dom";
 
-const DeletePostModal = ({ open, onClose, feedID, exit = false }) => {
+const DeleteCommentModal = ({ open, onClose, commentID, exit = false }) => {
   const axiosPrivate = useAxiosPrivate();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ const DeletePostModal = ({ open, onClose, feedID, exit = false }) => {
           "Content-Type": "application/json",
         },
       };
-      await axiosPrivate.delete(`/posts/delete-post/${feedID}`, axiosConfig);
+      await axiosPrivate.delete(`/posts/comment/${commentID}`, axiosConfig);
     },
     {
       onError: (error) => {
@@ -39,7 +39,6 @@ const DeletePostModal = ({ open, onClose, feedID, exit = false }) => {
         setSeverity("error");
       },
       onSuccess: () => {
-        queryClient.invalidateQueries(["comment-post", postID]);
         queryClient.invalidateQueries((queryKey, queryFn) => {
           return queryKey.includes("post-specific");
         });
@@ -49,7 +48,7 @@ const DeletePostModal = ({ open, onClose, feedID, exit = false }) => {
         queryClient.invalidateQueries((queryKey, queryFn) => {
           return queryKey.includes("fetch-all-posts");
         });
-        setMessage("Post Deleted Successfully");
+        setMessage("Comment Deleted Successfully");
         setSeverity("success");
         if (exit) navigate("/pup-feeds");
         onClose();
@@ -68,10 +67,10 @@ const DeletePostModal = ({ open, onClose, feedID, exit = false }) => {
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth>
-      <DialogTitle>Delete Post</DialogTitle>
+      <DialogTitle>Delete Comment</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Are you sure you want to delete this post?
+          Are you sure you want to delete this comment?
         </DialogContentText>
       </DialogContent>
       <DialogActions>
@@ -91,4 +90,4 @@ const DeletePostModal = ({ open, onClose, feedID, exit = false }) => {
   );
 };
 
-export default DeletePostModal;
+export default DeleteCommentModal;
