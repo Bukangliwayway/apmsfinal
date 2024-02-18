@@ -1,7 +1,8 @@
+from collections import defaultdict
 from fastapi.encoders import jsonable_encoder
 import numpy as np
 from itertools import groupby
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from operator import or_
 from uuid import UUID
 from datetime import date, datetime
@@ -488,6 +489,60 @@ async def classification_employment_rate(db: Session = Depends(get_db), user: Us
     ]
 
     return {'classification': final_classification_list, 'keys': {f"batch {batch_year}" for batch_year in batch_years}}
+
+@router.get("/salary_trend/{code}/{year}")
+async def salary_trend(code: Optional[str] = "default_code", year: Optional[int] = 0, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    # Fetching employments and classifications in a single query using joins
+    employments_and_classifications = db.query(
+        models.Employment.date_hired,
+        models.Employment.date_end,
+        models.Employment.gross_monthly_income
+    )\
+        .join(models.Employment.user)\
+        .join(models.User.course)\
+        .filter(
+        models.User.is_completed == True,
+        (models.User.batch_year == year) if year != 0 else True,
+        (models.Course.code == code) if code != "default_code" else True,
+        func.lower(models.User.role) == 'alumni'
+    )\
+        .all()
+    
+    if not employments_and_classifications:
+        return []
+
+    # Find the span of date_hired
+    min_date = min(employment.date_hired for employment in employments_and_classifications)
+    max_date = max(employment.date_hired for employment in employments_and_classifications)
+
+    # Define the income ranges
+    income_ranges = ["₱18,200 to ₱36,400", "₱36,400 to ₱63,700", "₱63,700 to ₱109,200", "₱109,200 to ₱182,000", "Above ₱182,000"]
+    date_interval = (max_date - min_date) / 10
+
+    # Initialize a defaultdict to store counts for each income range within each date segment
+    income_counts_by_date_segment = defaultdict(lambda: {range: 0 for range in income_ranges})
+
+    # Loop through employments_and_classifications and count occurrences
+    for i in range(10 if date_interval.days > 0 else 1):
+        date_segment = min_date + timedelta(days=int((i + 1) * date_interval.days))
+        for employment in employments_and_classifications:
+            if employment.date_hired > date_segment: continue
+            if employment.date_end and employment.date_end < date_segment: continue
+            income_counts_by_date_segment[date_segment.strftime("%m/%Y")][employment.gross_monthly_income] += 1
+        sorted_income_counts = sorted(income_counts_by_date_segment.items(), key=lambda x: datetime.strptime(x[0], "%m/%Y"))
+
+    # Convert the defaultdict to the desired list of dictionaries format
+    result = [
+        {
+            "date_name": date_segment,
+            **income_counts,
+        }
+        for date_segment, income_counts in sorted_income_counts
+    ]
+
+    # Return the result
+    return result
+
 
 @router.get("/employment_count_over_time/")
 async def employment_count_over_time(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):

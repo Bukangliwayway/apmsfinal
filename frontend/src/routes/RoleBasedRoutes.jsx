@@ -37,6 +37,7 @@ import ModifyPost from "../components/pup_feeds/ModifyPost";
 import ViewPost from "../components/pup_feeds/ViewPost";
 import { useState } from "react";
 import useMissingFields from "../hooks/useMissingFields";
+import Sample from "../components/analytics/Sample";
 const RoleBasedRoutes = () => {
   const { auth } = useAll();
   const {
@@ -109,6 +110,14 @@ const RoleBasedRoutes = () => {
         element={
           <MainLayout mode="admin">
             <OverallDashboard />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="dashboard/sample"
+        element={
+          <MainLayout mode="admin">
+            <Sample />
           </MainLayout>
         }
       />
