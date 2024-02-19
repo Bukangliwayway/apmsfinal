@@ -37,7 +37,8 @@ import ModifyPost from "../components/pup_feeds/ModifyPost";
 import ViewPost from "../components/pup_feeds/ViewPost";
 import { useState } from "react";
 import useMissingFields from "../hooks/useMissingFields";
-import Sample from "../components/analytics/Sample";
+import SalaryTrend from "../components/analytics/SalaryTrend";
+import SalaryTrendLayout from "../components/analytics/SalaryTrendLayout";
 const RoleBasedRoutes = () => {
   const { auth } = useAll();
   const {
@@ -114,10 +115,10 @@ const RoleBasedRoutes = () => {
         }
       />
       <Route
-        path="dashboard/sample"
+        path="dashboard/SalaryTrend"
         element={
           <MainLayout mode="admin">
-            <Sample />
+            <SalaryTrendLayout />
           </MainLayout>
         }
       />

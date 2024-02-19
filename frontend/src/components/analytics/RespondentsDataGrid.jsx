@@ -15,8 +15,8 @@ const RespondentsDataGrid = () => {
   const { cohort } = useAll();
   const navigate = useNavigate();
   const { data: respondents, isLoading: isLoadingRespondents } = useRespondents(
-    cohort.batch_year,
-    cohort.course_code
+    cohort["ResponseRate"]?.batch_year,
+    cohort["ResponseRate"]?.course_code
   );
 
   if (isLoadingRespondents) {
@@ -55,7 +55,10 @@ const RespondentsDataGrid = () => {
     );
   }
 
-  if (!cohort.batch_year || !cohort.course_code) {
+  if (
+    !cohort["ResponseRate"]?.batch_year ||
+    !cohort["ResponseRate"]?.course_code
+  ) {
     return (
       <Box>
         <Typography variant="h6" p={2}>
@@ -109,7 +112,6 @@ const RespondentsDataGrid = () => {
 
   const columns = Object.keys(columnVisibilityModel).map((key) => ({
     field: key,
-    headerName: key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, " "), // Converts 'field_name' to 'Field name'
     width: 150,
     editable: false,
   }));
@@ -117,9 +119,14 @@ const RespondentsDataGrid = () => {
   return (
     <Box sx={{ height: "auto", width: "100%" }}>
       <Box sx={{ display: "flex", gap: 2, padding: 1 }}>
-        <Typography variant="h6">Batch {cohort.batch_year}</Typography>
-        <Typography variant="h6" textTransform={"uppercase"}>
-          {cohort.course_code}
+        <Typography variant="h6">
+          {cohort["ResponseRate"]?.batch_year != "All Batch Year" && "Batch "}
+          {cohort["ResponseRate"]?.batch_year}
+        </Typography>
+        <Typography variant="h6">
+          {cohort["ResponseRate"]?.course_code == "Overall"
+            ? "All Course"
+            : cohort["ResponseRate"]?.course_code}
         </Typography>
       </Box>
       <DataGrid

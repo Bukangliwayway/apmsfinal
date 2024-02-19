@@ -32,42 +32,48 @@ function LinearProgressWithLabel(props) {
   );
 }
 
-const CourseResponseRate = () => {
-  const [selected, setSelected] = useState(null);
-  const [renderKey, setRenderKey] = useState(0);
+const SelectCohorts = ({ type }) => {
+  const [selected, setSelected] = useState({
+    ResponseRate: null,
+    EmploymentRate: null,
+    SalaryTrend: null,
+  });
 
   const { cohort, setCohort } = useAll();
+  const [open, setOpen] = useState(0);
 
   const { data: allBatches, isLoading: isLoadingAllBatches } =
     useGetAllBatches();
   const { data: courseResponseRate, isLoading: isLoadingCourseResponseRate } =
-    useCourseResponseRate(selected);
+    useCourseResponseRate(selected[type]);
 
   useEffect(() => {
-    setSelected(allBatches?.data[0]);
-    setRenderKey((prevKey) => prevKey + 1);
-    setCohort({
-      batch_year: allBatches?.data[0],
-    });
+    setSelected((prev) => ({ ...prev, [type]: allBatches?.data[0] }));
+    setCohort((prev) => ({
+      ...prev,
+      [type]: { batch_year: allBatches?.data[0] },
+    }));
+    console.log(allBatches?.data);
   }, [allBatches]);
 
-  const [open, setOpen] = useState(0);
   const handleClick = (index, code) => {
     setOpen((prevState) => {
-      setCohort({
-        batch_year: selected,
-        course_code: code,
-      });
       if (prevState == index) return 0;
       return index;
     });
+
+    setCohort((prev) => ({
+      ...prev,
+      [type]: { batch_year: selected[type], course_code: code },
+    }));
   };
 
   const handleChange = (event) => {
-    setSelected(event.target.value);
-    setCohort({
-      batch_year: event.target.value,
-    });
+    setSelected((prev) => ({ ...prev, [type]: event.target.value }));
+    setCohort((prev) => ({
+      ...prev,
+      [type]: { batch_year: event.target.value },
+    }));
   };
 
   if (isLoadingAllBatches) {
@@ -83,8 +89,8 @@ const CourseResponseRate = () => {
       <FormControl sx={{ width: "25ch" }}>
         <InputLabel>Batch Year</InputLabel>
         <Select
-          key={renderKey}
-          value={selected}
+          key={selected[type]}
+          value={selected[type]}
           onChange={handleChange}
           label="Overall Type"
         >
@@ -97,8 +103,16 @@ const CourseResponseRate = () => {
       </FormControl>
       <List sx={{ display: "flex", flexDirection: "column" }}>
         {courseResponseRate?.data
-          .sort((a, b) => a.response_rate - b.response_rate)
-          .slice(0, 5)
+          .slice(0) // Exclude the first element
+          .sort((a, b) => {
+            if (a.course_name === "All Alumnis under this Batch") {
+              return -1; // "Overall" should always be at the top
+            } else if (b.course_name === "All Alumnis under this Batch") {
+              return 1; // "Overall" should always be at the top
+            } else {
+              return a.response_rate - b.response_rate;
+            }
+          })
           .map((course, index) => (
             <ListItemButton
               onClick={() => handleClick(index + 1, course.course_code)}
@@ -156,4 +170,4 @@ const CourseResponseRate = () => {
   );
 };
 
-export default CourseResponseRate;
+export default SelectCohorts;

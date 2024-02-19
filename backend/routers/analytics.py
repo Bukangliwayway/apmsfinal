@@ -16,7 +16,7 @@ from typing import Annotated, Dict, List, Optional, Union
 from starlette import status
 from backend.schemas import UserResponse
 from backend import models
-from sqlalchemy import not_, and_, func, desc, case
+from sqlalchemy import not_, and_, func, desc, case, literal_column
 
 
 router = APIRouter()
@@ -402,47 +402,86 @@ async def current_batches(db: Session = Depends(get_db), user: UserResponse = De
                     .filter(models.User.batch_year.isnot(None)) \
                     .order_by(models.User.batch_year.desc()) \
                     .all()
-    return [result.batch_year for result in batch_years]
+    # Include "All Batch Year" at the beginning of the list
+    batch_years_list = ["All Batch Year"] + [result.batch_year for result in batch_years]
+
+    return batch_years_list
 
 @router.get("/respondents-list/{batch_year}/{course_code}")
 async def get_respondents_list(
-    batch_year: int,
+    batch_year: str,
     course_code: str,
     db: Session = Depends(get_db),
     user: UserResponse = Depends(get_current_user)
 ):
-    respondents = db.query(models.User.id, models.User.username, models.User.first_name, models.User.last_name, models.User.is_completed).join(models.Course).filter(and_(models.Course.code == course_code, models.User.batch_year == batch_year)).order_by(models.User.is_completed).all()
+    batch_year = int(batch_year) if batch_year != "All Batch Year" else batch_year
+
+    respondents = db.query(
+        models.User.id,
+        models.User.username,
+        models.User.first_name.label('First Name'),
+        models.User.last_name.label('Last Name'),
+        case([(models.User.is_completed, literal_column("'Yes'"))], else_=literal_column("'No'")).label('Completed')
+    ).join(models.Course).filter(
+        and_(
+            models.Course.code == course_code if not course_code == 'Overall' else True,
+            models.User.role.ilike('alumni'),
+            models.User.batch_year == batch_year if batch_year != "All Batch Year" else True
+        )
+    ).order_by(models.User.is_completed).all()
     return respondents
 
 @router.get("/course_response_rate/{batch_year}")
-async def over_employer_type(batch_year: int, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+async def over_employer_type(batch_year:  str, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
     # Fetch all courses where in_pupqc is True
-    courses = db.query(models.Course).filter(models.Course.in_pupqc == True).all()
+    courses_response_rate = db.query(
+        models.Course.id.label('course_id'),
+        models.Course.name.label('course_name'),
+        models.Course.code.label('course_code'),
+        func.count().label('total_alumni_count'),
+        func.sum(case([(models.User.is_completed, 1)], else_=0)).label('completed_alumni_count')
+    ).join(
+        models.User,
+        models.User.course_id == models.Course.id
+    ).filter(
+        models.User.role.ilike('alumni'),
+        models.Course.in_pupqc == True,
+        models.User.batch_year == batch_year if batch_year != "All Batch Year" else True
+    ).group_by(
+        models.Course.id
+    ).all()
 
+    total_users_count = 0
+    total_completed_count = 0
     course_response_rate = []
 
-    for course in courses:
-        # Fetch alumni users for the given batch year and course
-        course_alumni_users = db.query(models.User)\
-                                .filter(func.lower(models.User.role) == 'alumni',
-                                        models.User.batch_year == batch_year,
-                                        models.User.course_id == course.id)\
-                                .all()
+    for course_data in courses_response_rate:
+        users_count = course_data.total_alumni_count
+        completed_count = course_data.completed_alumni_count
 
-        # Count completed users for the course
-        course_users_completed = sum(1 for user in course_alumni_users if user.is_completed)
+        total_users_count += users_count
+        total_completed_count += completed_count
 
-        if len(course_alumni_users) == 0:
-            continue
+        if users_count > 0:
+            response_rate = round((completed_count / max(users_count, 1)) * 100)
+            course_response_rate.append({
+                "course_id": course_data.course_id,
+                "course_name": course_data.course_name,
+                "course_code": course_data.course_code,
+                "users_count": users_count,
+                "users_completed": completed_count,
+                "response_rate": response_rate,
+            })
 
-        course_response_rate.append({
-            "course_id": course.id,
-            "course_name": course.name,
-            "course_code": course.code,
-            "users_count": len(course_alumni_users),
-            "users_completed": course_users_completed,
-            "response_rate": round((course_users_completed / len(course_alumni_users)) * 100) if course_alumni_users else 0
-        })
+    overall_response_rate = {
+        "course_id": 0,
+        "course_name": "All Alumnis under this Batch",
+        "course_code": "Overall",
+        "users_count": total_users_count,
+        "users_completed": total_completed_count,
+        "response_rate": round((total_completed_count / max(total_users_count, 1)) * 100),
+    }
+    course_response_rate.insert(0, overall_response_rate)
 
     return course_response_rate
 

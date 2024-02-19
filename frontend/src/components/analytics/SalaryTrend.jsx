@@ -1,17 +1,14 @@
 import { ResponsiveBar } from "@nivo/bar";
-import mockdatabar from "../mockdata/mockdatabar";
-import useSample from "../../hooks/analytics/useSample";
+import useSalaryTrend from "../../hooks/analytics/useSalaryTrend";
 import { Box, Skeleton } from "@mui/material";
 import useAll from "../../hooks/utilities/useAll";
 
-const Sample = ({ solo = false }) => {
+const SalaryTrend = ({ solo = false }) => {
   const { mode } = useAll();
   const {
     data: classificationResponseRate,
     isLoading: isLoadingClassificationResponseRate,
-  } = useSample();
-
-  console.log("taena :", classificationResponseRate);
+  } = useSalaryTrend();
 
   if (isLoadingClassificationResponseRate) {
     return (
@@ -20,12 +17,6 @@ const Sample = ({ solo = false }) => {
       </Box>
     );
   }
-
-  console.log(
-    Object.keys(classificationResponseRate?.data).filter(
-      (key) => key !== "date_name"
-    )
-  );
 
   return (
     <Box height={"90vh"}>
@@ -146,4 +137,4 @@ const Sample = ({ solo = false }) => {
   );
 };
 
-export default Sample;
+export default SalaryTrend;

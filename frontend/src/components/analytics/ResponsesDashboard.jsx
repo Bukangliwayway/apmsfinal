@@ -1,11 +1,10 @@
 import { Box, Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom"; // Import the useNavigate hook
 import React from "react";
-import CourseResponseRate from "./CourseResponseRate";
+import SelectCohorts from "./SelectCohorts";
 import RespondentsDataGrid from "./RespondentsDataGrid";
 
 const ResponsesDashboard = () => {
-
   return (
     <Box>
       <Grid
@@ -19,7 +18,7 @@ const ResponsesDashboard = () => {
               backgroundColor: (theme) => theme.palette.common.main,
             }}
           >
-            <CourseResponseRate />
+            <SelectCohorts type={"ResponseRate"} />
           </Box>
         </Grid>
         <Grid item xs={9} p={1} pl={0.5}>

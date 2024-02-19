@@ -1,7 +1,7 @@
 import useAxiosPrivate from "../useAxiosPrivate";
 import { useQuery } from "react-query";
 
-const useSample = (code = "default_code", year = 0) => {
+const useSalaryTrend = (code = "default_code", year = 0) => {
   const axiosPrivate = useAxiosPrivate();
   const useSalaryTrend = async () => {
     return await axiosPrivate.get(`/analytics/salary_trend/${code}/${year}`);
@@ -11,4 +11,4 @@ const useSample = (code = "default_code", year = 0) => {
   });
 };
 
-export default useSample;
+export default useSalaryTrend;
