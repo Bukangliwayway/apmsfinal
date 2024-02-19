@@ -337,15 +337,94 @@ async def over_employer_type(db: Session = Depends(get_db), user: UserResponse =
 
     return response_data
 
-@router.get("/course_employment_rate/")
-async def over_employer_type(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
-    courses = db.query(models.Course).filter(models.Course.in_pupqc == True).all()
+@router.get("/course_employment_rate/{batch_year}")
+async def over_employer_type(batch_year: str, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    employment_status_condition = case([((models.User.present_employment_status.ilike("employed") | models.User.present_employment_status.ilike("self-employed")), 1)], else_=0)
+    users_completed_condition = case([(models.User.is_completed, 1)], else_=0)
+
+    employed_users_count = func.sum(employment_status_condition).label('users_employed')
+    total_users_count = func.sum(users_completed_condition).label('users_count')
+
+    employment_rate_all = db.query(
+            models.Course.id.label('course_id'),
+            models.Course.name.label('course_name'),
+            models.Course.code.label('course_code'),
+            total_users_count,
+            employed_users_count
+        ).join(
+            models.User,
+            models.User.course_id == models.Course.id
+        ).filter(
+            models.User.role.ilike('alumni'),
+            models.Course.in_pupqc == True,
+            models.User.batch_year == batch_year if batch_year != "All Batch Year" else True
+        ).group_by(
+            models.Course.id
+        ).all()
+    
+    total_users_employed = 0
+    total_users_count = 0
+    employment_record = []
+    
+    for employment in employment_rate_all:
+        total_users_employed += employment.users_employed
+        total_users_count += employment.users_count
+
+        if employment.users_count > 0:
+            employment_rate = round((employment.users_employed / max(employment.users_count, 1)) * 100)
+            employment_record.append({
+                "course_id": employment.course_id,
+                "course_name": employment.course_name,
+                "course_code": employment.course_code,
+                "users_employed": employment.users_employed,
+                "users_count": employment.users_count,
+                "employment_rate": employment_rate,
+            })
+
+    overall_employment_rate = {
+        "course_id": -1,
+        "course_name": "All Alumnis under this Batch",
+        "course_code": "Overall",
+        "users_employed": total_users_employed,
+        "users_count": total_users_count,
+        "employment_rate": round((total_users_employed / max(total_users_count, 1)) * 100),
+    }
+    employment_record.insert(0, overall_employment_rate)
+
+    return employment_record
+
+
+    return employment_rate
+    employment_rate = []
+    for course in courses:
+        course_users = [user for user in alumni_users if user.course_id == course.id]
+        course_users_employed = sum(1 for user in course_users if user.present_employment_status in ['employed', 'self-employed'])
+        users_count = len(course_users)
+        
+        if users_count == 0:
+            continue
+
+        employment_rate.append({
+            "course_id": course.id,
+            "course_code": course.code,
+            "course_name": course.name,
+            "users_count": users_count,
+            "users_employed": course_users_employed,
+            "employment_rate": round((course_users_employed / users_count) * 100)
+        })
+      
+    return employment_rate
 
     # Fetch all alumni users with completed courses
-    alumni_users = db.query(models.User)\
-                      .filter(models.User.role.ilike('alumni'), models.User.is_completed == True)\
-                      .options(joinedload(models.User.course))\
-                      .all()
+    employment_rate = db.query(models.Course.id.label('course_id'),
+                            models.Course.name.label('course_name'),
+                            models.Course.code.label('course_code'),
+                            func.count().label('users_count'),
+                            func.sum(case([(models.User.is_completed, 1)], else_=0)).label('completed_alumni_count')
+                            )\
+                    .filter(models.User.role.ilike('alumni'), models.User.is_completed == True, models.User.batch_year == batch_year if not batch_year == "All Batch Year" else True)\
+                    .options(joinedload(models.User.course))\
+                    .all()
 
     course_employment_rate = []
     for course in courses:
@@ -456,20 +535,17 @@ async def over_employer_type(batch_year:  str, db: Session = Depends(get_db), us
     course_response_rate = []
 
     for course_data in courses_response_rate:
-        users_count = course_data.total_alumni_count
-        completed_count = course_data.completed_alumni_count
+        total_users_count += course_data.total_alumni_count
+        total_completed_count += course_data.completed_alumni_count
 
-        total_users_count += users_count
-        total_completed_count += completed_count
-
-        if users_count > 0:
-            response_rate = round((completed_count / max(users_count, 1)) * 100)
+        if course_data.total_alumni_count > 0:
+            response_rate = round((course_data.completed_alumni_count / max(course_data.total_alumni_count, 1)) * 100)
             course_response_rate.append({
                 "course_id": course_data.course_id,
                 "course_name": course_data.course_name,
                 "course_code": course_data.course_code,
-                "users_count": users_count,
-                "users_completed": completed_count,
+                "users_count": course_data.total_alumni_count,
+                "users_completed": course_data.completed_alumni_count,
                 "response_rate": response_rate,
             })
 

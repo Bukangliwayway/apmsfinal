@@ -1,14 +1,22 @@
 import useAxiosPrivate from "../useAxiosPrivate";
 import { useQuery } from "react-query";
 
-const useCourseEmploymentRate = () => {
+const useCourseEmploymentRate = (batch_year) => {
   const axiosPrivate = useAxiosPrivate();
-  const useCourse = async () => {
-    return await axiosPrivate.get("/analytics/course_employment_rate/");
+  const useCourse = async (batch_year) => {
+    return await axiosPrivate.get(
+      `/analytics/course_employment_rate/${batch_year}`
+    );
   };
-  return useQuery("course-employment-rate", useCourse, {
-    staleTime: Infinity,
-  });
+
+  return useQuery(
+    ["employment-rate", batch_year],
+    () => useCourse(batch_year),
+    {
+      enabled: !!batch_year, // The query will not run if regionCode is not provided
+      staleTime: Infinity,
+    }
+  );
 };
 
 export default useCourseEmploymentRate;

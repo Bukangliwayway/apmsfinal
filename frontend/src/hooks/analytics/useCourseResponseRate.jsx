@@ -8,14 +8,10 @@ const useCourseResponseRate = (batch_year) => {
       `/analytics/course_response_rate/${batch_year}`
     );
   };
-  return (
-    useQuery([("response-rate", batch_year)],
-    () => useCourse(batch_year),
-    {
-      enabled: !!batch_year, // The query will not run if regionCode is not provided
-      staleTime: Infinity,
-    })
-  );
+  return useQuery(["response-rate", batch_year], () => useCourse(batch_year), {
+    enabled: !!batch_year, // The query will not run if regionCode is not provided
+    staleTime: Infinity,
+  });
 };
 
 export default useCourseResponseRate;

@@ -18,6 +18,9 @@ import React, { useEffect, useState } from "react";
 import useCourseResponseRate from "../../hooks/analytics/useCourseResponseRate";
 import useGetAllBatches from "../../hooks/analytics/useGetAllBatches";
 import useAll from "../../hooks/utilities/useAll";
+import useCourseEmploymentRate from "../../hooks/analytics/useCourseEmploymentRate";
+import { EmploymentRateList } from "./EmploymentRateList";
+import { ResponseRateList } from "./ResponseRateList";
 
 function LinearProgressWithLabel(props) {
   return (
@@ -39,13 +42,32 @@ const SelectCohorts = ({ type }) => {
     SalaryTrend: null,
   });
 
-  const { cohort, setCohort } = useAll();
+  type = "EmploymentRate";
+
+  let message;
+  switch (type) {
+    case "ResponseRate":
+      message = "Response Rate";
+      break;
+    case "EmploymentRate":
+      message = "Employment Rate";
+      break;
+    case "SalaryTrend":
+      message = "Salary Trend";
+      break;
+  }
+
+  const { setCohort } = useAll();
   const [open, setOpen] = useState(0);
 
   const { data: allBatches, isLoading: isLoadingAllBatches } =
     useGetAllBatches();
-  const { data: courseResponseRate, isLoading: isLoadingCourseResponseRate } =
-    useCourseResponseRate(selected[type]);
+
+  const { data: responseRate, isLoading: isLoadingCourseResponseRate } =
+    useCourseResponseRate(selected["ResponseRate"]);
+
+  const { data: employmentRate, isLoading: isLoadingCourseEmploymentRate } =
+    useCourseEmploymentRate(selected["EmploymentRate"]);
 
   useEffect(() => {
     setSelected((prev) => ({ ...prev, [type]: allBatches?.data[0] }));
@@ -53,7 +75,6 @@ const SelectCohorts = ({ type }) => {
       ...prev,
       [type]: { batch_year: allBatches?.data[0] },
     }));
-    console.log(allBatches?.data);
   }, [allBatches]);
 
   const handleClick = (index, code) => {
@@ -86,6 +107,9 @@ const SelectCohorts = ({ type }) => {
 
   return (
     <Box padding={2}>
+      <Typography variant={"body2"} sx={{ fontWeight: "800", mb: "1.5rem" }}>
+        Overall {message} per Course:
+      </Typography>
       <FormControl sx={{ width: "25ch" }}>
         <InputLabel>Batch Year</InputLabel>
         <Select
@@ -101,71 +125,62 @@ const SelectCohorts = ({ type }) => {
           ))}
         </Select>
       </FormControl>
-      <List sx={{ display: "flex", flexDirection: "column" }}>
-        {courseResponseRate?.data
-          .slice(0) // Exclude the first element
-          .sort((a, b) => {
-            if (a.course_name === "All Alumnis under this Batch") {
-              return -1; // "Overall" should always be at the top
-            } else if (b.course_name === "All Alumnis under this Batch") {
-              return 1; // "Overall" should always be at the top
-            } else {
-              return a.response_rate - b.response_rate;
-            }
-          })
-          .map((course, index) => (
-            <ListItemButton
-              onClick={() => handleClick(index + 1, course.course_code)}
-              sx={{ display: "flex", flexDirection: "column" }}
-            >
-              <ListItem sx={{ display: "flex", gap: 1, padding: 0 }}>
-                <Typography
-                  variant={"subtitle2"}
-                  sx={{
-                    textTransform: "uppercase",
-                    minWidth: "35%",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap", // Initially set to "nowrap"
-                    width: "auto",
-                  }}
-                >
-                  {course.course_code}
-                </Typography>
-                <Box sx={{ width: "100%" }}>
-                  <LinearProgressWithLabel value={course.response_rate} />
-                </Box>
-              </ListItem>
-              <Collapse in={open == index + 1}>
-                <Box
-                  p={1}
-                  sx={{ display: "flex", flexDirection: "column", gap: 1 }}
-                >
-                  <Typography sx={{ textTransform: "capitalize" }}>
-                    {course.course_name}
+      {isLoadingCourseResponseRate && (
+        <List sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+          {Array(4)
+            .fill(null)
+            .map((_, index) => (
+              <ListItemButton
+                onClick={() => {}}
+                sx={{ display: "flex", flexDirection: "column" }}
+              >
+                <ListItem sx={{ display: "flex", padding: 0 }}>
+                  <Typography
+                    variant={"subtitle1"}
+                    sx={{
+                      textTransform: "uppercase",
+                      minWidth: "100%",
+                      width: "auto",
+                    }}
+                  >
+                    <Skeleton variant="text" width="100%" />
                   </Typography>
-
-                  <Box sx={{ display: "flex", gap: 1 }}>
-                    <Typography variant="caption">
-                      Students Responded:
-                    </Typography>
-                    <Typography variant="caption">
-                      {course.users_completed}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: "flex", gap: 1 }}>
-                    <Typography variant="caption">
-                      Students under this Course:
-                    </Typography>
-                    <Typography variant="caption">
-                      {course.users_count}
-                    </Typography>
-                  </Box>
-                </Box>
-              </Collapse>
-            </ListItemButton>
-          ))}
-      </List>
+                </ListItem>
+              </ListItemButton>
+            ))}
+        </List>
+      )}
+      {(() => {
+        switch (type) {
+          case "ResponseRate":
+            return (
+              <ResponseRateList
+                responseRate={responseRate}
+                handleClick={handleClick}
+                open={open}
+                LinearProgressWithLabel={LinearProgressWithLabel}
+              />
+            );
+          case "EmploymentRate":
+            return (
+              <EmploymentRateList
+                employmentRate={employmentRate}
+                handleClick={handleClick}
+                open={open}
+                LinearProgressWithLabel={LinearProgressWithLabel}
+              />
+            );
+          // case "SalaryTrend":
+          //   return (
+          //     <CourseSalaryTrendList
+          //       courseSalaryTrend={courseSalaryTrend}
+          //       handleClick={handleClick}
+          //     />
+          //   );
+          default:
+            return null;
+        }
+      })()}
     </Box>
   );
 };
