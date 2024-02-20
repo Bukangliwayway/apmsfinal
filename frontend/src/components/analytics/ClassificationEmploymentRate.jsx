@@ -27,7 +27,6 @@ const ClassificationEmploymentRate = ({ solo = false }) => {
     );
   }
 
-
   return (
     <Box height={"100%"}>
       <ResponsiveBar
@@ -60,8 +59,8 @@ const ClassificationEmploymentRate = ({ solo = false }) => {
             key !== "classification_name" && key !== "classification_code"
         )}
         indexBy="classification_code"
-        margin={{ top: 25, right: 120, bottom: 50, left: 90 }}
-        padding={0.025}
+        margin={{ top: 25, right: 200, bottom: 50, left: 90 }}
+        padding={0.1}
         layout={"vertical"}
         groupMode="stacked"
         valueScale={{ type: "linear" }}
