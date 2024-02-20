@@ -527,18 +527,19 @@ async def classification_employment_rate(batch_year: str, course_code: str, cour
     conditional_filters = {}
     if not course_key:
         batch_years = db.query(models.User.batch_year)\
+                        .join(models.Course.user)\
                         .filter(
                             models.User.is_completed == True, func.lower(models.User.role) == 'alumni',
-                            models.User.batch_year == batch_year if batch_year != "All Batch Year" else True 
+                            models.User.batch_year == batch_year if batch_year != "All Batch Year" else True,
+                            models.Course.code.ilike(course_code) if course_code != "Overall" else True 
                         )\
                         .distinct().all()
-        
+        print(batch_years)
         for batch_year_value in batch_years:
             batch_year_int = batch_year_value[0]
             label_name = f"{batch_year_int}"  # Modified label creation
             conditional_filters[batch_year_int] = func.sum(case([(models.User.batch_year == batch_year_int, 1)], else_=0)).label(label_name)
     else:
-        print(course_code)
         courses = db.query(models.Course.code, models.Course.id)\
             .join(models.Course.user)\
             .filter(models.User.is_completed == True, models.User.role.ilike('alumni'), models.User.batch_year == batch_year if batch_year != "All Batch Year" else True, models.Course.code.ilike(course_code) if course_code != "Overall" else True)\
