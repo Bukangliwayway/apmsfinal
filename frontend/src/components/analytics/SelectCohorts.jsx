@@ -2,6 +2,7 @@ import {
   Box,
   Collapse,
   FormControl,
+  IconButton,
   InputLabel,
   LinearProgress,
   List,
@@ -21,6 +22,12 @@ import useAll from "../../hooks/utilities/useAll";
 import useCourseEmploymentRate from "../../hooks/analytics/useCourseEmploymentRate";
 import { EmploymentRateList } from "./EmploymentRateList";
 import { ResponseRateList } from "./ResponseRateList";
+import {
+  CalendarToday,
+  LightMode,
+  LocalLibrary,
+  ModeNight,
+} from "@mui/icons-material";
 
 function LinearProgressWithLabel(props) {
   return (
@@ -55,7 +62,7 @@ const SelectCohorts = ({ type }) => {
       break;
   }
 
-  const { setCohort } = useAll();
+  const { setCohort, cohort } = useAll();
   const [open, setOpen] = useState(0);
 
   const { data: allBatches, isLoading: isLoadingAllBatches } =
@@ -71,22 +78,23 @@ const SelectCohorts = ({ type }) => {
     setSelected((prev) => ({ ...prev, [type]: allBatches?.data[0] }));
     setCohort((prev) => ({
       ...prev,
-      [type]: { batch_year: allBatches?.data[0], course_code: "Overall" },
+      [type]: {
+        batch_year: allBatches?.data[0],
+        course_code: "Overall",
+        course_column: true,
+      },
     }));
-    setOpen((prevState) => {
-      return 1;
-    });
+    setOpen(1);
   }, [allBatches]);
 
   const handleClick = (index, code) => {
-    console.log(index);
     setOpen((prevState) => {
       if (prevState == index) return 0;
       return index;
     });
     setCohort((prev) => ({
       ...prev,
-      [type]: { batch_year: selected[type], course_code: code },
+      [type]: { ...prev[type], course_code: code },
     }));
   };
 
@@ -94,7 +102,11 @@ const SelectCohorts = ({ type }) => {
     setSelected((prev) => ({ ...prev, [type]: event.target.value }));
     setCohort((prev) => ({
       ...prev,
-      [type]: { batch_year: event.target.value, course_code: "Overall" },
+      [type]: {
+        ...prev[type],
+        batch_year: event.target.value,
+        course_code: "Overall",
+      },
     }));
     setOpen((prevState) => {
       return 1;
@@ -109,26 +121,74 @@ const SelectCohorts = ({ type }) => {
     );
   }
 
+  const employmentRateStyles = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-evenly",
+    gap: 1,
+    mt: "0.5rem",
+    mb: "1.5rem",
+  };
+
   return (
     <Box padding={2}>
       <Typography variant={"body2"} sx={{ fontWeight: "800", mb: "1.5rem" }}>
         Overall {message} per Course:
       </Typography>
-      <FormControl sx={{ width: "25ch" }}>
-        <InputLabel>Batch Year</InputLabel>
-        <Select
-          key={selected[type]}
-          value={selected[type]}
-          onChange={handleChange}
-          label="Overall Type"
-        >
-          {allBatches.data.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+      <Box sx={type === "EmploymentRate" && employmentRateStyles}>
+        <FormControl sx={{ width: type == "EmploymentRate" ? "20ch" : "25ch" }}>
+          <InputLabel>Batch Year</InputLabel>
+          <Select
+            key={selected[type]}
+            value={selected[type]}
+            onChange={handleChange}
+            label="Overall Type"
+          >
+            {allBatches.data.map((option) => (
+              <MenuItem key={option} value={option}>
+                {option}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        {type == "EmploymentRate" && (
+          <Box
+            onClick={() =>
+              setCohort((prev) => ({
+                ...prev,
+                [type]: {
+                  ...prev[type], // Preserve existing properties
+                  course_column: !prev[type]?.course_column, // Change only the course_column property
+                },
+              }))
+            }
+            sx={{ cursor: "pointer" }} // Add cursor style to indicate it's clickable
+          >
+            <IconButton
+              color="primary"
+              sx={{
+                display: "flex",
+                width: "4rem",
+                height: "4rem",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
+              {cohort[type]?.course_column ? (
+                <>
+                  <Typography variant={"subtitle2"}>Course</Typography>
+                  <LocalLibrary />
+                </>
+              ) : (
+                <>
+                  <Typography variant={"subtitle2"}>Year</Typography>
+                  <CalendarToday />
+                </>
+              )}
+            </IconButton>
+          </Box>
+        )}
+      </Box>
       {(isLoadingCourseResponseRate || isLoadingCourseEmploymentRate) && (
         <List sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
           {Array(4)

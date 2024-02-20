@@ -11,55 +11,55 @@ const ClassificationEmploymentRate = ({ solo = false }) => {
     isLoading: isLoadingClassificationResponseRate,
   } = useClassificationEmploymentRate(
     cohort["EmploymentRate"]?.batch_year,
-    cohort["EmploymentRate"]?.course_code
+    cohort["EmploymentRate"]?.course_code,
+    cohort["EmploymentRate"]?.course_column
   );
 
-  if (isLoadingClassificationResponseRate) {
+  if (
+    isLoadingClassificationResponseRate ||
+    !classificationResponseRate ||
+    !classificationResponseRate.data
+  ) {
     return (
-      <Box>
+      <Box width={"100%"} height={"100%"}>
         <Skeleton variant="rectangular" width={"100%"} height={"100%"} />
       </Box>
     );
   }
 
-  let top5Classifications = null;
-  // take just the top 5
-  if (!solo) {
-    const batchKeys = classificationResponseRate?.data?.keys;
-    const batchClassifications =
-      classificationResponseRate?.data?.classification;
-    // Summing up batches for each classification
-    const summedClassifications = {};
-    batchClassifications?.forEach((classification, index) => {
-      const classificationSum = Object.keys(classification)
-        .filter((key) => batchKeys.includes(key))
-        .reduce((sum, key) => sum + classification[key], 0);
+  // let top5Classifications = null;
+  // if (!solo) {
+  //   const batchKeys = classificationResponseRate?.data?.keys;
+  //   const batchClassifications =
+  //     classificationResponseRate?.data?.classification;
+  //   // Summing up batches for each classification
+  //   const summedClassifications = {};
+  //   batchClassifications?.forEach((classification, index) => {
+  //     const classificationSum = Object.keys(classification)
+  //       .filter((key) => batchKeys.includes(key))
+  //       .reduce((sum, key) => sum + classification[key], 0);
 
-      summedClassifications[index] = {
-        ...classification,
-        sum: classificationSum,
-      };
-    });
+  //     summedClassifications[index] = {
+  //       ...classification,
+  //       sum: classificationSum,
+  //     };
+  //   });
 
-    // Sorting classifications based on the sum in descending order
-    const sortedClassifications = Object.values(summedClassifications).sort(
-      (a, b) => b.sum - a.sum
-    );
+  //   // Sorting classifications based on the sum in descending order
+  //   const sortedClassifications = Object.values(summedClassifications).sort(
+  //     (a, b) => b.sum - a.sum
+  //   );
 
-    // Taking the top 5 classifications
-    top5Classifications = sortedClassifications.slice(0, 5);
-  }
+  //   // Taking the top 5 classifications
+  //   top5Classifications = sortedClassifications.slice(0, 5);
+  // }
 
   const data_count = classificationResponseRate?.data?.classification?.length;
 
   return (
-    <Box height={solo ? Math.ceil(data_count / 5) * 40 + "vh" : "100%"}>
+    <Box height={"100%"}>
       <ResponsiveBar
-        data={
-          solo
-            ? classificationResponseRate?.data?.classification
-            : top5Classifications
-        }
+        data={classificationResponseRate?.data || {}}
         tooltip={({ index, id, value, color }) => (
           <Box
             style={{
@@ -71,10 +71,7 @@ const ClassificationEmploymentRate = ({ solo = false }) => {
           >
             <Box p={1} width={"1ch"} sx={{ background: color }}></Box>
             <span>
-              {
-                classificationResponseRate?.data?.classification[index]
-                  .classification_name
-              }
+              {classificationResponseRate?.data[index]?.classification_name}
             </span>
             <br />
             <span
@@ -86,7 +83,10 @@ const ClassificationEmploymentRate = ({ solo = false }) => {
             </span>
           </Box>
         )}
-        keys={classificationResponseRate?.data?.keys}
+        keys={Object.keys(classificationResponseRate?.data[0] || {})?.filter(
+          (key) =>
+            key !== "classification_name" && key !== "classification_code"
+        )}
         indexBy="classification_code"
         margin={{ top: 25, right: 120, bottom: 50, left: 90 }}
         padding={0.025}

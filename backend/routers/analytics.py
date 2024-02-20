@@ -522,10 +522,10 @@ async def over_employer_type(batch_year:  str, db: Session = Depends(get_db), us
 
     return course_response_rate
 
-@router.get("/classification_employment_rate/{batch_year}/{course_code}")
-async def classification_employment_rate(batch_year: str, course_code: str, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+@router.get("/classification_employment_rate/{batch_year}/{course_code}/{course_key}")
+async def classification_employment_rate(batch_year: str, course_code: str, course_key: bool, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
     conditional_filters = {}
-    if batch_year == "All Batch Year" or course_code != "default_code":
+    if not course_key:
         batch_years = db.query(models.User.batch_year)\
                         .filter(
                             models.User.is_completed == True, func.lower(models.User.role) == 'alumni',
@@ -538,9 +538,10 @@ async def classification_employment_rate(batch_year: str, course_code: str, db: 
             label_name = f"{batch_year_int}"  # Modified label creation
             conditional_filters[batch_year_int] = func.sum(case([(models.User.batch_year == batch_year_int, 1)], else_=0)).label(label_name)
     else:
+        print(course_code)
         courses = db.query(models.Course.code, models.Course.id)\
             .join(models.Course.user)\
-            .filter(models.User.is_completed == True, models.User.role.ilike('alumni'), models.User.batch_year == batch_year)\
+            .filter(models.User.is_completed == True, models.User.role.ilike('alumni'), models.User.batch_year == batch_year if batch_year != "All Batch Year" else True, models.Course.code.ilike(course_code) if course_code != "Overall" else True)\
             .distinct()
         for course in courses:
             label_name = f"{course.code}"  # Modified label creation
@@ -563,7 +564,7 @@ async def classification_employment_rate(batch_year: str, course_code: str, db: 
             models.User.is_completed == True,
             models.User.batch_year == batch_year if batch_year != "All Batch Year" else True,
             models.User.role.ilike('alumni'),
-            (models.Course.code == course_code) if course_code != "default_code" else True,
+            (models.Course.code == course_code) if course_code != "Overall" else True,
         )
         .group_by(models.Classification.name, models.Classification.code)
         .all()
@@ -613,7 +614,7 @@ async def classification_employment_rate(batch_year: str, course_code: str, db: 
     return {'classification': final_classification_list, 'keys': {f"batch {batch_year}" for batch_year in batch_years}}
 
 @router.get("/salary_trend/{code}/{year}")
-async def salary_trend(code: Optional[str] = "default_code", year: Optional[int] = 0, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+async def salary_trend(code: Optional[str] = "Overall", year: Optional[int] = 0, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
     # Fetching employments and classifications in a single query using joins
     employments_and_classifications = db.query(
         models.Employment.date_hired,
@@ -625,7 +626,7 @@ async def salary_trend(code: Optional[str] = "default_code", year: Optional[int]
         .filter(
         models.User.is_completed == True,
         (models.User.batch_year == year) if year != 0 else True,
-        (models.Course.code == code) if code != "default_code" else True,
+        (models.Course.code == code) if code != "Overall" else True,
         models.User.role.ilike('alumni'),
     )\
         .all()
