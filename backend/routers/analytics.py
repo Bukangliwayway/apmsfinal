@@ -16,7 +16,7 @@ from typing import Annotated, Dict, List, Optional, Union
 from starlette import status
 from backend.schemas import UserResponse
 from backend import models
-from sqlalchemy import not_, and_, func, desc, case, literal_column, distinct, text
+from sqlalchemy import not_, and_, func, desc, case, literal_column, distinct, text, cast, String
 
 
 router = APIRouter()
@@ -562,9 +562,9 @@ async def classification_employment_rate(batch_year: str, course_code: str, cour
         .join(models.Course)
         .filter(
             models.User.is_completed == True,
-            models.User.batch_year == batch_year if batch_year != "All Batch Year" else True,
             models.User.role.ilike('alumni'),
-            (models.Course.code == course_code) if course_code != "Overall" else True,
+            models.User.batch_year == batch_year if batch_year != "All Batch Year" else True,
+            models.Course.code == course_code if course_code != "Overall" else True,
         )
         .group_by(models.Classification.name, models.Classification.code)
         .all()
@@ -572,81 +572,40 @@ async def classification_employment_rate(batch_year: str, course_code: str, cour
     return result
 
 
-    batch_years = db.query(models.User.batch_year)\
-                    .filter(models.User.is_completed == True, func.lower(models.User.role) == 'alumni')\
-                    .distinct().all()
-    batch_years = [batch_year[0] for batch_year in batch_years]
-
-    # Fetching employments and classifications in a single query using joins
-    employments_and_classifications = db.query(models.Employment, models.Classification)\
-                                        .join(models.Employment.user)\
-                                        .join(models.Employment.job)\
-                                        .join(models.Job.classifications)\
-                                        .filter(models.User.is_completed == True, func.lower(models.User.role) == 'alumni')\
-                                        .all()
-
-    # Initializing classification list
-    classification_list = [
-        {
-            "classification_name": classification.name,
-            "classification_code": classification.code,
-            **{f"batch {batch_year}": 0 for batch_year in batch_years}
-        } 
-        for classification in set(classification for employment, classification in employments_and_classifications)
-    ]
-
-    # Counting employments for each classification and batch year
-    for employment, classification in employments_and_classifications:
-        user = employment.user
-        matching_item = next(
-            (item for item in classification_list if item["classification_name"] == classification.name),
-            None
-        )
-        if matching_item:
-            matching_item[f"batch {user.batch_year}"] += 1
-
-    # Filtering out classifications with no employments
-    final_classification_list = [
-        classification for classification in classification_list
-        if any(classification[f"batch {batch_year}"] != 0 for batch_year in batch_years)
-    ]
-
-    return {'classification': final_classification_list, 'keys': {f"batch {batch_year}" for batch_year in batch_years}}
-
-@router.get("/salary_trend/{code}/{year}")
-async def salary_trend(code: Optional[str] = "Overall", year: Optional[int] = 0, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+@router.get("/salary_trend/{batch_year}/{course_code}")
+async def salary_trend(course_code: str, batch_year: str, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
     # Fetching employments and classifications in a single query using joins
     employments_and_classifications = db.query(
         models.Employment.date_hired,
         models.Employment.date_end,
-        models.Employment.gross_monthly_income
+        models.Employment.gross_monthly_income,
     )\
         .join(models.Employment.user)\
         .join(models.User.course)\
         .filter(
         models.User.is_completed == True,
-        (models.User.batch_year == year) if year != 0 else True,
-        (models.Course.code == code) if code != "Overall" else True,
         models.User.role.ilike('alumni'),
+        models.User.batch_year == batch_year if batch_year !=  "All Batch Year" else True,
+        models.Course.code == course_code if course_code != "Overall" else True,
     )\
-        .all()
-    
+    .all()
+
+    income_ranges = set(item[2] for item in employments_and_classifications)
+    print(income_ranges)
+
     if not employments_and_classifications:
         return []
 
     # Find the span of date_hired
     min_date = min(employment.date_hired for employment in employments_and_classifications)
     max_date = max(employment.date_hired for employment in employments_and_classifications)
-
-    # Define the income ranges
-    income_ranges = ["Less than ₱9,100","₱9,100 to ₱18,200" ,"₱18,200 to ₱36,400", "₱36,400 to ₱63,700", "₱63,700 to ₱109,200", "₱109,200 to ₱182,000", "Above ₱182,000"]
-    date_interval = (max_date - min_date) / 10
+    date_interval = (max_date - min_date) / 11
 
     # Initialize a defaultdict to store counts for each income range within each date segment
     income_counts_by_date_segment = defaultdict(lambda: {range: 0 for range in income_ranges})
 
     # Loop through employments_and_classifications and count occurrences
-    for i in range(10 if date_interval.days > 0 else 1):
+    for i in range(12 if date_interval.days > 0 else 1):
         date_segment = min_date + timedelta(days=int((i + 1) * date_interval.days))
         for employment in employments_and_classifications:
             if employment.date_hired > date_segment: continue

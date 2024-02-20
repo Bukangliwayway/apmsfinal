@@ -4,22 +4,30 @@ import { Box, Skeleton } from "@mui/material";
 import useAll from "../../hooks/utilities/useAll";
 
 const SalaryTrend = ({ solo = false }) => {
-  const { mode } = useAll();
+  const { mode, cohort } = useAll();
+
   const {
     data: classificationResponseRate,
     isLoading: isLoadingClassificationResponseRate,
-  } = useSalaryTrend();
+  } = useSalaryTrend(
+    cohort["EmploymentRate"]?.course_code,
+    cohort["EmploymentRate"]?.batch_year,
+  );
 
-  if (isLoadingClassificationResponseRate) {
+  if (
+    isLoadingClassificationResponseRate ||
+    !classificationResponseRate ||
+    !classificationResponseRate.data
+  ) {
     return (
-      <Box>
+      <Box width={"100%"} height={"100%"}>
         <Skeleton variant="rectangular" width={"100%"} height={"100%"} />
       </Box>
     );
   }
 
   return (
-    <Box height={"90vh"}>
+    <Box height={"100%"}>
       <ResponsiveBar
         data={classificationResponseRate?.data}
         tooltip={({ index, id, value, color }) => (
@@ -46,9 +54,9 @@ const SalaryTrend = ({ solo = false }) => {
         )}
         indexBy="date_name"
         margin={{ top: 25, right: 200, bottom: 50, left: 90 }}
-        padding={0}
+        padding={0.1}
         layout={"vertical"}
-        groupMode="grouped"
+        groupMode="stacked"
         valueScale={{ type: "linear" }}
         indexScale={{ type: "band", round: true }}
         colors={{ scheme: "paired" }}

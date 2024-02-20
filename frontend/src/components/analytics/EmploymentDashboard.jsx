@@ -1,8 +1,8 @@
 import { Box, Grid } from "@mui/material";
 import React from "react";
 import ClassificationEmploymentRate from "./ClassificationEmploymentRate";
-import CourseEmploymentRate from "./CourseEmploymentRate";
 import SelectCohorts from "./SelectCohorts";
+import SalaryTrend from "./SalaryTrend";
 
 const EmploymentDashboard = () => {
   return (
@@ -23,11 +23,19 @@ const EmploymentDashboard = () => {
       <Grid item xs={9} p={1} pl={0.5}>
         <Box
           sx={{
-            height: "100%",
+            height: "50%",
             backgroundColor: (theme) => theme.palette.common.main,
           }}
         >
-          <ClassificationEmploymentRate solo={true} />
+          <ClassificationEmploymentRate />
+        </Box>
+        <Box
+          sx={{
+            height: "50%",
+            backgroundColor: (theme) => theme.palette.common.main,
+          }}
+        >
+          <SalaryTrend />
         </Box>
       </Grid>
     </Grid>

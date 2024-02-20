@@ -27,34 +27,6 @@ const ClassificationEmploymentRate = ({ solo = false }) => {
     );
   }
 
-  // let top5Classifications = null;
-  // if (!solo) {
-  //   const batchKeys = classificationResponseRate?.data?.keys;
-  //   const batchClassifications =
-  //     classificationResponseRate?.data?.classification;
-  //   // Summing up batches for each classification
-  //   const summedClassifications = {};
-  //   batchClassifications?.forEach((classification, index) => {
-  //     const classificationSum = Object.keys(classification)
-  //       .filter((key) => batchKeys.includes(key))
-  //       .reduce((sum, key) => sum + classification[key], 0);
-
-  //     summedClassifications[index] = {
-  //       ...classification,
-  //       sum: classificationSum,
-  //     };
-  //   });
-
-  //   // Sorting classifications based on the sum in descending order
-  //   const sortedClassifications = Object.values(summedClassifications).sort(
-  //     (a, b) => b.sum - a.sum
-  //   );
-
-  //   // Taking the top 5 classifications
-  //   top5Classifications = sortedClassifications.slice(0, 5);
-  // }
-
-  const data_count = classificationResponseRate?.data?.classification?.length;
 
   return (
     <Box height={"100%"}>

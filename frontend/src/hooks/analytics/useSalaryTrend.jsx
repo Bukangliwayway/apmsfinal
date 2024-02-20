@@ -1,13 +1,19 @@
 import useAxiosPrivate from "../useAxiosPrivate";
 import { useQuery } from "react-query";
 
-const useSalaryTrend = (code = "default_code", year = 0) => {
+const useSalaryTrend = (
+  course_code,
+  batch_year,
+) => {
   const axiosPrivate = useAxiosPrivate();
   const useSalaryTrend = async () => {
-    return await axiosPrivate.get(`/analytics/salary_trend/${code}/${year}`);
+    return await axiosPrivate.get(
+      `/analytics/salary_trend/${batch_year}/${course_code}`
+    );
   };
-  return useQuery("salary-trend", useSalaryTrend, {
+  return useQuery(["salary-trend", batch_year, course_code], useSalaryTrend, {
     staleTime: Infinity,
+    enabled: !!batch_year && !!course_code,
   });
 };
 
