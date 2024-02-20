@@ -1,14 +1,21 @@
 import useAxiosPrivate from "../useAxiosPrivate";
 import { useQuery } from "react-query";
 
-const useClassificationEmploymentRate = () => {
+const useClassificationEmploymentRate = (batch_year, course_code) => {
   const axiosPrivate = useAxiosPrivate();
-  const useCourse = async () => {
-    return await axiosPrivate.get("/analytics/classification_employment_rate/");
-  };
-  return useQuery("classification-employment-rate", useCourse, {
-    staleTime: Infinity,
-  });
+  const getData = async () => {
+    return await axiosPrivate.get(
+      `/analytics/classification_employment_rate/${batch_year}/${course_code}`
+    )}
+return useQuery(
+    ["classification-employment", batch_year, course_code],
+    () => getData(batch_year, course_code),
+    {
+      enabled: !!batch_year && !!course_code,
+
+      staleTime: Infinity,
+    }
+  );
 };
 
 export default useClassificationEmploymentRate;

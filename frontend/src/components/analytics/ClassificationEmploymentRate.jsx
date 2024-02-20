@@ -5,11 +5,14 @@ import { Box, Skeleton } from "@mui/material";
 import useAll from "../../hooks/utilities/useAll";
 
 const ClassificationEmploymentRate = ({ solo = false }) => {
-  const { mode } = useAll();
+  const { mode, cohort } = useAll();
   const {
     data: classificationResponseRate,
     isLoading: isLoadingClassificationResponseRate,
-  } = useClassificationEmploymentRate();
+  } = useClassificationEmploymentRate(
+    cohort["EmploymentRate"]?.batch_year,
+    cohort["EmploymentRate"]?.course_code
+  );
 
   if (isLoadingClassificationResponseRate) {
     return (
@@ -27,7 +30,7 @@ const ClassificationEmploymentRate = ({ solo = false }) => {
       classificationResponseRate?.data?.classification;
     // Summing up batches for each classification
     const summedClassifications = {};
-    batchClassifications.forEach((classification, index) => {
+    batchClassifications?.forEach((classification, index) => {
       const classificationSum = Object.keys(classification)
         .filter((key) => batchKeys.includes(key))
         .reduce((sum, key) => sum + classification[key], 0);
@@ -47,7 +50,7 @@ const ClassificationEmploymentRate = ({ solo = false }) => {
     top5Classifications = sortedClassifications.slice(0, 5);
   }
 
-  const data_count = classificationResponseRate?.data?.classification.length;
+  const data_count = classificationResponseRate?.data?.classification?.length;
 
   return (
     <Box height={solo ? Math.ceil(data_count / 5) * 40 + "vh" : "100%"}>
@@ -86,9 +89,9 @@ const ClassificationEmploymentRate = ({ solo = false }) => {
         keys={classificationResponseRate?.data?.keys}
         indexBy="classification_code"
         margin={{ top: 25, right: 120, bottom: 50, left: 90 }}
-        padding={0.2}
-        layout={solo ? "horizontal" : "vertical"}
-        groupMode="grouped"
+        padding={0.025}
+        layout={"vertical"}
+        groupMode="stacked"
         valueScale={{ type: "linear" }}
         indexScale={{ type: "band", round: true }}
         colors={{ scheme: "paired" }}

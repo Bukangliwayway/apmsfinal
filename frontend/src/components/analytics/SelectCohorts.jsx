@@ -42,8 +42,6 @@ const SelectCohorts = ({ type }) => {
     SalaryTrend: null,
   });
 
-  type = "EmploymentRate";
-
   let message;
   switch (type) {
     case "ResponseRate":
@@ -73,16 +71,19 @@ const SelectCohorts = ({ type }) => {
     setSelected((prev) => ({ ...prev, [type]: allBatches?.data[0] }));
     setCohort((prev) => ({
       ...prev,
-      [type]: { batch_year: allBatches?.data[0] },
+      [type]: { batch_year: allBatches?.data[0], course_code: "Overall" },
     }));
+    setOpen((prevState) => {
+      return 1;
+    });
   }, [allBatches]);
 
   const handleClick = (index, code) => {
+    console.log(index);
     setOpen((prevState) => {
       if (prevState == index) return 0;
       return index;
     });
-
     setCohort((prev) => ({
       ...prev,
       [type]: { batch_year: selected[type], course_code: code },
@@ -93,8 +94,11 @@ const SelectCohorts = ({ type }) => {
     setSelected((prev) => ({ ...prev, [type]: event.target.value }));
     setCohort((prev) => ({
       ...prev,
-      [type]: { batch_year: event.target.value },
+      [type]: { batch_year: event.target.value, course_code: "Overall" },
     }));
+    setOpen((prevState) => {
+      return 1;
+    });
   };
 
   if (isLoadingAllBatches) {
@@ -125,15 +129,12 @@ const SelectCohorts = ({ type }) => {
           ))}
         </Select>
       </FormControl>
-      {isLoadingCourseResponseRate && (
+      {(isLoadingCourseResponseRate || isLoadingCourseEmploymentRate) && (
         <List sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
           {Array(4)
             .fill(null)
             .map((_, index) => (
-              <ListItemButton
-                onClick={() => {}}
-                sx={{ display: "flex", flexDirection: "column" }}
-              >
+              <ListItemButton sx={{ display: "flex", flexDirection: "column" }}>
                 <ListItem sx={{ display: "flex", padding: 0 }}>
                   <Typography
                     variant={"subtitle1"}
