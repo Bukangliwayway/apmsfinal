@@ -439,6 +439,8 @@ class ESISAnnouncement(Base):
     ProjectId = Column(Integer)
     like = relationship("Like", back_populates="esis_post")
     comment = relationship("Comment", back_populates="esis_post")
+    interested_users = relationship("UserInterestEvent", back_populates="esis_event")
+
 
 class Donation(Base):
     __tablename__ = 'APMSDonation'
@@ -469,12 +471,14 @@ class Fundraising(Post):
 class UserInterestEvent(Base):
     __tablename__ = 'APMSUserInterestEvent'
 
-    user_id = Column('UserId',UUID(as_uuid=True), ForeignKey('APMSUser.id', ondelete="CASCADE"), primary_key=True)
-    event_id = Column('EventId',UUID(as_uuid=True), ForeignKey('APMSEvent.id', ondelete="CASCADE"), primary_key=True)
+    id = Column(UUID(as_uuid=True), ForeignKey('APMSPost.id', ondelete="CASCADE"), primary_key=True)
+    user_id = Column('UserID',UUID(as_uuid=True), ForeignKey('APMSUser.id', ondelete="CASCADE"))
+    event_id = Column('EventID',UUID(as_uuid=True), ForeignKey('APMSEvent.id', ondelete="CASCADE"), nullable=True)
+    esis_id = Column('AnnouncementID', Integer, ForeignKey('ESISAnnouncement.AnnouncementId', ondelete="CASCADE"), nullable=True)
 
     user = relationship("User", back_populates="interests_in_events")
     event = relationship("Event", back_populates="interested_users")
-
+    esis_event = relationship("ESISAnnouncement", back_populates="interested_users")
 
 class ClassSubject(Base):
     __tablename__ = 'SPSClassSubject'
