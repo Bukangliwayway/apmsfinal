@@ -522,8 +522,8 @@ async def over_employer_type(batch_year:  str, db: Session = Depends(get_db), us
 
     return course_response_rate
 
-@router.get("/classification_employment_rate/{batch_year}/{course_code}/{course_key}")
-async def classification_employment_rate(batch_year: str, course_code: str, course_key: bool, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+@router.get("/classification_employment_rate/")
+async def classification_employment_rate(batch_year: str, course_code: str, course_key: bool, date_start: date, date_end: date, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
     conditional_filters = {}
     if not course_key:
         batch_years = db.query(models.User.batch_year)\
@@ -562,6 +562,8 @@ async def classification_employment_rate(batch_year: str, course_code: str, cour
         .join(models.User)
         .join(models.Course)
         .filter(
+            models.Employment.date_hired >= date_start if date_start else True,
+            models.Employment.date_hired <= date_end if date_end else True,
             models.User.is_completed == True,
             models.User.role.ilike('alumni'),
             models.User.batch_year == batch_year if batch_year != "All Batch Year" else True,
@@ -573,8 +575,8 @@ async def classification_employment_rate(batch_year: str, course_code: str, cour
     return result
 
 
-@router.get("/salary_trend/{batch_year}/{course_code}")
-async def salary_trend(course_code: str, batch_year: str, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+@router.get("/salary_trend/")
+async def salary_trend(course_code: str, batch_year: str, date_start: date, date_end: date, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
     # Fetching employments and classifications in a single query using joins
     employments_and_classifications = db.query(
         models.Employment.date_hired,
@@ -584,6 +586,8 @@ async def salary_trend(course_code: str, batch_year: str, db: Session = Depends(
         .join(models.Employment.user)\
         .join(models.User.course)\
         .filter(
+        models.Employment.date_hired >= date_start if date_start else True,
+        models.Employment.date_hired <= date_end if date_end else True,
         models.User.is_completed == True,
         models.User.role.ilike('alumni'),
         models.User.batch_year == batch_year if batch_year !=  "All Batch Year" else True,
@@ -592,7 +596,18 @@ async def salary_trend(course_code: str, batch_year: str, db: Session = Depends(
     .all()
 
     income_ranges = set(item[2] for item in employments_and_classifications)
-    print(income_ranges)
+    sorting_order = {
+        'Less than ₱9,100': 0,
+        '₱9,100 to ₱18,200': 1,
+        '₱18,200 to ₱36,400': 2,
+        '₱36,400 to ₱63,700': 3,
+        '₱63,700 to ₱109,200': 4,
+        '₱109,200 to ₱182,000': 5,
+        'Above ₱182,000': 6
+    }
+
+    # Sort the income_ranges using a lambda function
+    sorted_income_ranges = sorted(income_ranges, key=lambda x: sorting_order.get(x, float('inf')))
 
     if not employments_and_classifications:
         return []
@@ -600,14 +615,21 @@ async def salary_trend(course_code: str, batch_year: str, db: Session = Depends(
     # Find the span of date_hired
     min_date = min(employment.date_hired for employment in employments_and_classifications)
     max_date = max(employment.date_hired for employment in employments_and_classifications)
-    date_interval = (max_date - min_date) / 11
+    max_end_date = max(
+        (employment.date_end if employment.date_end is not None else date.min) 
+        for employment in employments_and_classifications
+    )
+    max_final = max(max_end_date if max_end_date is not None else date.min, max_date)
+    date_interval = (max_final - min_date) / 12
 
     # Initialize a defaultdict to store counts for each income range within each date segment
-    income_counts_by_date_segment = defaultdict(lambda: {range: 0 for range in income_ranges})
+    income_counts_by_date_segment = defaultdict(lambda: {range: 0 for range in sorted_income_ranges})
 
     # Loop through employments_and_classifications and count occurrences
     for i in range(12 if date_interval.days > 0 else 1):
         date_segment = min_date + timedelta(days=int((i + 1) * date_interval.days))
+        if date_segment >= date_end if date_end else True:
+            date_segment = date_end
         for employment in employments_and_classifications:
             if employment.date_hired > date_segment: continue
             if employment.date_end and employment.date_end < date_segment: continue

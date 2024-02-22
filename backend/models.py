@@ -86,6 +86,7 @@ class User(Base):
     like = relationship("Like", back_populates="liker")
     comment = relationship("Comment", back_populates="commenter")
 
+
 class RISUsers(Base):
     __tablename__ = 'RISUsers'
 
@@ -475,10 +476,9 @@ class UserInterestEvent(Base):
     user_id = Column('UserID',UUID(as_uuid=True), ForeignKey('APMSUser.id', ondelete="CASCADE"))
     event_id = Column('EventID',UUID(as_uuid=True), ForeignKey('APMSEvent.id', ondelete="CASCADE"), nullable=True)
     esis_id = Column('AnnouncementID', Integer, ForeignKey('ESISAnnouncement.AnnouncementId', ondelete="CASCADE"), nullable=True)
-
-    user = relationship("User", back_populates="interests_in_events")
-    event = relationship("Event", back_populates="interested_users")
-    esis_event = relationship("ESISAnnouncement", back_populates="interested_users")
+    user = relationship("User", back_populates="interests_in_events", primaryjoin="UserInterestEvent.user_id == User.id")
+    event = relationship("Event", back_populates="interested_users", primaryjoin="UserInterestEvent.event_id == Event.id")
+    esis_event = relationship("ESISAnnouncement", back_populates="interested_users", primaryjoin="UserInterestEvent.esis_id == ESISAnnouncement.AnnouncementId")
 
 class ClassSubject(Base):
     __tablename__ = 'SPSClassSubject'

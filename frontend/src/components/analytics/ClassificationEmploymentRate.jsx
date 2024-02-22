@@ -1,10 +1,10 @@
 import { ResponsiveBar } from "@nivo/bar";
 import mockdatabar from "../mockdata/mockdatabar";
 import useClassificationEmploymentRate from "../../hooks/analytics/useClassificationEmploymentRate";
-import { Box, Skeleton } from "@mui/material";
+import { Box, Skeleton, Typography } from "@mui/material";
 import useAll from "../../hooks/utilities/useAll";
 
-const ClassificationEmploymentRate = ({ solo = false }) => {
+const ClassificationEmploymentRate = () => {
   const { mode, cohort } = useAll();
   const {
     data: classificationResponseRate,
@@ -12,17 +12,30 @@ const ClassificationEmploymentRate = ({ solo = false }) => {
   } = useClassificationEmploymentRate(
     cohort["EmploymentRate"]?.batch_year,
     cohort["EmploymentRate"]?.course_code,
-    cohort["EmploymentRate"]?.course_column
+    cohort["EmploymentRate"]?.course_column,
+    cohort["EmploymentRate"]?.start_date,
+    cohort["EmploymentRate"]?.end_date
   );
 
-  if (
-    isLoadingClassificationResponseRate ||
-    !classificationResponseRate ||
-    !classificationResponseRate.data
-  ) {
+  if (isLoadingClassificationResponseRate || !classificationResponseRate) {
     return (
       <Box width={"100%"} height={"100%"}>
         <Skeleton variant="rectangular" width={"100%"} height={"100%"} />
+      </Box>
+    );
+  }
+
+  if (classificationResponseRate?.data?.length == 0) {
+    return (
+      <Box
+        height={"100%"}
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Typography variant="h4"> Sorry. There are no data to show</Typography>
       </Box>
     );
   }

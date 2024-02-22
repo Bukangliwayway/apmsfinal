@@ -28,6 +28,8 @@ import {
   LocalLibrary,
   ModeNight,
 } from "@mui/icons-material";
+import { DatePicker } from "@mui/x-date-pickers";
+import dayjs from "dayjs";
 
 function LinearProgressWithLabel(props) {
   return (
@@ -74,6 +76,8 @@ const SelectCohorts = ({ type }) => {
   const { data: employmentRate, isLoading: isLoadingCourseEmploymentRate } =
     useCourseEmploymentRate(selected["EmploymentRate"]);
 
+  console.log(cohort);
+
   useEffect(() => {
     setSelected((prev) => ({ ...prev, [type]: allBatches?.data[0] }));
     setCohort((prev) => ({
@@ -82,6 +86,8 @@ const SelectCohorts = ({ type }) => {
         batch_year: allBatches?.data[0],
         course_code: "Overall",
         course_column: true,
+        start_date: new Date(0),
+        end_date: new Date(),
       },
     }));
     setOpen(1);
@@ -108,9 +114,7 @@ const SelectCohorts = ({ type }) => {
         course_code: "Overall",
       },
     }));
-    setOpen((prevState) => {
-      return 1;
-    });
+    setOpen(1);
   };
 
   if (isLoadingAllBatches) {
@@ -126,16 +130,18 @@ const SelectCohorts = ({ type }) => {
     alignItems: "center",
     justifyContent: "space-evenly",
     gap: 1,
-    mt: "0.5rem",
-    mb: "1.5rem",
   };
 
   return (
-    <Box padding={2}>
-      <Typography variant={"body2"} sx={{ fontWeight: "800", mb: "1.5rem" }}>
+    <Box padding={2} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <Typography variant={"body2"} sx={{ fontWeight: "800", mb: "1rem" }}>
         Overall {message} per Course:
       </Typography>
-      <Box sx={type === "EmploymentRate" && employmentRateStyles}>
+      <Box
+        sx={{
+          ...(type === "EmploymentRate" && employmentRateStyles),
+        }}
+      >
         <FormControl sx={{ width: type == "EmploymentRate" ? "20ch" : "25ch" }}>
           <InputLabel>Batch Year</InputLabel>
           <Select
@@ -189,6 +195,50 @@ const SelectCohorts = ({ type }) => {
           </Box>
         )}
       </Box>
+      {type == "EmploymentRate" && (
+        <Box sx={{ display: "flex", gap: 1, flexDirection: "column" }}>
+          <Typography variant="subtitle1">Date Range</Typography>
+          <Box sx={{ display: "flex", gap: 2 }}>
+            <DatePicker
+              name="start_date"
+              label="Start Date"
+              value={
+                cohort[type]?.start_date
+                  ? dayjs(cohort[type]?.start_date)
+                  : null
+              }
+              onChange={(date) => {
+                setCohort((prev) => ({
+                  ...prev,
+                  [type]: {
+                    ...prev[type],
+                    start_date: date,
+                  },
+                }));
+              }}
+              renderInput={(params) => <TextField {...params} required />}
+            />
+            <DatePicker
+              name="end_date"
+              label="End Date"
+              value={
+                cohort[type]?.end_date ? dayjs(cohort[type]?.end_date) : null
+              }
+              onChange={(date) => {
+                setCohort((prev) => ({
+                  ...prev,
+                  [type]: {
+                    ...prev[type],
+                    end_date: date,
+                  },
+                }));
+              }}
+              renderInput={(params) => <TextField {...params} required />}
+            />
+          </Box>
+        </Box>
+      )}
+
       {(isLoadingCourseResponseRate || isLoadingCourseEmploymentRate) && (
         <List sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
           {Array(4)
