@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Collapse,
   FormControl,
   IconButton,
@@ -27,6 +28,7 @@ import {
   LightMode,
   LocalLibrary,
   ModeNight,
+  Search,
 } from "@mui/icons-material";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
@@ -63,6 +65,11 @@ const SelectCohorts = ({ type }) => {
       message = "Salary Trend";
       break;
   }
+
+  const [dateRange, setDateRange] = useState({
+    start_date: new Date(0),
+    end_date: new Date(),
+  });
 
   const { setCohort, cohort } = useAll();
   const [open, setOpen] = useState(0);
@@ -133,7 +140,7 @@ const SelectCohorts = ({ type }) => {
   };
 
   return (
-    <Box padding={2} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+    <Box padding={2} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
       <Typography variant={"body2"} sx={{ fontWeight: "800", mb: "1rem" }}>
         Overall {message} per Course:
       </Typography>
@@ -197,23 +204,17 @@ const SelectCohorts = ({ type }) => {
       </Box>
       {type == "EmploymentRate" && (
         <Box sx={{ display: "flex", gap: 1, flexDirection: "column" }}>
-          <Typography variant="subtitle1">Date Range</Typography>
           <Box sx={{ display: "flex", gap: 2 }}>
             <DatePicker
               name="start_date"
               label="Start Date"
               value={
-                cohort[type]?.start_date
-                  ? dayjs(cohort[type]?.start_date)
-                  : null
+                dateRange?.start_date ? dayjs(dateRange?.start_date) : null
               }
               onChange={(date) => {
-                setCohort((prev) => ({
+                setDateRange((prev) => ({
                   ...prev,
-                  [type]: {
-                    ...prev[type],
-                    start_date: date,
-                  },
+                  start_date: date,
                 }));
               }}
               renderInput={(params) => <TextField {...params} required />}
@@ -225,17 +226,30 @@ const SelectCohorts = ({ type }) => {
                 cohort[type]?.end_date ? dayjs(cohort[type]?.end_date) : null
               }
               onChange={(date) => {
-                setCohort((prev) => ({
+                setDateRange((prev) => ({
                   ...prev,
-                  [type]: {
-                    ...prev[type],
-                    end_date: date,
-                  },
+                  end_date: date,
                 }));
               }}
               renderInput={(params) => <TextField {...params} required />}
             />
           </Box>
+          <Button
+            variant="contained"
+            startIcon={<Search />}
+            onClick={(date) => {
+              setCohort((prev) => ({
+                ...prev,
+                [type]: {
+                  ...prev[type],
+                  start_date: dateRange.start_date,
+                  end_date: dateRange.end_date,
+                },
+              }));
+            }}
+          >
+            Search Range
+          </Button>
         </Box>
       )}
 

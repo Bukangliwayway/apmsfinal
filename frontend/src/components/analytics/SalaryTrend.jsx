@@ -61,7 +61,7 @@ const SalaryTrend = ({ solo = false }) => {
           (key) => key !== "date_name"
         )}
         indexBy="date_name"
-        margin={{ top: 25, right: 200, bottom: 50, left: 90 }}
+        margin={{ top: 25, right: 20, bottom: 50, left: 90 }}
         padding={0.1}
         layout={"vertical"}
         groupMode="stacked"
@@ -112,9 +112,9 @@ const SalaryTrend = ({ solo = false }) => {
           tickSize: 5,
           tickPadding: 5,
           tickRotation: 0,
-          legend: "Active Employment Count",
+          legend: "Employment Count",
           legendPosition: "middle",
-          legendOffset: -60,
+          legendOffset: -40,
           truncateTickAt: 0,
         }}
         enableGridY={false}
@@ -128,10 +128,10 @@ const SalaryTrend = ({ solo = false }) => {
         legends={[
           {
             dataFrom: "keys",
-            anchor: "top-right",
+            anchor: "top-left",
             direction: "column",
             justify: false,
-            translateX: 120,
+            translateX: 0,
             translateY: 0,
             itemWidth: 100,
             itemHeight: 20,

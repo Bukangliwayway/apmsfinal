@@ -574,7 +574,6 @@ async def classification_employment_rate(batch_year: str, course_code: str, cour
     )
     return result
 
-
 @router.get("/salary_trend/")
 async def salary_trend(course_code: str, batch_year: str, date_start: date, date_end: date, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
     # Fetching employments and classifications in a single query using joins
@@ -648,6 +647,74 @@ async def salary_trend(course_code: str, batch_year: str, date_start: date, date
     # Return the result
     return result
 
+@router.get("/work_alignment/")
+async def work_alignment(course_code: str, batch_year: str, date_start: date, date_end: date, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    # Fetching employments and classifications in a single query using joins
+    work_alignment = db.query(
+        models.Employment.date_hired,
+        models.Employment.date_end,
+        models.Employment.aligned_with_academic_program,
+    )\
+        .join(models.Employment.user)\
+        .join(models.User.course)\
+        .filter(
+        models.Employment.date_hired >= date_start if date_start else True,
+        models.Employment.date_hired <= date_end if date_end else True,
+        models.User.is_completed == True,
+        models.User.role.ilike('alumni'),
+        models.User.batch_year == batch_year if batch_year !=  "All Batch Year" else True,
+        models.Course.code == course_code if course_code != "Overall" else True,
+    )\
+    .all()
+
+    if not work_alignment:
+        return []
+
+    # Find the span of date_hired
+    min_date = min(employment.date_hired for employment in work_alignment)
+    max_date = max(employment.date_hired for employment in work_alignment)
+    max_end_date = max(
+        (employment.date_end if employment.date_end is not None else date.min) 
+        for employment in work_alignment
+    )
+    max_final = max(max_end_date if max_end_date is not None else date.min, max_date)
+    date_interval = (max_final - min_date) / 12
+
+       # Initialize dictionaries to store counts for each date segment
+    aligned_employment_counts = defaultdict(int)
+    total_employment_counts = defaultdict(int)
+
+    # Loop through work_alignment and count occurrences
+    for i in range(12 if date_interval.days >  0 else  1):
+        date_segment = min_date + timedelta(days=int((i +  1) * date_interval.days))
+        if date_segment >= date_end if date_end else True:
+            date_segment = date_end
+        for employment in work_alignment:
+            total_employment_counts[date_segment.strftime("%m/%Y")] 
+            aligned_employment_counts[date_segment.strftime("%m/%Y")]
+            if employment.date_hired > date_segment: continue
+            if employment.date_end and employment.date_end < date_segment: continue
+            total_employment_counts[date_segment.strftime("%m/%Y")] +=  1
+            if employment.aligned_with_academic_program:
+                aligned_employment_counts[date_segment.strftime("%m/%Y")] +=  1
+
+    # Structure the data into the desired format
+    aligned_data = [{"x": key, "y": value} for key, value in aligned_employment_counts.items()]
+    total_data = [{"x": key, "y": value} for key, value in total_employment_counts.items()]
+
+    result = [
+        {
+            "id": "Aligned Employment",
+            "data": aligned_data
+        },
+        {
+            "id": "Total Employment",
+            "data": total_data
+        }
+    ]
+
+    # Return the result
+    return result
 
 @router.get("/employment_count_over_time/")
 async def employment_count_over_time(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):

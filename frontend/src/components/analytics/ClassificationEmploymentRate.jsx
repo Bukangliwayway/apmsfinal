@@ -72,7 +72,7 @@ const ClassificationEmploymentRate = () => {
             key !== "classification_name" && key !== "classification_code"
         )}
         indexBy="classification_code"
-        margin={{ top: 25, right: 200, bottom: 50, left: 90 }}
+        margin={{ top: 50, right: 20, bottom: 50, left: 50 }}
         padding={0.1}
         layout={"vertical"}
         groupMode="stacked"
@@ -125,7 +125,7 @@ const ClassificationEmploymentRate = () => {
           tickRotation: 0,
           legend: "Employment Count",
           legendPosition: "middle",
-          legendOffset: -60,
+          legendOffset: -40,
           truncateTickAt: 0,
         }}
         enableGridY={false}
@@ -139,10 +139,10 @@ const ClassificationEmploymentRate = () => {
         legends={[
           {
             dataFrom: "keys",
-            anchor: "top-right",
+            anchor: "top-left",
             direction: "column",
             justify: false,
-            translateX: 120,
+            translateX: 10,
             translateY: 0,
             itemWidth: 100,
             itemHeight: 20,

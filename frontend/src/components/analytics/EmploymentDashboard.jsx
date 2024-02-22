@@ -1,8 +1,9 @@
-import { Box, Grid } from "@mui/material";
+import { Box, Grid, Stack } from "@mui/material";
 import React from "react";
 import ClassificationEmploymentRate from "./ClassificationEmploymentRate";
 import SelectCohorts from "./SelectCohorts";
 import SalaryTrend from "./SalaryTrend";
+import WorkAlignmentLine from "./WorkAlignmentLine";
 
 const EmploymentDashboard = () => {
   return (
@@ -27,16 +28,22 @@ const EmploymentDashboard = () => {
             backgroundColor: (theme) => theme.palette.common.main,
           }}
         >
-          <ClassificationEmploymentRate />
+          <WorkAlignmentLine />
         </Box>
-        <Box
+        <Stack
+          direction="row"
           sx={{
             height: "50%",
             backgroundColor: (theme) => theme.palette.common.main,
           }}
         >
-          <SalaryTrend />
-        </Box>
+          <Box sx={{ width: "50%" }}>
+            <SalaryTrend />
+          </Box>
+          <Box sx={{ width: "50%" }}>
+            <ClassificationEmploymentRate />
+          </Box>
+        </Stack>
       </Grid>
     </Grid>
   );
