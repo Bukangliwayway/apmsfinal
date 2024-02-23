@@ -10,25 +10,56 @@ import useOverallEmploymentContract from "../../hooks/analytics/useOverallEmploy
 import useOverallEmployerType from "../../hooks/analytics/useOverallEmployerType";
 import useOverallCivilStatus from "../../hooks/analytics/useOverallCivilStatus";
 
-const AlumniResponseRate = ({ solo = false, type = "response rate" }) => {
+const OverallPie = ({ solo = false, type }) => {
+  const { mode, cohort } = useAll();
+
   const dataMap = {
-    "response rate": useOverallResponseRate(),
-    "employment status": useOverallEmploymentStatus(),
-    gender: useOverallGender(),
-    "civil status": useOverallCivilStatus(),
-    "monthly income": useOverallMonthlyIncome(),
-    "employment contract": useOverallEmploymentContract(),
-    "employer type": useOverallEmployerType(),
+    "response rate": useOverallResponseRate(type == "response rate"),
+    "employment status": useOverallEmploymentStatus(
+      type == "employment status"
+    ),
+    gender: useOverallGender(type == "gender"),
+    "civil status": useOverallCivilStatus(type == "civil status"),
+    "monthly income": useOverallMonthlyIncome(
+      type == "monthly income",
+      cohort["EmploymentRate"]?.course_code,
+      cohort["EmploymentRate"]?.batch_year,
+      cohort["EmploymentRate"]?.start_date,
+      cohort["EmploymentRate"]?.end_date
+    ),
+    "employment contract": useOverallEmploymentContract(
+      type == "employment contract",
+      cohort["EmploymentRate"]?.course_code,
+      cohort["EmploymentRate"]?.batch_year,
+      cohort["EmploymentRate"]?.start_date,
+      cohort["EmploymentRate"]?.end_date
+    ),
+    "employer type": useOverallEmployerType(
+      type == "employer type",
+      cohort["EmploymentRate"]?.course_code,
+      cohort["EmploymentRate"]?.batch_year,
+      cohort["EmploymentRate"]?.start_date,
+      cohort["EmploymentRate"]?.end_date
+    ),
   };
 
   const { data, isLoading } = dataMap[type];
 
-  const { mode } = useAll();
-
-  if (isLoading) {
+  if (isLoading || !data) {
     return (
-      <Box>
+      <Box width={"100%"} height={"100%"}>
         <Skeleton variant="rectangular" width={"100%"} height={"100%"} />
+      </Box>
+    );
+  }
+
+  if (data?.data?.length == 0) {
+    return (
+      <Box
+        height={"100%"}
+        sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
+      >
+        <Typography variant="h4"> Sorry. There are no data to show</Typography>
       </Box>
     );
   }
@@ -160,4 +191,4 @@ const AlumniResponseRate = ({ solo = false, type = "response rate" }) => {
   );
 };
 
-export default AlumniResponseRate;
+export default OverallPie;

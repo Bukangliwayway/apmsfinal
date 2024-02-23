@@ -102,10 +102,10 @@ const SalaryTrend = ({ solo = false }) => {
         axisBottom={{
           tickSize: 5,
           tickPadding: 5,
-          tickRotation: 0,
+          tickRotation: -20,
           legend: "Salary Trend",
           legendPosition: "middle",
-          legendOffset: 32,
+          legendOffset: 35,
           truncateTickAt: 0,
         }}
         axisLeft={{

@@ -68,71 +68,6 @@ async def over_response_rate(db: Session = Depends(get_db), user: UserResponse =
   response_data['responses'] = [item for item in response_data['responses'] if item['value'] > 0]
 
   return response_data
-
-@router.get("/overall/monthly_income/")
-async def over_monthly_income(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
-    query = db.query(
-        func.count(case([(and_(
-            models.Employment.gross_monthly_income.ilike('less than ₱9,100'),
-            models.User.role.ilike('alumni'),
-            models.User.is_completed,
-            models.User.id == models.Employment.user_id
-        ), 1)])).label('Less than ₱9,100'),
-
-        func.count(case([(and_(
-            models.Employment.gross_monthly_income.ilike('₱9,100 to ₱18,200'),
-            models.User.role.ilike('alumni'),
-            models.User.is_completed,
-            models.User.id == models.Employment.user_id
-        ), 1)])).label('₱9,100 to ₱18,200'),
-
-        func.count(case([(and_(
-            models.Employment.gross_monthly_income.ilike('₱18,200 to ₱36,400'),
-            models.User.role.ilike('alumni'),
-            models.User.is_completed,
-            models.User.id == models.Employment.user_id
-        ), 1)])).label('₱18,200 to ₱36,400'),
-
-        func.count(case([(and_(
-            models.Employment.gross_monthly_income.ilike('₱36,400 to ₱63,700'),
-            models.User.role.ilike('alumni'),
-            models.User.is_completed,
-            models.User.id == models.Employment.user_id
-        ), 1)])).label('₱36,400 to ₱63,700'),
-
-        func.count(case([(and_(
-            models.Employment.gross_monthly_income.ilike('₱63,700 to ₱109,200'),
-            models.User.role.ilike('alumni'),
-            models.User.is_completed,
-            models.User.id == models.Employment.user_id
-        ), 1)])).label('₱63,700 to ₱109,200'),
-
-        func.count(case([(and_(
-            models.Employment.gross_monthly_income.ilike('₱109,200 to ₱182,000'),
-            models.User.role.ilike('alumni'),
-            models.User.is_completed,
-            models.User.id == models.Employment.user_id
-        ), 1)])).label('₱109,200 to ₱182,000'),
-
-        func.count(case([(and_(
-            models.Employment.gross_monthly_income.ilike('above ₱182,000'),
-            models.User.role.ilike('alumni'),
-            models.User.is_completed,
-            models.User.id == models.Employment.user_id
-        ), 1)])).label('Above ₱182,000')
-    )
-
-    results = query.one()
-
-    response_data = {
-        'responses': [
-            {'id': key, 'label': key, 'value': value}
-            for key, value in results._asdict().items()
-            if value > 0
-        ]
-    }
-
-    return response_data
 @router.get("/overall/gender/")
 async def overall_gender(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
     query = db.query(
@@ -166,7 +101,6 @@ async def overall_gender(db: Session = Depends(get_db), user: UserResponse = Dep
     }
 
     return response_data
-
 @router.get("/overall/civil_status/")
 async def overall_civil_status(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
     query = db.query(
@@ -203,7 +137,6 @@ async def overall_civil_status(db: Session = Depends(get_db), user: UserResponse
     }
 
     return response_data
-
 @router.get("/overall/employment_status/")
 async def overall_employment_status(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
     query = db.query(
@@ -250,52 +183,58 @@ async def overall_employment_status(db: Session = Depends(get_db), user: UserRes
 
     return response_data
 
+@router.get("/overall/monthly_income/")
+async def over_monthly_income(batch_year: str, course_code: str, date_start: date, date_end: date, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    results = db.query(
+        func.count(case([(models.Employment.gross_monthly_income.ilike('less than ₱9,100'), 1)])).label('Less than ₱9,100'),
+        func.count(case([(models.Employment.gross_monthly_income.ilike('₱9,100 to ₱18,200'), 1)])).label('₱9,100 to ₱18,200'),
+        func.count(case([(models.Employment.gross_monthly_income.ilike('₱18,200 to ₱36,400'), 1)])).label('₱18,200 to ₱36,400'),
+        func.count(case([(models.Employment.gross_monthly_income.ilike('₱36,400 to ₱63,700'), 1)])).label('₱36,400 to ₱63,700'),
+        func.count(case([(models.Employment.gross_monthly_income.ilike('₱63,700 to ₱109,200'), 1)])).label('₱63,700 to ₱109,200'),
+        func.count(case([(models.Employment.gross_monthly_income.ilike('₱109,200 to ₱182,000'), 1)])).label('₱109,200 to ₱182,000'),
+        func.count(case([(models.Employment.gross_monthly_income.ilike('above ₱182,000'), 1)])).label('Above ₱182,000')
+    )\
+    .join(models.Employment.user)\
+    .join(models.User.course)\
+    .filter(
+        models.Employment.date_hired >= date_start if date_start else True,
+        models.Employment.date_hired <= date_end if date_end else True,
+        models.User.is_completed == True,
+        models.User.role.ilike('alumni'),
+        models.Course.code.ilike(course_code) if course_code != "Overall" else True,
+        models.User.batch_year == batch_year if batch_year !=  "All Batch Year" else True,
+    ).one()
+
+    response_data = {
+        'responses': [
+            {'id': key, 'label': key, 'value': value}
+            for key, value in results._asdict().items()
+            if value > 0
+        ]
+    }
+
+    return response_data
+
 @router.get("/overall/employment_contract/")
-async def over_employment_contract(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
-    query = db.query(
-        func.count(case([(and_(
-            models.Employment.employment_contract.ilike('regular'),
+async def over_employment_contract(batch_year: str, course_code: str, date_start: date, date_end: date, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+
+    results = db.query(
+        func.count(case([(models.Employment.employment_contract.ilike('regular'), 1)])).label('Regular'),
+        func.count(case([(models.Employment.employment_contract.ilike('casual'), 1)])).label('Casual'),
+        func.count(case([(models.Employment.employment_contract.ilike('project'), 1)])).label('Project'),
+        func.count(case([(models.Employment.employment_contract.ilike('seasonal'), 1)])).label('Seasonal'),
+        func.count(case([(models.Employment.employment_contract.ilike('fixed-term'), 1)])).label('Fixed-term'),
+        func.count(case([(models.Employment.employment_contract.ilike('probationary'), 1)])).label('Probationary'))\
+        .join(models.Employment.user)\
+        .join(models.User.course)\
+        .filter(
+            models.Employment.date_hired >= date_start if date_start else True,
+            models.Employment.date_hired <= date_end if date_end else True,
+            models.User.is_completed == True,
             models.User.role.ilike('alumni'),
-            models.User.is_completed,
-            models.User.id == models.Employment.user_id
-        ), 1)])).label('Regular'),
-
-        func.count(case([(and_(
-            models.Employment.employment_contract.ilike('casual'),
-            models.User.role.ilike('alumni'), 
-            models.User.is_completed,
-            models.User.id == models.Employment.user_id
-        ), 1)])).label('Casual'),
-
-        func.count(case([(and_(
-            models.Employment.employment_contract.ilike('project'),
-            models.User.role.ilike('alumni'), 
-            models.User.is_completed,
-            models.User.id == models.Employment.user_id
-        ), 1)])).label('Project'),
-
-        func.count(case([(and_(
-            models.Employment.employment_contract.ilike('seasonal'),
-            models.User.role.ilike('alumni'),
-            models.User.is_completed,
-            models.User.id == models.Employment.user_id
-        ), 1)])).label('Seasonal'),
-
-        func.count(case([(and_(
-            models.Employment.employment_contract.ilike('fixed-term'),
-            models.User.role.ilike('alumni'), 
-            models.User.is_completed,
-            models.User.id == models.Employment.user_id
-        ), 1)])).label('Fixed-term'),
-
-        func.count(case([(and_(
-            models.Employment.employment_contract.ilike('probationary'),
-            models.User.role.ilike('alumni'),
-            models.User.is_completed
-        ), 1)])).label('Probationary')
-    )
-
-    results = query.one()
+            models.Course.code.ilike(course_code) if course_code != "Overall" else True,
+            models.User.batch_year == batch_year if batch_year != "All Batch Year" else True,
+        ).one()
 
     response_data = {
         'responses': [
@@ -308,38 +247,23 @@ async def over_employment_contract(db: Session = Depends(get_db), user: UserResp
     return response_data
 
 @router.get("/overall/employer_type/")
-async def over_employer_type(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
-    query = db.query(
-        func.count(case([(and_(
-            models.Employment.employer_type.ilike('public / government'),
-            models.User.role.ilike('alumni'),
-            models.User.is_completed,
-            models.User.id == models.Employment.user_id
-        ), 1)])).label('Public / Government'),
-
-        func.count(case([(and_(
-            models.Employment.employer_type.ilike('private sector'),
-            models.User.role.ilike('alumni'), 
-            models.User.is_completed,
-            models.User.id == models.Employment.user_id
-        ), 1)])).label('Private Sector'),
-
-        func.count(case([(and_(
-            models.Employment.employer_type.ilike('non-profit / third sector'),
-            models.User.role.ilike('alumni'),
-            models.User.is_completed,
-            models.User.id == models.Employment.user_id
-        ), 1)])).label('Non-profit / Third sector'),
-
-        func.count(case([(and_(
-            models.Employment.employer_type.ilike('self-employed / independent'),
-            models.User.role.ilike('alumni'),
-            models.User.is_completed,
-            models.User.id == models.Employment.user_id
-        ), 1)])).label('Self-Employed / Independent')
-    )
-
-    results = query.one()
+async def over_employer_type(batch_year: str, course_code: str, date_start: date, date_end: date, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    results = db.query(
+        func.count(case([(models.Employment.employer_type.ilike('public / government'), 1)])).label('Public / Government'),
+        func.count(case([(models.Employment.employer_type.ilike('private sector'), 1)])).label('Private Sector'),
+        func.count(case([(models.Employment.employer_type.ilike('non-profit / third sector'), 1)])).label('Non-profit / Third sector'),
+        func.count(case([(models.Employment.employer_type.ilike('self-employed / independent'), 1)])).label('Self-Employed / Independent')
+    )\
+        .join(models.Employment.user)\
+        .join(models.User.course)\
+        .filter(
+                models.Employment.date_hired >= date_start if date_start else True,
+                models.Employment.date_hired <= date_end if date_end else True,
+                models.User.is_completed == True,
+                models.User.role.ilike('alumni'),
+                models.Course.code.ilike(course_code) if course_code != "Overall" else True,
+                models.User.batch_year == batch_year if batch_year != "All Batch Year" else True,
+        ).one()
     
     response_data = {
         'responses': [

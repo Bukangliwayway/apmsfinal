@@ -1,6 +1,6 @@
 import { Box, ButtonBase, Card, Grid, Typography } from "@mui/material";
 import React from "react";
-import AlumniResponseRate from "./OverallPie";
+import OverallPie from "./OverallPie";
 import ClassificationEmploymentRate from "./ClassificationEmploymentRate";
 import WorkAlignmentOverTime from "./WorkAlignmentOverTime";
 import CourseLowestResponseRate from "./CourseLowestResponseRate";
@@ -42,7 +42,7 @@ const MainDashboard = () => {
               Overall Response Rate
             </Typography>
             <Box height={"19vh"}>
-              <AlumniResponseRate />
+              <OverallPie type={"response rate"}/>
             </Box>
           </Grid>
 

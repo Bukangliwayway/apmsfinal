@@ -39,13 +39,13 @@ const WorkAlignmentLine = () => {
   return (
     <ResponsiveLine
       data={data?.data}
-      margin={{ top: 10, right: 20, bottom: 50, left: 50 }}
+      margin={{ top: 10, right: 40, bottom: 60, left: 80 }}
       xScale={{ type: "point" }}
       yScale={{
         type: "linear",
         min: "auto",
         max: "auto",
-        stacked: true,
+        stacked: false,
         reverse: false,
       }}
       curve="basis"
@@ -53,10 +53,10 @@ const WorkAlignmentLine = () => {
       axisRight={null}
       axisBottom={{
         tickSize: 5,
-        tickPadding: 5,
+        tickPadding: 15,
         tickRotation: 0,
         legend: "Time Span",
-        legendOffset: 36,
+        legendOffset: 45,
         legendPosition: "middle",
         truncateTickAt: 0,
       }}
