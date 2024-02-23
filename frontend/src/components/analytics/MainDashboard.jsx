@@ -27,7 +27,6 @@ const MainDashboard = () => {
             xs={12}
             sx={{
               backgroundColor: (theme) => theme.palette.common.main,
-              height: "23vh",
               cursor: "pointer",
               transition: "background-color 0.3s ease",
               "&:hover": {
@@ -35,14 +34,8 @@ const MainDashboard = () => {
               },
             }}
           >
-            <Typography
-              variant="subtitle2"
-              sx={{ textAlign: "center", fontWeight: "800" }}
-            >
-              Overall Response Rate
-            </Typography>
-            <Box height={"19vh"}>
-              <OverallPie type={"response rate"}/>
+            <Box height={"23vh"}>
+              <OverallPie type={"response rate"} />
             </Box>
           </Grid>
 

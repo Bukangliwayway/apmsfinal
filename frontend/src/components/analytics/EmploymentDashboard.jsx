@@ -21,44 +21,21 @@ const EmploymentDashboard = () => {
       >
         <SelectCohorts type={"EmploymentRate"} />
       </Grid>
-      <Grid container item xs={9}>
-        <Grid container item xs={3}>
-          <Grid
-            item
-            xs={12}
-            m={1}
-            mr={0.5}
-            mb={0.5}
-            height={"21.9vh"}
-            sx={{ backgroundColor: (theme) => theme.palette.common.main }}
-          >
-            <Typography
-              variant="subtitle2"
-              sx={{ textAlign: "center", fontWeight: "800" }}
+      <Grid container item xs={9} height="100%">
+        <Grid item xs={3} height={"50%"}>
+          <Grid item xs={12} p={1} pr={0.5} pb={0.5} height={"50%"}>
+            <Box
+              sx={{ backgroundColor: (theme) => theme.palette.common.main }}
+              height={"100%"}
             >
-              Employer Type
-            </Typography>
-            <Box height={"18vh"}>
               <OverallPie type={"employer type"} />
             </Box>
           </Grid>
-          <Grid
-            item
-            xs={12}
-            m={1}
-            mr={0.5}
-            mt={0.5}
-            mb={0.5}
-            height={"21.9vh"}
-            sx={{ backgroundColor: (theme) => theme.palette.common.main }}
-          >
-            <Typography
-              variant="subtitle2"
-              sx={{ textAlign: "center", fontWeight: "800" }}
+          <Grid item xs={12} p={1} pr={0.5} pt={0.5} pb={0.5} height={"50%"}>
+            <Box
+              height={"100%"}
+              sx={{ backgroundColor: (theme) => theme.palette.common.main }}
             >
-              Employment Contract
-            </Typography>
-            <Box height={"18vh"}>
               <OverallPie type={"employment contract"} />
             </Box>
           </Grid>
