@@ -82,9 +82,10 @@ const OverallPie = ({ solo = false, type }) => {
   };
 
   return (
-    <Box p={1} height={"100%"}>
+    <Box p={1} height={solo ? "70%" : "100%"}>
       <Typography
-        variant="subtitle2"
+        variant={solo ? "h2" : "h6"}
+        mb={solo ? "2rem" : 0}
         textTransform={"capitalize"}
         sx={{ textAlign: "center", fontWeight: "800" }}
       >
@@ -93,9 +94,9 @@ const OverallPie = ({ solo = false, type }) => {
       <ResponsivePie
         data={data?.data?.responses}
         margin={{
-          top: 10,
+          top: solo ? 35 : 10,
           right: 10,
-          bottom: 30,
+          bottom: 40,
           left: 10,
         }}
         innerRadius={0.7}

@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Collapse,
+  Divider,
   FormControl,
   IconButton,
   InputLabel,
@@ -56,10 +57,10 @@ const SelectCohorts = ({ type }) => {
   let message;
   switch (type) {
     case "ResponseRate":
-      message = "Response Rate";
+      message = "Profile Data";
       break;
     case "EmploymentRate":
-      message = "Employment Rate";
+      message = "Employment Data";
       break;
     case "SalaryTrend":
       message = "Salary Trend";
@@ -141,115 +142,129 @@ const SelectCohorts = ({ type }) => {
 
   return (
     <Box padding={2} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-      <Typography variant={"body2"} sx={{ fontWeight: "800", mb: "1rem" }}>
-        Overall {message} per Course:
+      <Typography variant={"h5"} sx={{ fontWeight: "800", mb: "0.5rem" }}>
+        {message} Filters
       </Typography>
-      <Box
-        sx={{
-          ...(type === "EmploymentRate" && employmentRateStyles),
-        }}
-      >
-        <FormControl sx={{ width: type == "EmploymentRate" ? "20ch" : "25ch" }}>
-          <InputLabel>Batch Year</InputLabel>
-          <Select
-            key={selected[type]}
-            value={selected[type]}
-            onChange={handleChange}
-            label="Overall Type"
+      <Box>
+        <Divider>
+          <Typography variant="subtitle2">Batch Year</Typography>
+        </Divider>
+        <Box
+          sx={{
+            ...(type === "EmploymentRate" && employmentRateStyles),
+            mt: 2,
+          }}
+        >
+          <FormControl
+            sx={{ width: type == "EmploymentRate" ? "20ch" : "25ch" }}
           >
-            {allBatches.data.map((option) => (
-              <MenuItem key={option} value={option}>
-                {option}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        {type == "EmploymentRate" && (
-          <Box
-            onClick={() =>
-              setCohort((prev) => ({
-                ...prev,
-                [type]: {
-                  ...prev[type], // Preserve existing properties
-                  course_column: !prev[type]?.course_column, // Change only the course_column property
-                },
-              }))
-            }
-            sx={{ cursor: "pointer" }} // Add cursor style to indicate it's clickable
-          >
-            <IconButton
-              color="primary"
-              sx={{
-                display: "flex",
-                width: "4rem",
-                height: "4rem",
-                flexDirection: "column",
-                alignItems: "center",
+            <InputLabel>Batch Year</InputLabel>
+            <Select
+              key={selected[type]}
+              value={selected[type]}
+              onChange={handleChange}
+              label="Overall Type"
+            >
+              {allBatches.data.map((option) => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          {type == "EmploymentRate" && (
+            <Box
+              onClick={() =>
+                setCohort((prev) => ({
+                  ...prev,
+                  [type]: {
+                    ...prev[type], // Preserve existing properties
+                    course_column: !prev[type]?.course_column, // Change only the course_column property
+                  },
+                }))
+              }
+              sx={{ cursor: "pointer" }} // Add cursor style to indicate it's clickable
+            >
+              <IconButton
+                color="primary"
+                sx={{
+                  display: "flex",
+                  width: "4rem",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
+                {cohort[type]?.course_column ? (
+                  <>
+                    <Typography variant={"subtitle2"}>Course</Typography>
+                    <LocalLibrary />
+                  </>
+                ) : (
+                  <>
+                    <Typography variant={"subtitle2"}>Year</Typography>
+                    <CalendarToday />
+                  </>
+                )}
+              </IconButton>
+            </Box>
+          )}
+        </Box>
+      </Box>
+
+      {type == "EmploymentRate" && (
+        <Box>
+          <Divider>
+            <Typography variant="subtitle2">Date Range</Typography>
+          </Divider>
+          <Box sx={{ display: "flex", gap: 2, flexDirection: "column", mt: 2 }}>
+            <Box sx={{ display: "flex", gap: 2 }}>
+              <DatePicker
+                name="start_date"
+                label="Start Date"
+                value={
+                  dateRange?.start_date ? dayjs(dateRange?.start_date) : null
+                }
+                onChange={(date) => {
+                  setDateRange((prev) => ({
+                    ...prev,
+                    start_date: date,
+                  }));
+                }}
+                renderInput={(params) => <TextField {...params} required />}
+              />
+              <DatePicker
+                name="end_date"
+                label="End Date"
+                value={
+                  cohort[type]?.end_date ? dayjs(cohort[type]?.end_date) : null
+                }
+                onChange={(date) => {
+                  setDateRange((prev) => ({
+                    ...prev,
+                    end_date: date,
+                  }));
+                }}
+                renderInput={(params) => <TextField {...params} required />}
+              />
+            </Box>
+            <Button
+              variant="contained"
+              startIcon={<Search />}
+              onClick={(date) => {
+                setCohort((prev) => ({
+                  ...prev,
+                  [type]: {
+                    ...prev[type],
+                    start_date: dateRange.start_date,
+                    end_date: dateRange.end_date,
+                  },
+                }));
               }}
             >
-              {cohort[type]?.course_column ? (
-                <>
-                  <Typography variant={"subtitle2"}>Course</Typography>
-                  <LocalLibrary />
-                </>
-              ) : (
-                <>
-                  <Typography variant={"subtitle2"}>Year</Typography>
-                  <CalendarToday />
-                </>
-              )}
-            </IconButton>
+              Search Range
+            </Button>
           </Box>
-        )}
-      </Box>
-      {type == "EmploymentRate" && (
-        <Box sx={{ display: "flex", gap: 1, flexDirection: "column" }}>
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <DatePicker
-              name="start_date"
-              label="Start Date"
-              value={
-                dateRange?.start_date ? dayjs(dateRange?.start_date) : null
-              }
-              onChange={(date) => {
-                setDateRange((prev) => ({
-                  ...prev,
-                  start_date: date,
-                }));
-              }}
-              renderInput={(params) => <TextField {...params} required />}
-            />
-            <DatePicker
-              name="end_date"
-              label="End Date"
-              value={
-                cohort[type]?.end_date ? dayjs(cohort[type]?.end_date) : null
-              }
-              onChange={(date) => {
-                setDateRange((prev) => ({
-                  ...prev,
-                  end_date: date,
-                }));
-              }}
-              renderInput={(params) => <TextField {...params} required />}
-            />
-          </Box>
-          <Button
-            variant="contained"
-            startIcon={<Search />}
-            onClick={(date) => {
-              setCohort((prev) => ({
-                ...prev,
-                [type]: {
-                  ...prev[type],
-                  start_date: dateRange.start_date,
-                  end_date: dateRange.end_date,
-                },
-              }));
-            }}
-          >
-            Search Range
-          </Button>
         </Box>
       )}
 
@@ -279,21 +294,31 @@ const SelectCohorts = ({ type }) => {
         switch (type) {
           case "ResponseRate":
             return (
-              <ResponseRateList
-                responseRate={responseRate}
-                handleClick={handleClick}
-                open={open}
-                LinearProgressWithLabel={LinearProgressWithLabel}
-              />
+              <Box mt={1}>
+                <Divider>
+                  <Typography variant="subtitle2">Courses</Typography>
+                </Divider>
+                <ResponseRateList
+                  responseRate={responseRate}
+                  handleClick={handleClick}
+                  open={open}
+                  LinearProgressWithLabel={LinearProgressWithLabel}
+                />
+              </Box>
             );
           case "EmploymentRate":
             return (
-              <EmploymentRateList
-                employmentRate={employmentRate}
-                handleClick={handleClick}
-                open={open}
-                LinearProgressWithLabel={LinearProgressWithLabel}
-              />
+              <Box mt={1}>
+                <Divider>
+                  <Typography variant="subtitle2">Courses</Typography>
+                </Divider>
+                <EmploymentRateList
+                  employmentRate={employmentRate}
+                  handleClick={handleClick}
+                  open={open}
+                  LinearProgressWithLabel={LinearProgressWithLabel}
+                />
+              </Box>
             );
           // case "SalaryTrend":
           //   return (

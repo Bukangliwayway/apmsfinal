@@ -37,8 +37,8 @@ import ModifyPost from "../components/pup_feeds/ModifyPost";
 import ViewPost from "../components/pup_feeds/ViewPost";
 import { useState } from "react";
 import useMissingFields from "../hooks/useMissingFields";
-import SalaryTrend from "../components/analytics/SalaryTrend";
 import SalaryTrendLayout from "../components/analytics/SalaryTrendLayout";
+import SoloView from "../components/analytics/SoloView";
 const RoleBasedRoutes = () => {
   const { auth } = useAll();
   const {
@@ -118,7 +118,31 @@ const RoleBasedRoutes = () => {
         path="dashboard/SalaryTrend"
         element={
           <MainLayout mode="admin">
-            <SalaryTrendLayout />
+            <SoloView type={"Salary Trend"} />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="dashboard/WorkAlignment"
+        element={
+          <MainLayout mode="admin">
+            <SoloView type={"Work Alignment"} />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="dashboard/employertype"
+        element={
+          <MainLayout mode="admin">
+            <SoloView type={"Employer Type"} />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="dashboard/employmentcontract"
+        element={
+          <MainLayout mode="admin">
+            <SoloView type={"Employment Contract"} />
           </MainLayout>
         }
       />
@@ -127,6 +151,14 @@ const RoleBasedRoutes = () => {
         element={
           <MainLayout mode="admin">
             <EmploymentDashboard />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="dashboard/JobClassification"
+        element={
+          <MainLayout mode="admin">
+            <SoloView type={"Job Classification"} />
           </MainLayout>
         }
       />

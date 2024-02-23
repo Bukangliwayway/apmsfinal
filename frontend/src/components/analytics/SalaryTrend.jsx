@@ -5,18 +5,14 @@ import useAll from "../../hooks/utilities/useAll";
 
 const SalaryTrend = ({ solo = false }) => {
   const { mode, cohort } = useAll();
-
-  const {
-    data: classificationResponseRate,
-    isLoading: isLoadingClassificationResponseRate,
-  } = useSalaryTrend(
+  const { data, isLoading } = useSalaryTrend(
     cohort["EmploymentRate"]?.course_code,
     cohort["EmploymentRate"]?.batch_year,
     cohort["EmploymentRate"]?.start_date,
     cohort["EmploymentRate"]?.end_date
   );
 
-  if (isLoadingClassificationResponseRate || !classificationResponseRate) {
+  if (isLoading || !data) {
     return (
       <Box width={"100%"} height={"100%"}>
         <Skeleton variant="rectangular" width={"100%"} height={"100%"} />
@@ -24,20 +20,43 @@ const SalaryTrend = ({ solo = false }) => {
     );
   }
 
-  if (classificationResponseRate?.data?.length == 0) {
+  if (data?.data?.length == 0) {
     return (
       <Box
         height={"100%"}
-        sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "column",
+          gap: 2,
+        }}
       >
-        <Typography variant="h4"> Sorry. There are no data to show</Typography>
+        <Typography
+          variant={solo ? "h2" : "h3"}
+          textTransform={"capitalize"}
+          sx={{ textAlign: "center", fontWeight: "800" }}
+        >
+          Salary Trend
+        </Typography>
+        <Typography variant="h6">
+          Sorry but there are no data here :(
+        </Typography>
       </Box>
     );
   }
+
   return (
-    <Box height={"100%"}>
+    <Box height={solo ? "92%" : "95%"} p={solo ? 5 : 3}>
+      <Typography
+        variant={solo ? "h2" : "h5"}
+        textTransform={"capitalize"}
+        sx={{ textAlign: "center", fontWeight: "800" }}
+      >
+        Salary Trend
+      </Typography>
       <ResponsiveBar
-        data={classificationResponseRate?.data}
+        data={data?.data || {}}
         tooltip={({ index, id, value, color }) => (
           <Box
             style={{
@@ -46,7 +65,7 @@ const SalaryTrend = ({ solo = false }) => {
               background: mode == "light" ? "#fff" : "#333",
             }}
           >
-            <span>{classificationResponseRate?.data[index].data_name}</span>
+            <span>{data?.data[index].data_name}</span>
             <br />
             <span
               style={{
@@ -57,11 +76,11 @@ const SalaryTrend = ({ solo = false }) => {
             </span>
           </Box>
         )}
-        keys={Object.keys(classificationResponseRate?.data[0]).filter(
+        keys={Object.keys(data?.data[0] || {})?.filter(
           (key) => key !== "date_name"
         )}
         indexBy="date_name"
-        margin={{ top: 25, right: 20, bottom: 50, left: 90 }}
+        margin={{ top: 20, right: 20, bottom: 50, left: 50 }}
         padding={0.1}
         layout={"vertical"}
         groupMode="stacked"
@@ -105,7 +124,7 @@ const SalaryTrend = ({ solo = false }) => {
           tickRotation: -20,
           legend: "Salary Trend",
           legendPosition: "middle",
-          legendOffset: 35,
+          legendOffset: 40,
           truncateTickAt: 0,
         }}
         axisLeft={{
@@ -117,7 +136,8 @@ const SalaryTrend = ({ solo = false }) => {
           legendOffset: -40,
           truncateTickAt: 0,
         }}
-        enableGridY={false}
+        enableGridY={solo}
+        enableGridX={solo}
         enableLabel={false}
         labelSkipWidth={6}
         labelSkipHeight={12}

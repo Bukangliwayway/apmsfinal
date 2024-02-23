@@ -4,12 +4,9 @@ import useClassificationEmploymentRate from "../../hooks/analytics/useClassifica
 import { Box, Skeleton, Typography } from "@mui/material";
 import useAll from "../../hooks/utilities/useAll";
 
-const ClassificationEmploymentRate = () => {
+const ClassificationEmploymentRate = ({ solo = false }) => {
   const { mode, cohort } = useAll();
-  const {
-    data: classificationResponseRate,
-    isLoading: isLoadingClassificationResponseRate,
-  } = useClassificationEmploymentRate(
+  const { data, isLoading } = useClassificationEmploymentRate(
     cohort["EmploymentRate"]?.batch_year,
     cohort["EmploymentRate"]?.course_code,
     cohort["EmploymentRate"]?.course_column,
@@ -17,7 +14,7 @@ const ClassificationEmploymentRate = () => {
     cohort["EmploymentRate"]?.end_date
   );
 
-  if (isLoadingClassificationResponseRate || !classificationResponseRate) {
+  if (isLoading || !data) {
     return (
       <Box width={"100%"} height={"100%"}>
         <Skeleton variant="rectangular" width={"100%"} height={"100%"} />
@@ -25,7 +22,7 @@ const ClassificationEmploymentRate = () => {
     );
   }
 
-  if (classificationResponseRate?.data?.length == 0) {
+  if (data?.data?.length == 0) {
     return (
       <Box
         height={"100%"}
@@ -33,17 +30,35 @@ const ClassificationEmploymentRate = () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          flexDirection: "column",
+          gap: 2,
         }}
       >
-        <Typography variant="h4"> Sorry. There are no data to show</Typography>
+        <Typography
+          variant={solo ? "h2" : "h3"}
+          textTransform={"capitalize"}
+          sx={{ textAlign: "center", fontWeight: "800" }}
+        >
+          Job Classification
+        </Typography>
+        <Typography variant="h6">
+          Sorry but there are no data here :(
+        </Typography>
       </Box>
     );
   }
 
   return (
-    <Box height={"100%"}>
+    <Box height={solo ? "92%" : "95%"} p={solo ? 5 : 2}>
+      <Typography
+        variant={solo ? "h2" : "h5"}
+        textTransform={"capitalize"}
+        sx={{ textAlign: "center", fontWeight: "800" }}
+      >
+        Job Classification
+      </Typography>
       <ResponsiveBar
-        data={classificationResponseRate?.data || {}}
+        data={data?.data || {}}
         tooltip={({ index, id, value, color }) => (
           <Box
             style={{
@@ -53,10 +68,7 @@ const ClassificationEmploymentRate = () => {
               gap: 1,
             }}
           >
-            <Box p={1} width={"1ch"} sx={{ background: color }}></Box>
-            <span>
-              {classificationResponseRate?.data[index]?.classification_name}
-            </span>
+            <span>{data?.data[index]?.classification_name}</span>
             <br />
             <span
               style={{
@@ -67,12 +79,12 @@ const ClassificationEmploymentRate = () => {
             </span>
           </Box>
         )}
-        keys={Object.keys(classificationResponseRate?.data[0] || {})?.filter(
+        keys={Object.keys(data?.data[0] || {})?.filter(
           (key) =>
             key !== "classification_name" && key !== "classification_code"
         )}
         indexBy="classification_code"
-        margin={{ top: 50, right: 20, bottom: 50, left: 50 }}
+        margin={{ top: 20, right: 20, bottom: 50, left: 50 }}
         padding={0.1}
         layout={"vertical"}
         groupMode="stacked"
@@ -113,10 +125,10 @@ const ClassificationEmploymentRate = () => {
         axisBottom={{
           tickSize: 5,
           tickPadding: 5,
-          tickRotation: 0,
+          tickRotation: -20,
           legend: "Job Classification Rate",
           legendPosition: "middle",
-          legendOffset: 32,
+          legendOffset: 40,
           truncateTickAt: 0,
         }}
         axisLeft={{
@@ -128,7 +140,8 @@ const ClassificationEmploymentRate = () => {
           legendOffset: -40,
           truncateTickAt: 0,
         }}
-        enableGridY={false}
+        enableGridY={solo}
+        enableGridX={solo}
         enableLabel={false}
         labelSkipWidth={6}
         labelSkipHeight={12}

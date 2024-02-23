@@ -5,8 +5,11 @@ import SelectCohorts from "./SelectCohorts";
 import SalaryTrend from "./SalaryTrend";
 import WorkAlignmentLine from "./WorkAlignmentLine";
 import OverallPie from "./OverallPie";
+import { useNavigate } from "react-router-dom";
 
 const EmploymentDashboard = () => {
+  const navigate = useNavigate();
+
   return (
     <Grid
       container
@@ -18,6 +21,7 @@ const EmploymentDashboard = () => {
         xs={3}
         height="100%"
         sx={{ backgroundColor: (theme) => theme.palette.common.main }}
+        px={3}
       >
         <SelectCohorts type={"EmploymentRate"} />
       </Grid>
@@ -25,7 +29,15 @@ const EmploymentDashboard = () => {
         <Grid item xs={3} height={"50%"}>
           <Grid item xs={12} p={1} pr={0.5} pb={0.5} height={"50%"}>
             <Box
-              sx={{ backgroundColor: (theme) => theme.palette.common.main }}
+              sx={{
+                backgroundColor: (theme) => theme.palette.common.main,
+                overflow: "hidden",
+                transition: "background-color 0.3s ease",
+                "&:hover": {
+                  backgroundColor: (theme) => theme.palette.primary.light,
+                },
+              }}
+              onClick={() => navigate("/dashboard/employertype")}
               height={"100%"}
             >
               <OverallPie type={"employer type"} />
@@ -34,7 +46,15 @@ const EmploymentDashboard = () => {
           <Grid item xs={12} p={1} pr={0.5} pt={0.5} pb={0.5} height={"50%"}>
             <Box
               height={"100%"}
-              sx={{ backgroundColor: (theme) => theme.palette.common.main }}
+              sx={{
+                backgroundColor: (theme) => theme.palette.common.main,
+                overflow: "hidden",
+                transition: "background-color 0.3s ease",
+                "&:hover": {
+                  backgroundColor: (theme) => theme.palette.primary.light,
+                },
+              }}
+              onClick={() => navigate("/dashboard/employmentcontract")}
             >
               <OverallPie type={"employment contract"} />
             </Box>
@@ -42,7 +62,15 @@ const EmploymentDashboard = () => {
         </Grid>
         <Grid item xs={9} p={1} pb={0.5} pl={0.5} height={"50%"}>
           <Box
-            sx={{ backgroundColor: (theme) => theme.palette.common.main }}
+            sx={{
+              backgroundColor: (theme) => theme.palette.common.main,
+              overflow: "hidden",
+              transition: "background-color 0.3s ease",
+              "&:hover": {
+                backgroundColor: (theme) => theme.palette.primary.light,
+              },
+            }}
+            onClick={() => navigate("/dashboard/workalignment")}
             height="100%"
           >
             <WorkAlignmentLine />
@@ -50,7 +78,15 @@ const EmploymentDashboard = () => {
         </Grid>
         <Grid item xs={6} p={1} pt={0.5} pr={0.5} pb={0} height={"50%"}>
           <Box
-            sx={{ backgroundColor: (theme) => theme.palette.common.main }}
+            sx={{
+              backgroundColor: (theme) => theme.palette.common.main,
+              overflow: "hidden",
+              transition: "background-color 0.3s ease",
+              "&:hover": {
+                backgroundColor: (theme) => theme.palette.primary.light,
+              },
+            }}
+            onClick={() => navigate("/dashboard/salarytrend")}
             height="100%"
           >
             <SalaryTrend />
@@ -58,7 +94,15 @@ const EmploymentDashboard = () => {
         </Grid>
         <Grid item xs={6} p={1} pt={0.5} pl={0.5} pb={0} height={"50%"}>
           <Box
-            sx={{ backgroundColor: (theme) => theme.palette.common.main }}
+            sx={{
+              backgroundColor: (theme) => theme.palette.common.main,
+              overflow: "hidden",
+              transition: "background-color 0.3s ease",
+              "&:hover": {
+                backgroundColor: (theme) => theme.palette.primary.light,
+              },
+            }}
+            onClick={() => navigate("/dashboard/jobclassification")}
             height="100%"
           >
             <ClassificationEmploymentRate />
