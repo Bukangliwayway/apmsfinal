@@ -10,7 +10,7 @@ import useOverallEmploymentContract from "../../hooks/analytics/useOverallEmploy
 import useOverallEmployerType from "../../hooks/analytics/useOverallEmployerType";
 import useOverallCivilStatus from "../../hooks/analytics/useOverallCivilStatus";
 
-const OverallPie = ({ solo = false, type, basis = "EmploymentRate" }) => {
+const OverallPie = ({ solo = false, type, basis = "Employment" }) => {
   const { mode, cohort } = useAll();
 
   const dataMap = {
@@ -67,13 +67,28 @@ const OverallPie = ({ solo = false, type, basis = "EmploymentRate" }) => {
     );
   }
 
-  if (data?.data?.length == 0) {
+  if (data?.data?.responses?.length == 0) {
     return (
       <Box
         height={"100%"}
-        sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "column",
+          gap: solo ? 2 : 0,
+        }}
       >
-        <Typography variant="h4"> Sorry. There are no data to show</Typography>
+        <Typography
+          variant={solo ? "h2" : "h5"}
+          textTransform={"capitalize"}
+          sx={{ textAlign: "center", fontWeight: "800" }}
+        >
+          {type}
+        </Typography>
+        <Typography variant={solo ? "h4" : "subtitle1"}>
+          Sorry. There are no data to show
+        </Typography>
       </Box>
     );
   }

@@ -7,11 +7,11 @@ import useAll from "../../hooks/utilities/useAll";
 const ClassificationEmploymentRate = ({ solo = false }) => {
   const { mode, cohort } = useAll();
   const { data, isLoading } = useClassificationEmploymentRate(
-    cohort["EmploymentRate"]?.batch_year,
-    cohort["EmploymentRate"]?.course_code,
-    cohort["EmploymentRate"]?.course_column,
-    cohort["EmploymentRate"]?.start_date,
-    cohort["EmploymentRate"]?.end_date
+    cohort["Employment"]?.batch_year,
+    cohort["Employment"]?.course_code,
+    cohort["Employment"]?.course_column,
+    cohort["Employment"]?.start_date,
+    cohort["Employment"]?.end_date
   );
 
   if (isLoading || !data) {

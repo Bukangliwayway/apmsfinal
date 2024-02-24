@@ -15,8 +15,8 @@ const RespondentsDataGrid = () => {
   const { cohort } = useAll();
   const navigate = useNavigate();
   const { data: respondents, isLoading: isLoadingRespondents } = useRespondents(
-    cohort["ResponseRate"]?.batch_year,
-    cohort["ResponseRate"]?.course_code
+    cohort["Profile"]?.batch_year,
+    cohort["Profile"]?.course_code
   );
 
   if (isLoadingRespondents) {
@@ -56,8 +56,8 @@ const RespondentsDataGrid = () => {
   }
 
   if (
-    !cohort["ResponseRate"]?.batch_year ||
-    !cohort["ResponseRate"]?.course_code
+    !cohort["Profile"]?.batch_year ||
+    !cohort["Profile"]?.course_code
   ) {
     return (
       <Box>
@@ -120,13 +120,13 @@ const RespondentsDataGrid = () => {
     <Box sx={{ height: "auto", width: "100%" }}>
       <Box sx={{ display: "flex", gap: 2, padding: 1 }}>
         <Typography variant="h6">
-          {cohort["ResponseRate"]?.batch_year != "All Batch Year" && "Batch "}
-          {cohort["ResponseRate"]?.batch_year}
+          {cohort["Profile"]?.batch_year != "All Batch Year" && "Batch "}
+          {cohort["Profile"]?.batch_year}
         </Typography>
         <Typography variant="h6">
-          {cohort["ResponseRate"]?.course_code == "Overall"
+          {cohort["Profile"]?.course_code == "Overall"
             ? "All Course"
-            : cohort["ResponseRate"]?.course_code}
+            : cohort["Profile"]?.course_code}
         </Typography>
       </Box>
       <DataGrid

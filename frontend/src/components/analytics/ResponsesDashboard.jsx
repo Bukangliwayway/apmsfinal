@@ -6,6 +6,8 @@ import RespondentsDataGrid from "./RespondentsDataGrid";
 import OverallPie from "./OverallPie";
 
 const ResponsesDashboard = () => {
+  const navigate = useNavigate();
+
   return (
     <Box>
       <Grid
@@ -19,7 +21,7 @@ const ResponsesDashboard = () => {
               backgroundColor: (theme) => theme.palette.common.main,
             }}
           >
-            <SelectCohorts type={"ResponseRate"} />
+            <SelectCohorts type={"Profile"} />
           </Box>
         </Grid>
         <Grid container item xs={9} height={"100%"}>
@@ -27,41 +29,65 @@ const ResponsesDashboard = () => {
             <Grid item xs={12} height={"25%"} p={0.5} pt={1}>
               <Box
                 sx={{
-                  height: "100%",
                   backgroundColor: (theme) => theme.palette.common.main,
+                  overflow: "hidden",
+                  transition: "background-color 0.3s ease",
+                  "&:hover": {
+                    backgroundColor: (theme) => theme.palette.primary.light,
+                  },
                 }}
+                onClick={() => navigate("/dashboard/responserate")}
+                height={"100%"}
               >
-                <OverallPie type={"response rate"} basis={"ResponseRate"} />
+                <OverallPie type={"response rate"} basis={"Profile"} />
               </Box>
             </Grid>
             <Grid item xs={12} height={"25%"} p={0.5}>
               <Box
                 sx={{
-                  height: "100%",
                   backgroundColor: (theme) => theme.palette.common.main,
+                  overflow: "hidden",
+                  transition: "background-color 0.3s ease",
+                  "&:hover": {
+                    backgroundColor: (theme) => theme.palette.primary.light,
+                  },
                 }}
+                onClick={() => navigate("/dashboard/employmentstatus")}
+                height={"100%"}
               >
-                <OverallPie type={"employment status"} basis={"ResponseRate"} />
+                <OverallPie type={"employment status"} basis={"Profile"} />
               </Box>
             </Grid>
             <Grid item xs={12} height={"25%"} p={0.5}>
               <Box
                 sx={{
-                  height: "100%",
                   backgroundColor: (theme) => theme.palette.common.main,
+                  overflow: "hidden",
+                  transition: "background-color 0.3s ease",
+                  "&:hover": {
+                    backgroundColor: (theme) => theme.palette.primary.light,
+                  },
                 }}
+                onClick={() => navigate("/dashboard/gender")}
+                height={"100%"}
               >
-                <OverallPie type={"gender"} basis={"ResponseRate"} />
+                <OverallPie type={"gender"} basis={"Profile"} />
               </Box>
             </Grid>
             <Grid item xs={12} height={"25%"} p={0.5} pb={1}>
               <Box
                 sx={{
-                  height: "100%",
                   backgroundColor: (theme) => theme.palette.common.main,
+                  overflow: "hidden",
+                  transition: "background-color 0.3s ease",
+                  "&:hover": {
+                    backgroundColor: (theme) => theme.palette.primary.light,
+                  },
                 }}
+                onClick={() => navigate("/dashboard/civilstatus")}
+                height={"100%"}
               >
-                <OverallPie type={"civil status"} basis={"ResponseRate"} />
+                <OverallPie type={"civil status"} basis={"Profile"} />
               </Box>
             </Grid>
           </Grid>

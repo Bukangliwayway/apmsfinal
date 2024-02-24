@@ -22,7 +22,7 @@ const EmploymentDashboard = () => {
             backgroundColor: (theme) => theme.palette.common.main,
           }}
         >
-          <SelectCohorts type={"EmploymentRate"} />
+          <SelectCohorts type={"Employment"} />
         </Box>
       </Grid>
       <Grid container item xs={9} height="100%">

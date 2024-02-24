@@ -49,22 +49,19 @@ function LinearProgressWithLabel(props) {
 
 const SelectCohorts = ({ type }) => {
   const [selected, setSelected] = useState({
-    ResponseRate: null,
-    EmploymentRate: null,
-    SalaryTrend: null,
+    Profile: null,
+    Employment: null,
   });
 
   let message;
   switch (type) {
-    case "ResponseRate":
+    case "Profile":
       message = "Profile Data";
       break;
-    case "EmploymentRate":
+    case "Employment":
       message = "Employment Data";
       break;
-    case "SalaryTrend":
-      message = "Salary Trend";
-      break;
+
   }
 
   const [dateRange, setDateRange] = useState({
@@ -79,10 +76,10 @@ const SelectCohorts = ({ type }) => {
     useGetAllBatches();
 
   const { data: responseRate, isLoading: isLoadingCourseResponseRate } =
-    useCourseResponseRate(selected["ResponseRate"]);
+    useCourseResponseRate(selected["Profile"]);
 
   const { data: employmentRate, isLoading: isLoadingCourseEmploymentRate } =
-    useCourseEmploymentRate(selected["EmploymentRate"]);
+    useCourseEmploymentRate(selected["Employment"]);
 
   console.log(cohort);
 
@@ -154,12 +151,12 @@ const SelectCohorts = ({ type }) => {
         </Divider>
         <Box
           sx={{
-            ...(type === "EmploymentRate" && employmentRateStyles),
+            ...(type === "Employment" && employmentRateStyles),
             mt: 2,
           }}
         >
           <FormControl
-            sx={{ width: type == "EmploymentRate" ? "20ch" : "25ch" }}
+            sx={{ width: type == "Employment" ? "20ch" : "25ch" }}
           >
             <InputLabel>Batch Year</InputLabel>
             <Select
@@ -176,7 +173,7 @@ const SelectCohorts = ({ type }) => {
             </Select>
           </FormControl>
 
-          {type == "EmploymentRate" && (
+          {type == "Employment" && (
             <Box
               onClick={() =>
                 setCohort((prev) => ({
@@ -215,7 +212,7 @@ const SelectCohorts = ({ type }) => {
         </Box>
       </Box>
 
-      {type == "EmploymentRate" && (
+      {type == "Employment" && (
         <Box>
           <Divider>
             <Typography variant="subtitle2">Date Range</Typography>
@@ -295,7 +292,7 @@ const SelectCohorts = ({ type }) => {
       )}
       {(() => {
         switch (type) {
-          case "ResponseRate":
+          case "Profile":
             return (
               <Box mt={1}>
                 <Divider>
@@ -309,7 +306,7 @@ const SelectCohorts = ({ type }) => {
                 />
               </Box>
             );
-          case "EmploymentRate":
+          case "Employment":
             return (
               <Box mt={1}>
                 <Divider>
@@ -323,13 +320,6 @@ const SelectCohorts = ({ type }) => {
                 />
               </Box>
             );
-          // case "SalaryTrend":
-          //   return (
-          //     <CourseSalaryTrendList
-          //       courseSalaryTrend={courseSalaryTrend}
-          //       handleClick={handleClick}
-          //     />
-          //   );
           default:
             return null;
         }

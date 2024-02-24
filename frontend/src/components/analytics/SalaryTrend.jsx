@@ -6,10 +6,10 @@ import useAll from "../../hooks/utilities/useAll";
 const SalaryTrend = ({ solo = false }) => {
   const { mode, cohort } = useAll();
   const { data, isLoading } = useSalaryTrend(
-    cohort["EmploymentRate"]?.course_code,
-    cohort["EmploymentRate"]?.batch_year,
-    cohort["EmploymentRate"]?.start_date,
-    cohort["EmploymentRate"]?.end_date
+    cohort["Employment"]?.course_code,
+    cohort["Employment"]?.batch_year,
+    cohort["Employment"]?.start_date,
+    cohort["Employment"]?.end_date
   );
 
   if (isLoading || !data) {

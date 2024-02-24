@@ -139,6 +139,38 @@ const RoleBasedRoutes = () => {
         }
       />
       <Route
+        path="dashboard/employmentstatus"
+        element={
+          <MainLayout mode="admin">
+            <SoloView type={"Employment Status"} dashboard="Profile"/>
+          </MainLayout>
+        }
+      />
+      <Route
+        path="dashboard/gender"
+        element={
+          <MainLayout mode="admin">
+            <SoloView type={"Gender"} dashboard="Profile"/>
+          </MainLayout>
+        }
+      />
+      <Route
+        path="dashboard/civilstatus"
+        element={
+          <MainLayout mode="admin">
+            <SoloView type={"Civil Status"} dashboard="Profile"/>
+          </MainLayout>
+        }
+      />
+      <Route
+        path="dashboard/responserate"
+        element={
+          <MainLayout mode="admin">
+            <SoloView type={"Response Rate"} dashboard="Profile"/>
+          </MainLayout>
+        }
+      />
+      <Route
         path="dashboard/employmentcontract"
         element={
           <MainLayout mode="admin">
