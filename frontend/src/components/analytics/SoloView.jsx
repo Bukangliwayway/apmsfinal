@@ -80,7 +80,7 @@ const SoloView = ({ type }) => {
           item
           xs={12}
           sx={{ backgroundColor: (theme) => theme.palette.common.main }}
-          height="85%"
+          height={pie ? "85%" : "100%"}
           pt={3}
         >
           {Render[selected]}

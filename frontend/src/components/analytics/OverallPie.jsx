@@ -10,36 +10,50 @@ import useOverallEmploymentContract from "../../hooks/analytics/useOverallEmploy
 import useOverallEmployerType from "../../hooks/analytics/useOverallEmployerType";
 import useOverallCivilStatus from "../../hooks/analytics/useOverallCivilStatus";
 
-const OverallPie = ({ solo = false, type }) => {
+const OverallPie = ({ solo = false, type, basis = "EmploymentRate" }) => {
   const { mode, cohort } = useAll();
 
   const dataMap = {
-    "response rate": useOverallResponseRate(type == "response rate"),
-    "employment status": useOverallEmploymentStatus(
-      type == "employment status"
+    "response rate": useOverallResponseRate(
+      type == "response rate",
+      cohort[basis]?.course_code,
+      cohort[basis]?.batch_year
     ),
-    gender: useOverallGender(type == "gender"),
-    "civil status": useOverallCivilStatus(type == "civil status"),
+    "employment status": useOverallEmploymentStatus(
+      type == "employment status",
+      cohort[basis]?.course_code,
+      cohort[basis]?.batch_year
+    ),
+    gender: useOverallGender(
+      type == "gender",
+      cohort[basis]?.course_code,
+      cohort[basis]?.batch_year
+    ),
+    "civil status": useOverallCivilStatus(
+      type == "civil status",
+      cohort[basis]?.course_code,
+      cohort[basis]?.batch_year
+    ),
     "monthly income": useOverallMonthlyIncome(
       type == "monthly income",
-      cohort["EmploymentRate"]?.course_code,
-      cohort["EmploymentRate"]?.batch_year,
-      cohort["EmploymentRate"]?.start_date,
-      cohort["EmploymentRate"]?.end_date
+      cohort[basis]?.course_code,
+      cohort[basis]?.batch_year,
+      cohort[basis]?.start_date,
+      cohort[basis]?.end_date
     ),
     "employment contract": useOverallEmploymentContract(
       type == "employment contract",
-      cohort["EmploymentRate"]?.course_code,
-      cohort["EmploymentRate"]?.batch_year,
-      cohort["EmploymentRate"]?.start_date,
-      cohort["EmploymentRate"]?.end_date
+      cohort[basis]?.course_code,
+      cohort[basis]?.batch_year,
+      cohort[basis]?.start_date,
+      cohort[basis]?.end_date
     ),
     "employer type": useOverallEmployerType(
       type == "employer type",
-      cohort["EmploymentRate"]?.course_code,
-      cohort["EmploymentRate"]?.batch_year,
-      cohort["EmploymentRate"]?.start_date,
-      cohort["EmploymentRate"]?.end_date
+      cohort[basis]?.course_code,
+      cohort[basis]?.batch_year,
+      cohort[basis]?.start_date,
+      cohort[basis]?.end_date
     ),
   };
 

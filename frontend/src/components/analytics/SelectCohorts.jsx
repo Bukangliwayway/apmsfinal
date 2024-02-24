@@ -142,7 +142,10 @@ const SelectCohorts = ({ type }) => {
 
   return (
     <Box padding={2} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-      <Typography variant={"h5"} sx={{ fontWeight: "800", mb: "0.5rem" }}>
+      <Typography
+        variant={"h5"}
+        sx={{ fontWeight: "800", mb: "0.5rem", textAlign: "center" }}
+      >
         {message} Filters
       </Typography>
       <Box>

@@ -24,73 +24,50 @@ router = APIRouter()
 user_dependency = Annotated[dict, Depends(get_current_user)]
 
 @router.get("/overall/response_rate/")
-async def over_response_rate(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
-  unclaimed_query = func.count(case([(models.User.role.ilike('unclaimed'), 1)]))
-  incomplete_query = func.count(case([(and_(models.User.role.ilike('alumni'), not_(models.User.is_completed)), 1)]))
-  complete_query = func.count(case([(and_(models.User.role.ilike('alumni'), models.User.is_completed), 1)]))
-  pending_query = func.count(case([(models.User.role.ilike('public'), 1)]))
+async def over_response_rate(batch_year: str, course_code: str, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    results = db.query(
+        func.count(case([(models.User.role.ilike('unclaimed'), 1)])).label('Unclaimed'),
+        func.count(case([(and_(models.User.role.ilike('alumni'), not_(models.User.is_completed)), 1)])).label('Incomplete'),
+        func.count(case([(and_(models.User.role.ilike('alumni'), models.User.is_completed), 1)])).label('Complete'),
+        func.count(case([(models.User.role.ilike('public'), 1)])).label('Waiting for Approval')
+    )\
+    .join(models.User.course)\
+    .filter(
+        models.Course.code.ilike(course_code) if course_code != "Overall" else True,
+        models.User.batch_year == batch_year if batch_year !=  "All Batch Year" else True,
+    ).one()
 
-  query = db.query(
-      unclaimed_query.label('Unclaimed'),
-      incomplete_query.label('Incomplete'),
-      complete_query.label('Complete'),
-      pending_query.label('Waiting for Approval')
-  )
+    response_data = {
+        'responses': [
+            {'id': key, 'label': key, 'value': value}
+            for key, value in results._asdict().items()
+            if value > 0
+        ]
+    }
 
-  results = query.one()
+    return response_data
 
-  response_data = {
-      'responses': [
-          {
-              'id': "Unanswered",
-              'label': "Unanswered",
-              'value': results.Unclaimed,
-          },
-          {
-              'id': "Incomplete",
-              'label': "Incomplete",
-              'value': results.Incomplete,
-          },
-          {
-              'id': "Complete",
-              'label': "Complete",
-              'value': results.Complete,
-          },
-          {
-              'id': "Waiting for Approval",
-              'label': "Waiting for Approval",
-              'value': results["Waiting for Approval"],
-          },
-      ]
-  }
-
-  # Filter out items with len(object) equal to zero
-  response_data['responses'] = [item for item in response_data['responses'] if item['value'] > 0]
-
-  return response_data
 @router.get("/overall/gender/")
-async def overall_gender(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
-    query = db.query(
+async def overall_gender(batch_year: str, course_code: str, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    results = db.query(
         func.count(case([(and_(
             models.User.gender.ilike('lgbtqia+'),
-            models.User.role.ilike('alumni'),
-            models.User.is_completed
         ), 1)])).label('LGBTQIA+'),
         
         func.count(case([(and_(
             models.User.gender.ilike('male'),
-            models.User.role.ilike('alumni'),
-            models.User.is_completed
         ), 1)])).label('Male'),
 
         func.count(case([(and_(
             models.User.gender.ilike('female'),
+        ), 1)])).label('Female'))\
+        .join(models.User.course)\
+        .filter(
+            models.User.is_completed == True,
             models.User.role.ilike('alumni'),
-            models.User.is_completed
-        ), 1)])).label('Female')
-    )
-
-    results = query.one()
+            models.Course.code.ilike(course_code) if course_code != "Overall" else True,
+            models.User.batch_year == batch_year if batch_year !=  "All Batch Year" else True,
+        ).one()
 
     response_data = {
         'responses': [
@@ -101,32 +78,21 @@ async def overall_gender(db: Session = Depends(get_db), user: UserResponse = Dep
     }
 
     return response_data
+
 @router.get("/overall/civil_status/")
-async def overall_civil_status(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
-    query = db.query(
-        func.count(case([(and_(
+async def overall_civil_status(batch_year: str, course_code: str, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    results = db.query(
+        func.count(case([(and_(models.User.civil_status.ilike('single')), 1)])).label('Single'),
+        func.count(case([(and_(models.User.civil_status.ilike('married'),), 1)])).label('Married'),
+        func.count(case([(and_(models.User.civil_status.ilike('divorced'),), 1)])).label('Divorced'),
+        func.count(case([(and_(models.User.civil_status.ilike('widowed'),), 1)])).label('Widowed'))\
+        .join(models.User.course)\
+        .filter(
+            models.User.is_completed == True,
             models.User.role.ilike('alumni'),
-            models.User.gender.ilike('single'),
-            models.User.is_completed
-        ), 1)])).label('Single'),
-        func.count(case([(and_(
-            models.User.role.ilike('alumni'),
-            models.User.gender.ilike('married'),
-            models.User.is_completed
-        ), 1)])).label('Married'),
-        func.count(case([(and_(
-            models.User.role.ilike('alumni'),
-            models.User.civil_status.ilike('divorced'),
-            models.User.is_completed
-        ), 1)])).label('Divorced'),
-        func.count(case([(and_(
-            models.User.role.ilike('alumni'),
-            models.User.gender.ilike('widowed'),
-            models.User.is_completed
-        ), 1)])).label('Widowed')
-    )
-
-    results = query.one()
+            models.Course.code.ilike(course_code) if course_code != "Overall" else True,
+            models.User.batch_year == batch_year if batch_year !=  "All Batch Year" else True,
+        ).one()
 
     response_data = {
         'responses': [
@@ -137,41 +103,22 @@ async def overall_civil_status(db: Session = Depends(get_db), user: UserResponse
     }
 
     return response_data
+
 @router.get("/overall/employment_status/")
-async def overall_employment_status(db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
-    query = db.query(
-        func.count(case([(and_(
-            models.User.present_employment_status.ilike('employed'),
+async def overall_employment_status(batch_year: str, course_code: str, db: Session = Depends(get_db), user: UserResponse = Depends(get_current_user)):
+    results = db.query(
+        func.count(case([(and_(models.User.present_employment_status.ilike('employed'),), 1)])).label('Employed'),
+        func.count(case([(and_(models.User.present_employment_status.ilike('self-employed'),), 1)])).label('Self-Employed'),
+        func.count(case([(and_(models.User.present_employment_status.ilike('never been employed'),), 1)])).label('Never been Employed'),
+        func.count(case([(and_(models.User.present_employment_status.ilike('unable to work'),), 1)])).label('Unable to Work'),
+        func.count(case([(and_(models.User.present_employment_status.ilike('unemployed'),), 1)])).label('Unemployed'))\
+        .join(models.User.course)\
+        .filter(
+            models.User.is_completed == True,
             models.User.role.ilike('alumni'),
-            models.User.is_completed
-        ), 1)])).label('Employed'),
-
-        func.count(case([(and_(
-            models.User.present_employment_status.ilike('self-employed'),
-            models.User.role.ilike('alumni'),
-            models.User.is_completed
-        ), 1)])).label('Self-Employed'),
-
-        func.count(case([(and_(
-            models.User.present_employment_status.ilike('never been employed'),
-            models.User.role.ilike('alumni'),
-            models.User.is_completed
-        ), 1)])).label('Never been Employed'),
-
-        func.count(case([(and_(
-            models.User.present_employment_status.ilike('unable to work'),
-            models.User.role.ilike('alumni'),
-            models.User.is_completed
-        ), 1)])).label('Unable to Work'),
-
-        func.count(case([(and_(
-            models.User.present_employment_status.ilike('unemployed'),
-            models.User.role.ilike('alumni'),
-            models.User.is_completed
-        ), 1)])).label('Unemployed')
-    )
-
-    results = query.one()
+            models.Course.code.ilike(course_code) if course_code != "Overall" else True,
+            models.User.batch_year == batch_year if batch_year !=  "All Batch Year" else True,
+        ).one()
 
     response_data = {
         'responses': [
