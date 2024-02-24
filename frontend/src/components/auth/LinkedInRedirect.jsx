@@ -49,11 +49,7 @@ const LinkedInRedirect = () => {
               axiosConfig
             );
             const responseData = response?.data;
-            console.log(responseData);
 
-            if (response.status !== 200) {
-              console.log(response.status);
-            }
 
             const access_token = responseData?.access_token;
             const role = responseData?.role;

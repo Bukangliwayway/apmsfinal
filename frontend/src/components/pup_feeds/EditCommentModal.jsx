@@ -26,7 +26,6 @@ const EditCommentModal = ({ open, onClose, commentID, exit = false }) => {
   const { data: cachedData, isLoading: isLoadingComment } =
     useGetCommentSpecific(commentID);
 
-  console.log(cachedData);
 
   const {
     setOpenSnackbar,

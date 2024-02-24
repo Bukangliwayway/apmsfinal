@@ -49,7 +49,7 @@ const ClassificationEmploymentRate = ({ solo = false }) => {
   }
 
   return (
-    <Box height={solo ? "92%" : "95%"} p={solo ? 5 : 2}>
+    <Box height={solo ? "87%" : "95%"} p={solo ? 5 : 2}>
       <Typography
         variant={solo ? "h2" : "h5"}
         textTransform={"capitalize"}

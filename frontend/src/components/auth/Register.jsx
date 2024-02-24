@@ -253,7 +253,6 @@ const Register = () => {
             payload.append("profile_picture", fileData?.profile_picture);
             payload.append("recaptcha", captchaValue);
 
-            console.log("Payload:", Object.fromEntries(payload));
 
             setBackdropLoading(true);
             await mutation.mutateAsync(payload);

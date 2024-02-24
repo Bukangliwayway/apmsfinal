@@ -137,7 +137,6 @@ const ProfileEditModal = ({ open, onClose }) => {
       }));
     }
 
-    console.log(cachedData?.data?.birthdate);
   }, [cachedData]);
 
   const isValidEmail = (email) => {
@@ -326,9 +325,7 @@ const ProfileEditModal = ({ open, onClose }) => {
         ? ""
         : profile?.birthdate;
 
-    console.log(birthdate);
-    console.log(profile?.birthdate);
-    console.log(cachedData?.data?.birthdate);
+
 
     if (is_international && country) {
       region = "";

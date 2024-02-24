@@ -168,11 +168,9 @@ const EditAchievementModal = ({ open, onClose, achievementID }) => {
           : achievementProfile?.date_of_attainment || "",
     };
 
-    console.log(data.date_of_attainment);
 
     // Convert the object to a JSON string
     const payload = JSON.stringify(data);
-    console.log(payload);
 
     setLinearLoading(true);
     await mutation.mutateAsync(payload);

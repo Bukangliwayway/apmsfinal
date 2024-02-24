@@ -140,7 +140,6 @@ const AllFeedsContent = ({ type }) => {
 
   if (isLoadingFeeds) return <LoadingCircular />;
   if (feeds.pages[0].detail == "No Post to Show") {
-    console.log("aaaa");
     return (
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <Typography variant="subtitle1" align="center" mx="auto" py={"2rem"}>

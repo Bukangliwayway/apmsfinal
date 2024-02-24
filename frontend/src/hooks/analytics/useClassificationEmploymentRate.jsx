@@ -9,7 +9,6 @@ const useClassificationEmploymentRate = (
   date_start,
   date_end,
 ) => {
-  console.log(date_end);
   const dateStartFormatted = dayjs(date_start).format("YYYY-MM-DD");
   const dateEndFormatted = dayjs(date_end).format("YYYY-MM-DD");
   const axiosPrivate = useAxiosPrivate();

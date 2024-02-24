@@ -61,7 +61,6 @@ const SelectCohorts = ({ type }) => {
     case "Employment":
       message = "Employment Data";
       break;
-
   }
 
   const [dateRange, setDateRange] = useState({
@@ -80,8 +79,6 @@ const SelectCohorts = ({ type }) => {
 
   const { data: employmentRate, isLoading: isLoadingCourseEmploymentRate } =
     useCourseEmploymentRate(selected["Employment"]);
-
-  console.log(cohort);
 
   useEffect(() => {
     setSelected((prev) => ({ ...prev, [type]: allBatches?.data[0] }));
@@ -155,9 +152,7 @@ const SelectCohorts = ({ type }) => {
             mt: 2,
           }}
         >
-          <FormControl
-            sx={{ width: type == "Employment" ? "20ch" : "25ch" }}
-          >
+          <FormControl sx={{ width: type == "Employment" ? "20ch" : "25ch" }}>
             <InputLabel>Batch Year</InputLabel>
             <Select
               key={selected[type]}

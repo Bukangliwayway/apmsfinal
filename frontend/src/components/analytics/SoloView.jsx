@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   FormControl,
   Grid,
   InputLabel,
@@ -7,15 +8,20 @@ import {
   Select,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import ClassificationEmploymentRate from "./ClassificationEmploymentRate";
 import SelectCohorts from "./SelectCohorts";
 import SalaryTrend from "./SalaryTrend";
 import WorkAlignmentLine from "./WorkAlignmentLine";
 import OverallPie from "./OverallPie";
+import ReactToPrint from "react-to-print";
+import { Print, Send } from "@mui/icons-material";
+import useAll from "../../hooks/utilities/useAll";
 
 const SoloView = ({ type, dashboard = "Employment" }) => {
   const [selected, setSelected] = useState(type);
+  const componentRef = useRef(null);
+  const { cohort } = useAll();
 
   const pieTypes = [
     "Employer Type",
@@ -64,6 +70,16 @@ const SoloView = ({ type, dashboard = "Employment" }) => {
         ];
 
   // Select the component based on the type
+  const documentTitle =
+    dashboard == "Employment"
+      ? `${selected} Chart ${cohort[dashboard]?.batch_year} - ${
+          cohort[dashboard]?.course_code
+        } From ${dayjs(cohort[dashboard]?.start_date).format(
+          "MM-DD-YYYY"
+        )} to ${dayjs(cohort[dashboard]?.end_date).format("MM-DD-YYYY")}`
+      : `${selected} Chart ${cohort[dashboard]?.batch_year} - ${cohort[dashboard]?.course_code} `;
+
+  console.log(documentTitle);
   return (
     <Grid
       container
@@ -80,7 +96,45 @@ const SoloView = ({ type, dashboard = "Employment" }) => {
         </Box>
       </Grid>
 
-      <Grid item container xs={9} height={"100%"} p={1} pl={0.5}>
+      <Grid
+        item
+        container
+        xs={9}
+        height={"100%"}
+        p={1}
+        pl={0.5}
+        sx={{ position: "relative" }}
+      >
+        <Box sx={{ position: "absolute", top: 20, right: 40 }}>
+          <ReactToPrint
+            trigger={() => {
+              return (
+                <Button
+                  variant="contained"
+                  endIcon={<Print />}
+                  sx={{ textTransform: "capitalize" }}
+                >
+                  Generate Report
+                </Button>
+              );
+            }}
+            content={() => {
+              return componentRef.current;
+            }}
+            documentTitle={`${type}Report`}
+            pageStyle={`
+            @page {
+              size: A4 landscape; // Set the page size to A4 in landscape orientation
+              margin:  0mm; // Remove the default header and footer
+              }
+              @media print {
+                body {
+                  -webkit-print-color-adjust: exact; // Ensure colors are printed accurately
+                }
+              }
+              `}
+          />
+        </Box>
         {pie && (
           <Grid item xs={12} height="15%" pb={1}>
             <Box
@@ -111,6 +165,7 @@ const SoloView = ({ type, dashboard = "Employment" }) => {
           item
           xs={12}
           sx={{ backgroundColor: (theme) => theme.palette.common.main }}
+          ref={componentRef}
           height={pie ? "85%" : "100%"}
         >
           {Render[selected]}

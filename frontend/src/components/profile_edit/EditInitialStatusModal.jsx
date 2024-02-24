@@ -141,7 +141,6 @@ const EditInitialStatusModal = ({ open, onClose, prior }) => {
       );
       setSeverity("error");
       setOpenSnackbar(true);
-      console.log(employment?.data?.employments.length);
       return;
     }
 
