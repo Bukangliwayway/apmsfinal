@@ -17,6 +17,7 @@ import OverallPie from "./OverallPie";
 import ReactToPrint from "react-to-print";
 import { Print, Send } from "@mui/icons-material";
 import useAll from "../../hooks/utilities/useAll";
+import dayjs from "dayjs";
 
 const SoloView = ({ type, dashboard = "Employment" }) => {
   const [selected, setSelected] = useState(type);
@@ -79,7 +80,6 @@ const SoloView = ({ type, dashboard = "Employment" }) => {
         )} to ${dayjs(cohort[dashboard]?.end_date).format("MM-DD-YYYY")}`
       : `${selected} Chart ${cohort[dashboard]?.batch_year} - ${cohort[dashboard]?.course_code} `;
 
-  console.log(documentTitle);
   return (
     <Grid
       container
@@ -121,7 +121,7 @@ const SoloView = ({ type, dashboard = "Employment" }) => {
             content={() => {
               return componentRef.current;
             }}
-            documentTitle={`${type}Report`}
+            documentTitle={documentTitle}
             pageStyle={`
             @page {
               size: A4 landscape; // Set the page size to A4 in landscape orientation
