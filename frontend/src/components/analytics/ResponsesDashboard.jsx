@@ -10,7 +10,7 @@ const ResponsesDashboard = () => {
     <Box>
       <Grid
         container
-        sx={{ display: "flex", flexDirection: "row", height: "90vh" }}
+        sx={{ display: "flex", flexDirection: "row", height: "93vh" }}
       >
         <Grid item xs={3} p={1} pr={0.5}>
           <Box

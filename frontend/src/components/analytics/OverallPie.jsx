@@ -136,7 +136,7 @@ const OverallPie = ({ solo = false, type, basis = "EmploymentRate" }) => {
         }}
         theme={{
           text: {
-            fontSize: 20,
+            fontSize: solo ? 20 : 10,
             fill: "#333333",
           },
           tooltip: {
@@ -148,20 +148,21 @@ const OverallPie = ({ solo = false, type, basis = "EmploymentRate" }) => {
         }}
         legends={[
           {
-            anchor: "top-right",
-            direction: "row",
-            justify: true,
-            translateX: 100,
-            translateY: 100,
-            itemWidth: 100,
-            itemHeight: 20,
-            itemsSpacing: 0,
-            symbolSize: 20,
+            anchor: solo ? "bottom-right" : "top-right",
+            direction: "column",
+            justify: false,
+            translateX: solo ? -250 : -115,
+            translateY: -10,
+            itemWidth: 0,
+            itemHeight: 10,
+            itemsSpacing: solo ? 30 : 5,
+            symbolSize: solo ? 30 : 10,
             itemDirection: "left-to-right",
           },
         ]}
         layers={[
           "arcs",
+          "legends",
           "arcLabels",
           "arcLinkLabels",
           ({ centerX, centerY, innerRadius, outerRadius, label }) => (
