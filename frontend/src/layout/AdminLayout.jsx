@@ -13,7 +13,7 @@ function AdminLayout({ children }) {
 
   return (
     <Box>
-      <Navbar />
+      <Navbar toggle={true}/>
       <Stack>
         <Box
           position="fixed"

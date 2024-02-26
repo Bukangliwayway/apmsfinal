@@ -16,7 +16,7 @@ import {
 } from "@mui/icons-material/";
 import useAll from "../../hooks/utilities/useAll";
 
-const Navbar = () => {
+const Navbar = ({ toggle = false }) => {
   const { mode, setMode, toggleSideBar, setToggleSideBar } = useAll();
 
   return (
@@ -64,16 +64,18 @@ const Navbar = () => {
           >
             PUPQC APMS
           </Typography>
-          <IconButton
-            size="large"
-            onClick={() => setToggleSideBar(!toggleSideBar)}
-          >
-            {toggleSideBar ? (
-              <Menu sx={{ fontSize: "2rem" }} />
-            ) : (
-              <MenuOpen sx={{ fontSize: "2rem" }} />
-            )}
-          </IconButton>
+          {toggle && (
+            <IconButton
+              size="large"
+              onClick={() => setToggleSideBar(!toggleSideBar)}
+            >
+              {toggleSideBar ? (
+                <Menu sx={{ fontSize: "2rem" }} />
+              ) : (
+                <MenuOpen sx={{ fontSize: "2rem" }} />
+              )}
+            </IconButton>
+          )}
         </Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <Box
