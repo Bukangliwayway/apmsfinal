@@ -62,7 +62,7 @@ const SalaryTrend = ({ solo = false }) => {
             style={{
               padding: "0.5rem",
               color: mode == "light" ? "#333" : "#DCE1E7",
-              background: mode == "light" ? "#fff" : "#333",
+              background: mode == "light" ? "#eee" : "#333",
             }}
           >
             <span>{data?.data[index].data_name}</span>
@@ -102,7 +102,7 @@ const SalaryTrend = ({ solo = false }) => {
           },
           tooltip: {
             container: {
-              background: mode == "light" ? "#fff" : "#333",
+              background: mode == "light" ? "#eee" : "#333",
               color: mode == "light" ? "#333" : "#DCE1E7",
             },
           },

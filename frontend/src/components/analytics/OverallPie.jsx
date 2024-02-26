@@ -141,7 +141,7 @@ const OverallPie = ({ solo = false, type, basis = "Employment" }) => {
         enableArcLabels={solo}
         enableArcLinkLabels={solo}
         arcLinkLabelsSkipAngle={10}
-        arcLinkLabelsTextColor={mode == "light" ? "#333" : "#fff"}
+        arcLinkLabelsTextColor={mode == "light" ? "#333" : "#eee"}
         arcLinkLabelsThickness={2}
         arcLinkLabelsColor={{ from: "color" }}
         arcLabelsRadiusOffset={0.5}
@@ -152,12 +152,12 @@ const OverallPie = ({ solo = false, type, basis = "Employment" }) => {
         theme={{
           text: {
             fontSize: solo ? 20 : 10,
-            fill: "#333333",
+            fill: mode == "light" ? "#333333" : "#eee",
           },
           tooltip: {
             container: {
-              background: mode == "light" ? "#fff" : "#333", // Change the text color of tooltip here
-              color: mode == "light" ? "#333" : "#fff", // Change the text color of tooltip here
+              background: mode == "light" ? "#eee" : "#333", // Change the text color of tooltip here
+              color: mode == "light" ? "#333" : "#eee", // Change the text color of tooltip here
             },
           },
         }}
@@ -190,7 +190,7 @@ const OverallPie = ({ solo = false, type, basis = "Employment" }) => {
                 style={{
                   fontSize: solo ? "5rem" : "1.5rem",
                   fontWeight: "bold",
-                  fill: mode == "light" ? "#333333" : "#fff",
+                  fill: mode == "light" ? "#333333" : "#eee",
                 }}
               >
                 {percentageDict.percentage}%
@@ -202,7 +202,7 @@ const OverallPie = ({ solo = false, type, basis = "Employment" }) => {
                 dominantBaseline="middle"
                 style={{
                   fontSize: solo ? "1.75rem" : "0.5rem",
-                  fill: mode == "light" ? "#333333" : "#fff",
+                  fill: mode == "light" ? "#333333" : "#eee",
                 }}
               >
                 Majority are
@@ -218,7 +218,7 @@ const OverallPie = ({ solo = false, type, basis = "Employment" }) => {
                       ? "0.9rem"
                       : "1.75rem"
                     : "0.5rem",
-                  fill: mode == "light" ? "#333333" : "#fff",
+                  fill: mode == "light" ? "#333333" : "#eee",
                 }}
               >
                 {percentageDict.label}

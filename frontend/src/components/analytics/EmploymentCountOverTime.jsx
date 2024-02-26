@@ -58,7 +58,7 @@ const EmploymentCountOverTime = () => {
         },
         tooltip: {
           container: {
-            background: mode == "light" ? "#fff" : "#333", // Change the text color of tooltip here
+            background: mode == "light" ? "#eee" : "#333", // Change the text color of tooltip here
             color: mode == "light" ? "#333" : "#DCE1E7", // Change the text color of tooltip here
           },
         },

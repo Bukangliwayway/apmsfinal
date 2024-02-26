@@ -107,7 +107,7 @@ const WorkAlignmentLine = ({ solo = false }) => {
           },
           tooltip: {
             container: {
-              background: mode == "light" ? "#fff" : "#333",
+              background: mode == "light" ? "#eee" : "#333",
               color: mode == "light" ? "#333" : "#DCE1E7",
             },
           },

@@ -64,7 +64,7 @@ const ClassificationEmploymentRate = ({ solo = false }) => {
             style={{
               padding: "0.5rem",
               color: mode == "light" ? "#333" : "#DCE1E7",
-              background: mode == "light" ? "#fff" : "#333",
+              background: mode == "light" ? "#eee" : "#333",
               gap: 1,
             }}
           >
@@ -106,7 +106,7 @@ const ClassificationEmploymentRate = ({ solo = false }) => {
           },
           tooltip: {
             container: {
-              background: mode == "light" ? "#fff" : "#333",
+              background: mode == "light" ? "#eee" : "#333",
               color: mode == "light" ? "#333" : "#DCE1E7",
             },
           },
