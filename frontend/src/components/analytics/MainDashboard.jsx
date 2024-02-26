@@ -121,7 +121,7 @@ const MainDashboard = () => {
                     backgroundColor: (theme) => theme.palette.primary.light,
                   },
                 }}
-                onClick={() => navigate("/dashboard/employments")}
+                onClick={() => navigate("/dashboard/response-rate")}
                 height={"100%"}
               >
                 <OverallPie type={"employment status"} />

@@ -1,10 +1,23 @@
-import { AppBar, Avatar, Box, Toolbar, Typography } from "@mui/material";
+import {
+  AppBar,
+  Avatar,
+  Box,
+  IconButton,
+  Toolbar,
+  Typography,
+} from "@mui/material";
 import AccountMenu from "../ui/AccountMenu";
-import { School, ModeNight, LightMode } from "@mui/icons-material/";
+import {
+  School,
+  ModeNight,
+  LightMode,
+  Menu,
+  MenuOpen,
+} from "@mui/icons-material/";
 import useAll from "../../hooks/utilities/useAll";
 
 const Navbar = () => {
-  const { mode, setMode } = useAll();
+  const { mode, setMode, toggleSideBar, setToggleSideBar } = useAll();
 
   return (
     <AppBar
@@ -13,9 +26,17 @@ const Navbar = () => {
       sx={{ backgroundColor: (theme) => theme.palette.common.main }}
     >
       <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-        <Box sx={{ display: "flex", flexDirection: "row" }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 2,
+          }}
+        >
           <Avatar
-            sx={{ width: 32, height: 32, mr: 1 }}
+            sx={{ width: 39, height: 39 }}
             src={
               "https://www.clipartmax.com/png/full/70-708931_the-pup-logo-polytechnic-university-of-the-philippines-logo.png"
             }
@@ -23,13 +44,36 @@ const Navbar = () => {
           <Typography
             variant="h5"
             sx={{
-              display: { xs: "none", sm: "block" },
               fontWeight: 700,
               color: "text.primary",
+              transition: "visibility  1s", // Include transition for max-width
             }}
+            style={
+              toggleSideBar
+                ? {
+                    visibility: "hidden",
+                    opacity: 0,
+                    width: 0,
+                  }
+                : {
+                    visibility: "visible",
+                    opacity: 1,
+                    width: "auto", // Use "auto" or a specific width value that suits your layout
+                  }
+            }
           >
             PUPQC APMS
           </Typography>
+          <IconButton
+            size="large"
+            onClick={() => setToggleSideBar(!toggleSideBar)}
+          >
+            {toggleSideBar ? (
+              <Menu sx={{ fontSize: "2rem" }} />
+            ) : (
+              <MenuOpen sx={{ fontSize: "2rem" }} />
+            )}
+          </IconButton>
         </Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <Box

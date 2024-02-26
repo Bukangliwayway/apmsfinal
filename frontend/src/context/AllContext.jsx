@@ -5,6 +5,7 @@ const AllContext = createContext({});
 
 export const AllProvider = ({ children }) => {
   const [expiredToken, setExpiredToken] = useState(false);
+  const [toggleSideBar, setToggleSideBar] = useState(false);
   const [auth, setAuth] = useState({}); // for saving the user details
   const [message, setMessage] = useState(""); // for the alert message
   const [severity, setSeverity] = useState("error"); // for setting the severity of the alert
@@ -24,6 +25,8 @@ export const AllProvider = ({ children }) => {
       value={{
         auth,
         setAuth,
+        toggleSideBar,
+        setToggleSideBar,
         persist,
         setPersist,
         mode,

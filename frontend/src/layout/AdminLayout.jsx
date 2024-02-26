@@ -1,53 +1,44 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../components/navigator/Navbar";
-import { Box, Grid, IconButton } from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
+import { Box, Grid, IconButton, Stack } from "@mui/material";
 import AdminSidebar from "../components/navigator/AdminSidebar";
+import useAll from "../hooks/utilities/useAll";
 function AdminLayout({ children }) {
   const [sidebarWidth, setSidebarWidth] = useState(15);
-  const [open, setOpen] = useState(false);
+  const { toggleSideBar } = useAll();
 
-  const handleDrawerToggle = () => {
-    if (!open) {
-      setOpen(true);
-      setSidebarWidth(5);
-    } else {
-      setOpen(false);
-      setSidebarWidth(15);
-    }
-  };
+  useEffect(() => {
+    setSidebarWidth(toggleSideBar ? 5 : 15);
+  }, [toggleSideBar]);
 
   return (
     <Box>
       <Navbar />
-      <Grid container>
-        <Grid
-          item
+      <Stack>
+        <Box
           position="fixed"
           sx={{
             display: "flex",
             flexDirection: "column",
+            transition: "width  1s, max-width  1s", // Include transition for max-width
+            width: `${sidebarWidth}%`,
+            maxWidth: `${sidebarWidth}%`, // Example:  15% of viewport width
+            overflow: "hidden",
           }}
-          width={sidebarWidth + "%"}
-          p={open ? "0" : "0.5rem"}
-          pt="0.5rem"
+          pt="1.5rem"
         >
-          <IconButton
-            onClick={handleDrawerToggle}
-            sx={{
-              width: "3rem",
-              ...(open ? { marginX: "auto" } : { marginLeft: "auto" }),
-              mb: "1rem",
-            }}
-          >
-            <MenuIcon sx={{ fontSize: "2rem" }} />
-          </IconButton>
-          <AdminSidebar mode={open} />
-        </Grid>
-        <Grid item xs={open ? 11.4 : 10.2} ml={sidebarWidth + "%"}>
-          <Box sx={{ minHeight: "100vh" }}>{children}</Box>
-        </Grid>
-      </Grid>
+          <AdminSidebar mode={toggleSideBar} />
+        </Box>
+        <Box
+          ml={sidebarWidth + "%"}
+          sx={{
+            overflow: "hidden",
+            transition: "margin  0.5s", // Include transition for max-width
+          }}
+        >
+          <Box>{children}</Box>
+        </Box>
+      </Stack>
     </Box>
   );
 }

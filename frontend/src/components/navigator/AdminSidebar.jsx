@@ -3,6 +3,7 @@ import {
   Announcement,
   Article,
   Business,
+  BusinessCenter,
   CheckCircle,
   CloudUpload,
   Event,
@@ -46,6 +47,7 @@ function AdminSidebar({ mode }) {
     accounts: false,
     posts: false,
   });
+
   const centerFlex = {
     display: "flex",
     alignItems: "center",
@@ -72,7 +74,7 @@ function AdminSidebar({ mode }) {
 
   return (
     <Box>
-      <List component="Box">
+      <List>
         <RouterLink
           to="/home"
           style={{ textDecoration: "none", color: "inherit" }}
@@ -90,41 +92,23 @@ function AdminSidebar({ mode }) {
                   }}
                 />
               </ListItemIcon>
-              {!mode && (
-                <ListItemText
-                  primary={
-                    <Typography variant="body1" fontWeight={"bold"}>
-                      Dashboard
-                    </Typography>
-                  }
-                />
-              )}
+              <ListItemText
+                primary={
+                  <Typography variant="body1" fontWeight={"bold"}>
+                    Dashboard
+                  </Typography>
+                }
+                style={
+                  mode
+                    ? { visibility: "hidden", opacity: 0 }
+                    : { visibility: "visible", opacity: 1 }
+                }
+              />
             </ListItemButton>
           </ListItem>
         </RouterLink>
         {!mode && (
           <Collapse in={open?.dashboard || false}>
-            <List component="Box">
-              <RouterLink
-                to="/dashboard/overalls"
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <ListItem disablePadding>
-                  <ListItemButton sx={{ ...centerFlex }}>
-                    <ListItemIcon sx={{ ...centerFlex, marginLeft: "1rem" }}>
-                      <PieChart sx={{ textAlign: "center" }} />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={
-                        <Typography variant="body1" fontWeight={"bold"}>
-                          Overalls
-                        </Typography>
-                      }
-                    />
-                  </ListItemButton>
-                </ListItem>
-              </RouterLink>
-            </List>
             <List component="Box">
               <RouterLink
                 to="/dashboard/employments"
@@ -133,12 +117,12 @@ function AdminSidebar({ mode }) {
                 <ListItem disablePadding>
                   <ListItemButton sx={{ ...centerFlex }}>
                     <ListItemIcon sx={{ ...centerFlex, marginLeft: "1rem" }}>
-                      <Label sx={{ textAlign: "center" }} />
+                      <BusinessCenter sx={{ textAlign: "center" }} />
                     </ListItemIcon>
                     <ListItemText
                       primary={
                         <Typography variant="body1" fontWeight={"bold"}>
-                          Jobs Rate
+                          Employments
                         </Typography>
                       }
                     />
@@ -154,12 +138,12 @@ function AdminSidebar({ mode }) {
                 <ListItem disablePadding>
                   <ListItemButton sx={{ ...centerFlex }}>
                     <ListItemIcon sx={{ ...centerFlex, marginLeft: "1rem" }}>
-                      <CheckCircle sx={{ textAlign: "center" }} />
+                      <People sx={{ textAlign: "center" }} />
                     </ListItemIcon>
                     <ListItemText
                       primary={
                         <Typography variant="body1" fontWeight={"bold"}>
-                          Responses
+                          Profiles
                         </Typography>
                       }
                     />
@@ -176,25 +160,26 @@ function AdminSidebar({ mode }) {
           <ListItem disablePadding>
             <ListItemButton
               onClick={!mode ? () => handleClick("posts") : undefined}
-              sx={centerFlex}
             >
               <ListItemIcon sx={centerFlex}>
                 <Hub
                   sx={{
                     fontSize: mode && "2rem",
-                    textAlign: "center",
                   }}
                 />
               </ListItemIcon>
-              {!mode && (
-                <ListItemText
-                  primary={
-                    <Typography variant="body1" fontWeight={"bold"}>
-                      PUP Feeds
-                    </Typography>
-                  }
-                />
-              )}
+              <ListItemText
+                primary={
+                  <Typography variant="body1" fontWeight={"bold"}>
+                    PUP Feeds
+                  </Typography>
+                }
+                style={
+                  mode
+                    ? { visibility: "hidden", opacity: 0 }
+                    : { visibility: "visible", opacity: 1 }
+                }
+              />
             </ListItemButton>
           </ListItem>
         </RouterLink>
@@ -284,27 +269,6 @@ function AdminSidebar({ mode }) {
                 </ListItem>
               </RouterLink>
             </List>
-            {/* <List component="Box">
-              <RouterLink
-                to="/pup-feeds/fundraising/donations"
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <ListItem disablePadding>
-                  <ListItemButton sx={{ ...centerFlex }}>
-                    <ListItemIcon sx={{ ...centerFlex, marginLeft: "1rem" }}>
-                      <Payment sx={{ textAlign: "center" }} />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={
-                        <Typography variant="body1" fontWeight={"bold"}>
-                          Donations
-                        </Typography>
-                      }
-                    />
-                  </ListItemButton>
-                </ListItem>
-              </RouterLink>
-            </List> */}
           </Collapse>
         )}
         <RouterLink
@@ -324,15 +288,18 @@ function AdminSidebar({ mode }) {
                 }}
               />
             </ListItemIcon>
-            {!mode && (
-              <ListItemText
-                primary={
-                  <Typography variant="body1" fontWeight={"bold"}>
-                    Accounts
-                  </Typography>
-                }
-              />
-            )}
+            <ListItemText
+              primary={
+                <Typography variant="body1" fontWeight={"bold"}>
+                  Accounts
+                </Typography>
+              }
+              style={
+                mode
+                  ? { visibility: "hidden", opacity: 0 }
+                  : { visibility: "visible", opacity: 1 }
+              }
+            />
           </ListItemButton>
         </RouterLink>
         {!mode && (
@@ -510,15 +477,18 @@ function AdminSidebar({ mode }) {
                 }}
               />
             </ListItemIcon>
-            {!mode && (
-              <ListItemText
-                primary={
-                  <Typography variant="body1" fontWeight={"bold"}>
-                    Selections
-                  </Typography>
-                }
-              />
-            )}
+            <ListItemText
+              primary={
+                <Typography variant="body1" fontWeight={"bold"}>
+                  Selections
+                </Typography>
+              }
+              style={
+                mode
+                  ? { visibility: "hidden", opacity: 0 }
+                  : { visibility: "visible", opacity: 1 }
+              }
+            />
           </ListItemButton>
         </RouterLink>
         {!mode && (
@@ -602,15 +572,18 @@ function AdminSidebar({ mode }) {
                   }}
                 />
               </ListItemIcon>
-              {!mode && (
-                <ListItemText
-                  primary={
-                    <Typography variant="body1" fontWeight={"bold"}>
-                      My Profile
-                    </Typography>
-                  }
-                />
-              )}
+              <ListItemText
+                primary={
+                  <Typography variant="body1" fontWeight={"bold"}>
+                    My Profile
+                  </Typography>
+                }
+                style={
+                  mode
+                    ? { visibility: "hidden", opacity: 0 }
+                    : { visibility: "visible", opacity: 1 }
+                }
+              />
             </ListItemButton>
           </ListItem>
         </RouterLink>
