@@ -30,6 +30,7 @@ const SoloView = ({ type, dashboard = "Employment" }) => {
     "Civil Status",
     "Gender",
     "Response Rate",
+    "Monthly Income",
     "Employment Status",
   ];
 

@@ -142,7 +142,7 @@ const RoleBasedRoutes = () => {
         path="dashboard/employmentstatus"
         element={
           <MainLayout mode="admin">
-            <SoloView type={"Employment Status"} dashboard="Profile"/>
+            <SoloView type={"Employment Status"} dashboard="Profile" />
           </MainLayout>
         }
       />
@@ -150,7 +150,7 @@ const RoleBasedRoutes = () => {
         path="dashboard/gender"
         element={
           <MainLayout mode="admin">
-            <SoloView type={"Gender"} dashboard="Profile"/>
+            <SoloView type={"Gender"} dashboard="Profile" />
           </MainLayout>
         }
       />
@@ -158,7 +158,7 @@ const RoleBasedRoutes = () => {
         path="dashboard/civilstatus"
         element={
           <MainLayout mode="admin">
-            <SoloView type={"Civil Status"} dashboard="Profile"/>
+            <SoloView type={"Civil Status"} dashboard="Profile" />
           </MainLayout>
         }
       />
@@ -166,7 +166,7 @@ const RoleBasedRoutes = () => {
         path="dashboard/responserate"
         element={
           <MainLayout mode="admin">
-            <SoloView type={"Response Rate"} dashboard="Profile"/>
+            <SoloView type={"Response Rate"} dashboard="Profile" />
           </MainLayout>
         }
       />
@@ -175,6 +175,14 @@ const RoleBasedRoutes = () => {
         element={
           <MainLayout mode="admin">
             <SoloView type={"Employment Contract"} />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="dashboard/monthlyincome"
+        element={
+          <MainLayout mode="admin">
+            <SoloView type={"Monthly Income"} />
           </MainLayout>
         }
       />

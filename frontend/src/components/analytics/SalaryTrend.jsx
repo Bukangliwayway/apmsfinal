@@ -80,7 +80,7 @@ const SalaryTrend = ({ solo = false }) => {
           (key) => key !== "date_name"
         )}
         indexBy="date_name"
-        margin={{ top: 20, right: 20, bottom: 50, left: 50 }}
+        margin={{ top: 20, right: 20, bottom: 60, left: 50 }}
         padding={0.1}
         layout={"vertical"}
         groupMode="stacked"

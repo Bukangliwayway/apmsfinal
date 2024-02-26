@@ -39,17 +39,18 @@ const CourseLowestResponseRate = ({ solo = false }) => {
     isLoading: isLoadingCourseLowestResponseRate,
   } = useCourseLowestResponseRate();
 
-  if (isLoadingCourseLowestResponseRate) {
+  if (isLoadingCourseLowestResponseRate || !courseLowestResponseRate) {
     return (
-      <Box>
+      <Box width={"100%"} height={"100%"}>
         <Skeleton variant="rectangular" width={"100%"} height={"100%"} />
       </Box>
     );
   }
+
   return (
     <Box padding={2}>
-      <Typography variant={"body2"} sx={{ fontWeight: "800" }}>
-        Lowest Course Response Rates this Year:
+      <Typography variant={"subtitle1"} sx={{ fontWeight: "800" }}>
+        Lowest Response Rates from the Recent Year:
       </Typography>
       <List sx={{ display: "flex", flexDirection: "column" }} dense={!solo}>
         {courseLowestResponseRate?.data

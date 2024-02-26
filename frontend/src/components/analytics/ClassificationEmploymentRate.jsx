@@ -84,7 +84,7 @@ const ClassificationEmploymentRate = ({ solo = false }) => {
             key !== "classification_name" && key !== "classification_code"
         )}
         indexBy="classification_code"
-        margin={{ top: 20, right: 20, bottom: 50, left: 50 }}
+        margin={{ top: 20, right: 20, bottom: 60, left: 50 }}
         padding={0.1}
         layout={"vertical"}
         groupMode="stacked"
