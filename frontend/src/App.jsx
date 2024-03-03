@@ -27,7 +27,7 @@ const App = () => {
       },
       primary: {
         main: "#0054a6",
-        light: '#ECEEF1'
+        light: "#ECEEF1",
       },
       text: {
         primary: "#182433",
@@ -37,7 +37,7 @@ const App = () => {
       MuiCard: {
         styleOverrides: {
           root: {
-            backgroundColor: '#fff', // Set your desired background color for all cards
+            backgroundColor: "#fff", // Set your desired background color for all cards
           },
         },
       },
@@ -141,7 +141,7 @@ const App = () => {
               }
             />
             <Route
-              path=""
+              path="/"
               element={
                 <MainLayout>
                   <Login />
