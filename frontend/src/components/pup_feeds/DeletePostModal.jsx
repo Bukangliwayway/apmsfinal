@@ -39,7 +39,7 @@ const DeletePostModal = ({ open, onClose, feedID, exit = false }) => {
         setSeverity("error");
       },
       onSuccess: () => {
-        queryClient.invalidateQueries(["comment-post", postID]);
+        queryClient.invalidateQueries(["comment-post", feedID]);
         queryClient.invalidateQueries((queryKey, queryFn) => {
           return queryKey.includes("post-specific");
         });
