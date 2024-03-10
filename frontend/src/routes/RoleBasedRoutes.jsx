@@ -522,8 +522,11 @@ const RoleBasedRoutes = () => {
       </Routes>
     );
   } else {
-    return <Route path="*" element={<Missing />} />;
-  }
+    return (
+      <Routes>
+        <Route path="*" element={<Missing />} />;
+      </Routes>
+    );  }
 };
 
 export default RoleBasedRoutes;

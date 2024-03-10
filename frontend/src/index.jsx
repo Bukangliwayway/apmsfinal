@@ -1,10 +1,6 @@
 import { QueryClientProvider, QueryClient } from "react-query";
 import {
-  BrowserRouter,
-  Routes,
-  Route,
-  useLocation,
-  useNavigate,
+  HashRouter,
 } from "react-router-dom";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -29,17 +25,15 @@ const queryClient = new QueryClient({
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <BrowserRouter>
+    <HashRouter>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <QueryClientProvider client={queryClient}>
           <AllProvider>
-            <Routes>
-              <Route path="/*" element={<App />} />
-            </Routes>
+            <App />
             <ReactQueryDevtools position="bottom-right" initialIsOpen={false} />
           </AllProvider>
         </QueryClientProvider>
       </LocalizationProvider>
-    </BrowserRouter>
+    </HashRouter>
   </React.StrictMode>
 );
