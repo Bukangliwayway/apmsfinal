@@ -230,7 +230,7 @@ async def create_public_user(student_number: str = Form(None), email: str = Form
 
         new_user = models.User(
                     username=username,
-                    student_number=student_number,
+                    student_number = student_number if student_number and student_number != 'undefined' else None,
                     email=email,
                     birthdate=birthdate,
                     first_name=first_name,
