@@ -10,7 +10,7 @@ function ProfileLayout({ children, noquote }) {
   return (
     <Box>
       <Navbar />
-      <Grid container spacing={8}>
+      <Grid container>
         <Grid
           item
           position="fixed"
@@ -31,9 +31,10 @@ function ProfileLayout({ children, noquote }) {
           sx={{
             display: { sm: "none", md: "flex" },
             justifyContent: "center",
-
+            zIndex: -1,
             right: 0,
           }}
+          px={8}
           width={rightbarWidth + "vw"}
           height={"100vh"}
         >

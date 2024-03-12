@@ -29,7 +29,7 @@ async def create_jobs(
 
     for job_data in jobs:
         # Guard clause to check required keys and non-null values
-        required_keys = ["name", "code", "classification_ids"]
+        required_keys = ["name", "classification_ids"]
         if any(key not in job_data or job_data[key] is None for key in required_keys):
             raise HTTPException(status_code=400, detail="Missing required fields in job data")
 

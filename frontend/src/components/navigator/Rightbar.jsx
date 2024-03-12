@@ -71,7 +71,7 @@ function Rightbar() {
                 textAlign={"center"}
                 fontWeight={"700"}
                 textTransform={"uppercase"}
-                px={3}
+                mx={3}
               >
                 Unverified Alumni
               </Typography>
