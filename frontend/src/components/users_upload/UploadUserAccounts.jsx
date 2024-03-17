@@ -1,10 +1,4 @@
-import {
-  Box,
-  Grid,
-  Tab,
-  Tabs,
-  Typography,
-} from "@mui/material";
+import { Box, Grid, Tab, Tabs, Typography } from "@mui/material";
 import React, { useState } from "react";
 import {
   GroupAdd,
@@ -50,10 +44,12 @@ export const UploadProfiles = () => {
     >
       <Box
         position="sticky"
-        top={63}
+        // top={63}
         zIndex={1000}
         borderBottom="1px solid rgba(0, 0, 0, 0.12)"
-        sx={{ backgroundColor: (theme) => theme.palette.common.main }}
+        sx={{
+          backgroundColor: (theme) => theme.palette.common.main,
+        }}
       >
         <Tabs value={value} onChange={handleChange} variant="scrollable">
           <Tab
@@ -113,7 +109,6 @@ export const UploadProfiles = () => {
             backgroundColor: (theme) => theme.palette.common.main,
             padding: 2,
             borderRadius: 3,
-            minHeight: "88vh",
             position: "relative",
             opacity: activeTab === "display_all" ? 1 : 0,
             display: activeTab === "display_all" ? "flex" : "none",
@@ -123,7 +118,7 @@ export const UploadProfiles = () => {
           id="display_all"
         >
           <Grid item xs={12}>
-          <Typography
+            <Typography
               fontWeight={800}
               sx={{
                 padding: "10px",
@@ -144,7 +139,6 @@ export const UploadProfiles = () => {
             backgroundColor: (theme) => theme.palette.common.main,
             padding: 2,
             borderRadius: 3,
-            minHeight: "88vh",
             position: "relative",
             opacity: activeTab === "pending_profiles" ? 1 : 0,
             display: activeTab === "pending_profiles" ? "flex" : "none",
@@ -153,9 +147,8 @@ export const UploadProfiles = () => {
           }}
           id="pending_profiles"
         >
-
           <Grid item xs={12}>
-          <Typography
+            <Typography
               fontWeight={800}
               sx={{
                 padding: "10px",
@@ -351,7 +344,6 @@ export const UploadProfiles = () => {
             backgroundColor: (theme) => theme.palette.common.main,
             padding: 2,
             borderRadius: 3,
-            minHeight: "88vh",
             position: "relative",
             opacity: activeTab === "upload_history" ? 1 : 0,
             display: activeTab === "upload_history" ? "flex" : "none",
@@ -361,7 +353,7 @@ export const UploadProfiles = () => {
           id="upload_history"
         >
           <Grid item xs={12}>
-          <Typography
+            <Typography
               fontWeight={800}
               sx={{
                 padding: "10px",

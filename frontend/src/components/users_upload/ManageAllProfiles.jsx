@@ -3,7 +3,6 @@ import { Box, Fab, Grid, Paper, Tooltip, Typography } from "@mui/material";
 import AllProfileDataGrid from "./AllProfileDataGrid";
 
 export const ManageAllProfiles = () => {
-
   return (
     <Box
       flex={4}
@@ -20,7 +19,6 @@ export const ManageAllProfiles = () => {
           backgroundColor: (theme) => theme.palette.common.main,
           padding: 2,
           borderRadius: 3,
-          minHeight: "88vh",
           display: "flex",
           gap: 2,
           transition: "opacity 0.5s ease-in-out",

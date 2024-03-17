@@ -1,19 +1,6 @@
-import {
-  Box,
-  Fab,
-  Paper,
-  Tab,
-  Tabs,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Box, Fab, Paper, Tab, Tabs, Tooltip, Typography } from "@mui/material";
 import React, { useState } from "react";
-import {
-  Add,
-  Business,
-  Label,
-  MenuBook,
-} from "@mui/icons-material";
+import { Add, Business, Label, MenuBook } from "@mui/icons-material";
 import ClassificationsRow from "./ClassificationsRow";
 import CoursesRow from "./CoursesRow";
 import JobsRow from "./JobsRow";
@@ -49,7 +36,6 @@ export const ManageSelections = () => {
     }));
   };
 
-
   return (
     <Box>
       <Box
@@ -63,7 +49,6 @@ export const ManageSelections = () => {
       >
         <Box
           position="sticky"
-          top={63}
           zIndex={1000}
           bgcolor="inherit"
           borderBottom="1px solid rgba(0, 0, 0, 0.12)"

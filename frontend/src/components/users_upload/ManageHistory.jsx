@@ -19,7 +19,6 @@ export const ManageUploadHistory = () => {
           backgroundColor: (theme) => theme.palette.common.main,
           padding: 2,
           borderRadius: 3,
-          minHeight: "88vh",
           display: "flex",
           gap: 2,
           transition: "opacity 0.5s ease-in-out",

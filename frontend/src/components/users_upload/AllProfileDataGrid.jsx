@@ -79,7 +79,7 @@ const AllProfileDataGrid = () => {
   }));
 
   return (
-    <Box sx={{ height: "auto", width: "100%" }}>
+    <Box sx={{ width: "100%" }}>
       <DataGrid
         rows={all?.data}
         columns={columns}
