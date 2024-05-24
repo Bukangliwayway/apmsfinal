@@ -83,7 +83,7 @@ const ClassificationEmploymentRate = ({ solo = false }) => {
           (key) =>
             key !== "classification_name" && key !== "classification_code"
         )}
-        indexBy="classification_code"
+        indexBy="classification_name"
         margin={{ top: 20, right: 20, bottom: 60, left: 50 }}
         padding={0.1}
         layout={"vertical"}
@@ -125,11 +125,11 @@ const ClassificationEmploymentRate = ({ solo = false }) => {
         axisBottom={{
           tickSize: 5,
           tickPadding: 5,
-          tickRotation: -20,
+          tickRotation: -10,
           legend: "Job Classification Rate",
           legendPosition: "middle",
           legendOffset: 40,
-          truncateTickAt: 0,
+          truncateTickAt: solo ? 25 : 15,
         }}
         axisLeft={{
           tickSize: 5,
