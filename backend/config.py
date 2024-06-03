@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     POSTGRES_DB: str
     POSTGRES_HOST: str
     POSTGRES_HOSTNAME: str
-    PORT: int
+    // PORT: int
 
     JWT_PUBLIC_KEY: str
     JWT_PRIVATE_KEY: str
