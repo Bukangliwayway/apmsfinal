@@ -2,7 +2,8 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     DATABASE_URL: str
-    DATABASE_PORT: int
+    DATABASE_PORT: str
+    PORT: str | None = None
     POSTGRES_PASSWORD: str
     POSTGRES_USER: str
     POSTGRES_DB: str

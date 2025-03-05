@@ -91,6 +91,13 @@ async def access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     response: Response
 ):
+
+    if form_data.grant_type != "password":
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Invalid grant type. Must be 'password'"
+        )
+        
     user = utils.authenticate_user(username=form_data.username, password=form_data.password, db=db)
     if not user:
         raise HTTPException(

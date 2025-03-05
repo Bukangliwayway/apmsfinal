@@ -68,20 +68,35 @@ const Login = () => {
 
   const LoginMutation = useMutation(
     async (data) => {
-      const dataString =
-        "grant_type=&username=" +
-        data.username +
-        "&password=" +
-        data.password +
-        "&scope=&client_id=&client_secret=";
+      // Use URLSearchParams for safer parameter handling
+      const params = new URLSearchParams();
+      params.append("grant_type", "password");
+      params.append("username", data.username);
+      params.append("password", data.password);
 
       const axiosConfig = {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
-        withCredentials: true, // Set this to true for cross-origin requests with credentials
+        withCredentials: true,
       };
-      await axios.post(`/users/auth/token`, dataString, axiosConfig);
+
+      try {
+        const response = await axios.post(
+          `/users/auth/token`,
+          params.toString(),
+          axiosConfig
+        );
+        return response.data;
+      } catch (error) {
+        // Handle specific error cases
+        if (error.response) {
+          throw new Error(
+            error.response.data.detail || "Authentication failed"
+          );
+        }
+        throw new Error("Network error occurred");
+      }
     },
     {
       onError: (error) => {
